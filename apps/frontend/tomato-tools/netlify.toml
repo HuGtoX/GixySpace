@@ -1,7 +1,3 @@
-[build]
-  command = "pnpm --filter '"@gixy/tomato-tools...' build"
-  publish = "apps/frontend/tomato-tools/dist"
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
