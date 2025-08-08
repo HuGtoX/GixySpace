@@ -5,7 +5,7 @@ import { z } from "zod";
 
 // 注册请求验证schema
 const registerSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  email: z.email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().optional(),
 });

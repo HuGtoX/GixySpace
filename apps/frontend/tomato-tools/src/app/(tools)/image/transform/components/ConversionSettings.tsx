@@ -63,6 +63,7 @@ const ConversionSettings = ({
             <Option value="png">PNG</Option>
             <Option value="webp">WEBP</Option>
             <Option value="svg">SVG</Option>
+            <Option value="ico">ICO</Option>
           </Select>
           {currentFormat && settings.format !== currentFormat && (
             <Typography.Text type="success" className="block mt-1">

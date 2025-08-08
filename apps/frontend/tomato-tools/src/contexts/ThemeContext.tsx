@@ -21,14 +21,28 @@ interface ThemeProviderProps {
 }
 
 const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  // 使用函数初始化形式，确保在组件初始化时就确定主题
+  // 服务端和客户端保持一致的初始值
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // 在客户端水合完成后，再从localStorage加载用户的主题偏好
   useEffect(() => {
-    const savedTheme = localStorage.getItem("isDarkMode");
-    const isDark = savedTheme ? JSON.parse(savedTheme) : false;
-    setIsDarkMode(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
+    setIsHydrated(true);
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem("isDarkMode");
+      if (savedTheme !== null) {
+        setIsDarkMode(JSON.parse(savedTheme));
+      }
+    }
   }, []);
+
+  // 只在水合完成后设置文档类名，避免水合过程中主题切换导致的className不匹配
+  useEffect(() => {
+    if (isHydrated) {
+      document.documentElement.classList.toggle("dark", isDarkMode);
+    }
+  }, [isDarkMode, isHydrated]);
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
@@ -36,11 +50,6 @@ const ThemeProvider = ({ children }: ThemeProviderProps) => {
     localStorage.setItem("isDarkMode", JSON.stringify(newTheme));
     document.documentElement.classList.toggle("dark", newTheme);
   };
-
-  // 避免服务端渲染和客户端渲染不一致
-  // if (!mounted) {
-  //   return <div>{children}</div>;
-  // }
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>

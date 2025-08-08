@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 
 export default function DailySentence() {
   const [yiyan, setYiyan] = useState<ResOrNull<Reuslt>>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchYiyan = async () => {
     // 尝试从本地存储获取数据
@@ -18,8 +18,8 @@ export default function DailySentence() {
       // 检查数据是否是今天的
       if (parsedData.date === dayjs().format("YYYY-MM-DD")) {
         setYiyan(parsedData);
+        return;
       }
-      return;
     }
     try {
       setLoading(true);

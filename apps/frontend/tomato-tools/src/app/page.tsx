@@ -15,10 +15,10 @@ const HomePage = () => {
         <section className="space-y-6 lg:col-span-7">
           <NewsSection />
         </section>
-        <section className="space-y-6 lg:col-span-3">
+        <section className="space-y-6 lg:col-span-5 xl:col-span-3">
           <Tools />
         </section>
-        <aside className="space-y-6 lg:col-span-2">
+        <aside className="space-y-6 lg:col-span-12 xl:col-span-2">
           <Aside />
         </aside>
       </main>

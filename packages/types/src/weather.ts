@@ -39,6 +39,7 @@ export interface WeatherResponse {
 		humidity: string;
 		feelsLike: string;
 		windScale: string;
+		obsTime: string;
 	};
 }
 

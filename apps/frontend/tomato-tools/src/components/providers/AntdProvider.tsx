@@ -1,11 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, theme, App as AntApp } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
 import zhCN from "antd/locale/zh_CN";
+import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
+
+// 确保dayjs使用正确的语言环境
+if (typeof window !== "undefined") {
+  dayjs.locale("zh-cn");
+}
 
 interface AntdProviderProps {
   children: React.ReactNode;
@@ -55,20 +61,35 @@ const componentsTheme = (isDarkMode: boolean) => ({
 
 const AntdProvider = ({ children }: AntdProviderProps) => {
   const { isDarkMode } = useTheme();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // 确保在客户端执行
+    setIsClient(true);
+  }, []);
+
+  // 服务端渲染时使用默认浅色主题
+  const themeConfig = isClient
+    ? {
+        algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: {
+          colorPrimary: "#FF6347",
+          colorBgSpotlight: "rgba(0,0,0,0.7)",
+        },
+        components: componentsTheme(isDarkMode),
+      }
+    : {
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          colorPrimary: "#FF6347",
+          colorBgSpotlight: "rgba(0,0,0,0.7)",
+        },
+        components: componentsTheme(false),
+      };
 
   return (
     <AntdRegistry>
-      <ConfigProvider
-        locale={zhCN}
-        theme={{
-          algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-          token: {
-            colorPrimary: "#FF6347",
-            colorBgSpotlight: "rgba(0,0,0,0.7)",
-          },
-          components: componentsTheme(isDarkMode),
-        }}
-      >
+      <ConfigProvider locale={zhCN} theme={themeConfig}>
         <AntApp>
           <div>{children}</div>
         </AntApp>

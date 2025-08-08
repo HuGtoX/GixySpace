@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { UserService } from "../user/user.service";
 import { createModuleLogger } from "@/lib/logger";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
 const log = createModuleLogger("auth-service");
 
@@ -65,7 +65,8 @@ export class AuthService {
           break; // 成功则跳出重试循环
         } catch (error: unknown) {
           retryCount++;
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
           this.logger.warn(
             {
               error: errorMessage,
@@ -157,7 +158,11 @@ export class AuthService {
     data: LoginData,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<{ user: SupabaseUser | null; error: string | null }> {
+  ): Promise<{
+    user: SupabaseUser | null;
+    session: Session | null;
+    error: string | null;
+  }> {
     this.logger.info({ email: data.email }, "User login attempt");
 
     try {
@@ -174,7 +179,7 @@ export class AuthService {
           { error: authError.message, email: data.email },
           "Login failed",
         );
-        return { user: null, error: authError.message };
+        return { user: null, session: null, error: authError.message };
       }
 
       if (authData.user && authData.session) {
@@ -200,10 +205,10 @@ export class AuthService {
         }
       }
 
-      return { user: authData.user, error: null };
+      return { user: authData.user, session: authData.session, error: null };
     } catch (error) {
       this.logger.error({ error, email: data.email }, "Login error");
-      return { user: null, error: "Login failed" };
+      return { user: null, session: null, error: "Login failed" };
     }
   }
 

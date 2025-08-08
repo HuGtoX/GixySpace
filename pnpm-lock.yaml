@@ -20,6 +20,9 @@ importers:
       ahooks:
         specifier: 3.0.0-alpha.18
         version: 3.0.0-alpha.18(react@19.1.0)
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13

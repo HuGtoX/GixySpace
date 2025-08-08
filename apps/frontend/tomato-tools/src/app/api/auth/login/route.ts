@@ -65,13 +65,22 @@ export async function POST(request: NextRequest) {
       "User logged in successfully",
     );
 
+    const { user, session } = result;
+
     return NextResponse.json(
       {
         message: "Login successful",
         user: {
-          id: result.user?.id,
-          email: result.user?.email,
-          emailConfirmed: result.user?.email_confirmed_at !== null,
+          id: user?.id,
+          email: user?.email,
+          emailConfirmed: user?.email_confirmed_at !== null,
+        },
+        session: {
+          access_token: session?.access_token,
+          refresh_token: session?.refresh_token,
+          token_type: session?.token_type,
+          expires_in: session?.expires_in,
+          expires_at: session?.expires_at,
         },
       },
       {

@@ -66,6 +66,12 @@
 - 使用TypeScript保证类型安全
 - 遵循ESLint和Prettier规范
 - 代码注释清晰，便于维护
+- 图标引入方式如下：
+// 不要这样：
+import { FaCalendar } from 'react-icons/fa'
+// 应该这样：
+import FaCalendar from "react-icons/fa/FaCalendar";
+
 
 ## 主题与样式
 

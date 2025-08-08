@@ -1,90 +1,65 @@
-import React from 'react';
-import Image from 'next/image';
-import NewsCard from './News/NewsCard';
-import { FaWeibo, FaZhihu } from 'react-icons/fa';
+import React, { useState } from "react";
+import { Tabs } from "antd";
+import NewsCard from "./News/HotCard";
+import DailyNews from "./News/DailyNews";
+// 注意：此处引用路径已更改为HotConfig，请确保该文件存在
+import { newsPlatforms, dailyNewsConfig } from "./News/HotConfig";
 
 const NewsSection = () => {
-	const weiboItems = {
-		id: 'weibo',
-		title: '微博热搜榜',
-		color: 'text-weibo',
-		bg: 'bg-weibo-60',
-		icon: <FaWeibo />
-	};
-	const zhihuItems = {
-		id: 'zhihu',
-		title: '知乎热搜榜',
-		color: 'text-zhihu',
-		bg: 'bg-zhihu-60',
-		icon: <FaZhihu />
-	};
-	const juejinItems = {
-		id: 'juejin',
-		title: '掘金热搜榜',
-		color: 'text-juejin',
-		bg: 'bg-juejin-60',
-		icon: <Image src='/icon/juejin.svg' alt='掘金' width={20} height={20} />
-	};
+  // 当前激活的tab键
+  const [activeKey, setActiveKey] = useState("hot");
 
-	const douyinItems = {
-		id: 'douyin',
-		title: '抖音热搜榜',
-		color: 'text-douyin',
-		bg: 'bg-douyin-60',
-		icon: <Image src='/icon/douyin.png' alt='抖音' width={20} height={20} />
-	};
-	const xueqiuItems = {
-		id: 'xueqiu',
-		title: '雪球热搜榜',
-		color: 'text-xueqiu',
-		bg: 'bg-xueqiu-60',
-		icon: <Image src='/icon/xueqiu.png' alt='雪球' width={20} height={20} />
-	};
+  // 处理tab切换
+  const handleTabChange = (key: string) => {
+    setActiveKey(key);
+  };
 
-	return (
-		<>
-			<div className='flex items-center justify-between'>
-				<h2 className='text-xl font-semibold'>热点资讯</h2>
-			</div>
-			<div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-				<NewsCard
-					title={weiboItems.title}
-					type={weiboItems.id}
-					bg={weiboItems.bg}
-					icon={weiboItems.icon}
-					color={weiboItems.color}
-				/>
-				<NewsCard
-					title={zhihuItems.title}
-					type={zhihuItems.id}
-					bg={zhihuItems.bg}
-					icon={zhihuItems.icon}
-					color={zhihuItems.color}
-				/>
-				<NewsCard
-					title={douyinItems.title}
-					type={douyinItems.id}
-					bg={douyinItems.bg}
-					icon={douyinItems.icon}
-					color={douyinItems.color}
-				/>
-				<NewsCard
-					title={xueqiuItems.title}
-					type={xueqiuItems.id}
-					bg={xueqiuItems.bg}
-					icon={xueqiuItems.icon}
-					color={xueqiuItems.color}
-				/>
-				<NewsCard
-					title={juejinItems.title}
-					type={juejinItems.id}
-					bg={juejinItems.bg}
-					icon={juejinItems.icon}
-					color={juejinItems.color}
-				/>
-			</div>
-		</>
-	);
+  // 配置标签页项
+  const items = [
+    {
+      key: "hot",
+      label: "热搜榜",
+      children: (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {newsPlatforms.slice(0, 5).map((platform) => (
+            <NewsCard
+              key={platform.id}
+              title={platform.title}
+              type={platform.id}
+              bg={platform.bg}
+              icon={platform.icon}
+              color={platform.color}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: "daily",
+      label: (
+        <div className="flex items-center">
+          <span>{dailyNewsConfig?.title || "每日新闻"}</span>
+        </div>
+      ),
+      children: <DailyNews />,
+    },
+  ];
+
+  return (
+    <div className="mb-8">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">热点资讯</h2>
+      </div>
+
+      {/* 热点资讯Tab栏 - Ant Design 5 推荐写法 */}
+      <Tabs
+        activeKey={activeKey}
+        onChange={handleTabChange}
+        items={items}
+        tabBarStyle={{ marginBottom: "16px" }}
+      />
+    </div>
+  );
 };
 
 export default NewsSection;

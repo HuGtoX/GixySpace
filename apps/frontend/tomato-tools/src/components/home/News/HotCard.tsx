@@ -5,21 +5,7 @@ import Image from "next/image";
 import ActionButton from "@/components/ActionButton";
 import axios from "@/lib/axios";
 import { useRequest } from "ahooks";
-
-// 定义新闻项类型
-interface NewsItem {
-  id: string;
-  title: string;
-  extra?: {
-    icon?: {
-      url: string;
-      scale: number;
-    };
-    info?: string;
-  };
-  url: string;
-  mobileUrl: string;
-}
+import { SixtySecondsData } from "@gixy/types";
 
 interface NewsCardProps {
   title: string;
@@ -30,11 +16,11 @@ interface NewsCardProps {
 }
 
 const NewsCard = ({ title, icon, bg, type, color }: NewsCardProps) => {
-  const [items, setItems] = useState<NewsItem[]>([]);
+  const [items, setItems] = useState<SixtySecondsData[]>([]);
   const { loading, runAsync: fetchNews } = useRequest(
     async () => {
       const response = await axios.get(`/api/news/${type}`);
-      return response as NewsItem[];
+      return response as SixtySecondsData[];
     },
     { manual: true },
   );
