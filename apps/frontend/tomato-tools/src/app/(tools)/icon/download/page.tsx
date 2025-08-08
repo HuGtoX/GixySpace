@@ -171,6 +171,7 @@ const IconDownloader = () => {
                     }
                     actions={[
                       <Button
+                        key={`download`}
                         type="primary"
                         icon={<DownloadOutlined />}
                         onClick={() => downloadIcon(item.url, item.size)}
@@ -191,7 +192,7 @@ const IconDownloader = () => {
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-gray-500 dark:text-gray-400">
               <div className="mb-3 text-4xl">🔍</div>
-              <p>尚未获取图标，请输入URL并点击'获取图标'按钮</p>
+              <p>{`尚未获取图标，请输入URL并点击'获取图标'按钮`}</p>
             </div>
           )}
         </div>

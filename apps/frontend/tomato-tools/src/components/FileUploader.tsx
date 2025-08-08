@@ -78,8 +78,8 @@ const FileUploader = ({
   }, [accept]);
 
   const acceptText = useMemo(() => {
-    let text = [];
-    for (let [key, value] of Object.entries(AcceptMap)) {
+    const text = [];
+    for (const [key, value] of Object.entries(AcceptMap)) {
       if (accept.includes(value as AcceptType)) {
         text.push(key);
       }
