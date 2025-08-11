@@ -1,0 +1,17 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# 获取暂存区变更文件
+changed_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+# 检测子项目变更
+run_task_for() {
+  project_dir=$1
+  if echo "$changed_files" | grep -q "^$project_dir/"; then
+    echo "🟢 检测到 $project_dir 变更，执行任务..."
+    (cd "$project_dir" && npm run lint)  # 使用子shell避免目录影响
+  fi
+}
+
+# 为需要lint的项目触发任务
+run_task_for "apps/frontend/tomato-tools"

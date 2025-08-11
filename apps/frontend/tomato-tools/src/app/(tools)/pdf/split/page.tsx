@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Layout, message, Button } from "antd";
 import {
   ScissorOutlined,
@@ -12,13 +12,11 @@ import {
 import Container from "@/components/layout/ToolsLayout/Container";
 import { downloadFile } from "@gixy/utils";
 import FileUploader from "@/components/FileUploader";
-import * as pdfjsLib from "pdfjs-dist";
 import { PDFDocument } from "pdf-lib";
 
+let pdfjsLib: any = null;
 const { Content } = Layout;
-if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
-}
+
 type Page = {
   id: number;
   canvas: string;
@@ -50,13 +48,24 @@ const generateRandomColor = () => {
 const PdfSplitPage = () => {
   const [pages, setPages] = useState<Pages>([]);
   const [pdfDoc, setPdfDoc] = useState<PDFDocument>();
-  const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [scale, setScale] = useState<number>(1);
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer>();
   const [partitions, setPartitions] = useState<Partition[]>([
     { id: 1, name: "分区1", color: "#1677ff" },
   ]);
   const [activePartitionId, setActivePartitionId] = useState<number>(1);
+
+  // 因为存在dom对象的操作，pdfjs包需要动态导入进行水合
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Import PDF.js...
+      import("pdfjs-dist").then((pdfjsObject) => {
+        pdfjsLib = pdfjsObject;
+        // Set the worker source...
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+      });
+    }
+  }, []);
 
   const addPartition = () => {
     const newId = Math.max(...partitions.map((p) => p.id), 0) + 1;
@@ -100,7 +109,6 @@ const PdfSplitPage = () => {
     setPages(
       pages.map((page) => ({ ...page, partitionId: null, selected: false })),
     );
-    setSelectedPages([]);
   };
 
   const handlePageSplit = async () => {
@@ -154,13 +162,6 @@ const PdfSplitPage = () => {
         }
         return page;
       }),
-    );
-
-    // 更新选中页面列表
-    setSelectedPages(
-      pages
-        .filter((page) => page.partitionId === activePartitionId)
-        .map((page) => page.pageNumber - 1),
     );
   };
 

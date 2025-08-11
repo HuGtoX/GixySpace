@@ -13,7 +13,8 @@
 		"build:utils": "pnpm --filter @gixy/utils build",
 		"build:types": "pnpm --filter @gixy/types build",
 		"s1": "pnpm --filter @gixy/fastify-learning dev",
-		"test:s1": "pnpm --filter @gixy/fastify-learning test"
+		"test:s1": "pnpm --filter @gixy/fastify-learning test",
+		"prepare": "husky"
 	},
 	"keywords": [],
 	"author": "",
@@ -30,6 +31,7 @@
 		"drizzle-kit": "^0.31.4",
 		"eslint": "^9.24.0",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"husky": "^9.1.7",
 		"lodash-es": "^4.17.21",
 		"prettier": "^3.5.3",
 		"prettier-plugin-tailwindcss": "^0.6.14",
