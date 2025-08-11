@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -18,7 +18,7 @@ const CodeRenderer: React.FC<CodeRendererProps> = ({
   onConsoleLog,
 }) => {
   const { isDarkMode } = useTheme();
-  
+
   useEffect(() => {
     // 如果iframe不存在就退出
     if (!iframeRef.current) return;
@@ -50,8 +50,6 @@ const CodeRenderer: React.FC<CodeRendererProps> = ({
         .replace(/\${/g, "\\${");
 
       const htmlContent = `
-        <!DOCTYPE html>
-        <html>
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -280,7 +278,6 @@ const CodeRenderer: React.FC<CodeRendererProps> = ({
             });
           </script>
         </body>
-        </html>
       `;
 
       doc.open();
