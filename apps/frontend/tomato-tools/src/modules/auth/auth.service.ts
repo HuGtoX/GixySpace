@@ -394,4 +394,11 @@ export class AuthService {
       return { error: "Failed to refresh session" };
     }
   }
+
+  // 获取用户会话
+  async getSession(): Promise<{ session: any | null; error: string | null }> {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getSession();
+    return { session: data.session, error: error?.message || null };
+  }
 }

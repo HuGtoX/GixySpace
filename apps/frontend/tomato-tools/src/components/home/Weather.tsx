@@ -5,10 +5,9 @@ import {
   FaWind,
   FaSun,
   FaCloud,
-  FaChevronDown,
   FaTint,
 } from "react-icons/fa";
-import { Button, Card, Divider, Select } from "antd";
+import { Button } from "antd";
 import SectionCard from "@/components/SectionCard";
 import type { WeatherData } from "@gixy/types";
 import "qweather-icons/font/qweather-icons.css"; // 引入天气图标样式

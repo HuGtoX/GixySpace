@@ -155,7 +155,7 @@ const DailyNews = () => {
               <Skeleton data={historyData?.items} loading={loading}>
                 <List
                   dataSource={displayHistory}
-                  renderItem={(item, index) => (
+                  renderItem={(item) => (
                     <List.Item className="border-none">
                       <div
                         onClick={() => {

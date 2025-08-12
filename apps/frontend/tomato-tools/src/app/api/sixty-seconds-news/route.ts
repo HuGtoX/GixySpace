@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { SixtySecondsData, HistoryTodayData } from "@gixy/types";
 import axios from "@/lib/axios";
 
@@ -7,7 +7,7 @@ export interface SixtySecondsResponse {
   history: HistoryTodayData;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const sixtyResult = await axios.get<SixtySecondsData>(
     "https://60s.viki.moe/v2/60s",
   );

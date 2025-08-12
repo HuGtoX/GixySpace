@@ -1,9 +1,20 @@
-export interface Todo {
+// 任务状态枚举
+ export type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+// 任务优先级枚举
+ export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+// 待办事项接口
+ export interface Todo {
 	id: string;
-	text: string;
+	userId: string;
+	title: string;
+	description?: string;
+	status: TodoStatus;
+	priority: TodoPriority;
+	dueDate?: string;
 	completed: boolean;
 	archived: boolean;
-	guestId: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -12,16 +23,24 @@ export interface Todo {
  * 创建新待办事项的请求参数
  */
 export interface TodoAddRequest {
-	text: string;
+	title: string;
+	description?: string;
+	priority?: TodoPriority;
+	dueDate?: string;
 }
 
 /**
- * 更新待办事项状态的请求参数
+ * 更新待办事项的请求参数
  */
 export interface TodoUpdateRequest {
 	id: string;
-	completed: boolean;
-	archived: boolean;
+	title?: string;
+	description?: string;
+	status?: TodoStatus;
+	priority?: TodoPriority;
+	dueDate?: string;
+	completed?: boolean;
+	archived?: boolean;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useState, useRef, DragEventHandler } from "react";
+import { useState, useRef } from "react";
 import { List, Button, Space } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { FaFilePdf } from "react-icons/fa";

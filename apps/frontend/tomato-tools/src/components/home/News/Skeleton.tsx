@@ -1,5 +1,5 @@
 import React from "react";
-import { Skeleton as AntSkeleton, Divider, List, Button } from "antd";
+import { Skeleton as AntSkeleton, Divider } from "antd";
 
 interface SkeletonProps {
   data?: any[];
