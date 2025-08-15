@@ -48,3 +48,5 @@ export const todoRelations = relations(todo, ({ one }) => ({
 // 类型导出
 export type Todo = typeof todo.$inferSelect;
 export type NewTodo = typeof todo.$inferInsert;
+export type AddTodo = Omit<NewTodo, "userId" | "createdAt" | "updatedAt">;
+export type UpdateTodo = Omit<NewTodo, "userId" | "createdAt">;

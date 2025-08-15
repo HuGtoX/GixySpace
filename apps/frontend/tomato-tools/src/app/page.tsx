@@ -2,7 +2,7 @@
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import NewsSection from "@/components/home/NewsSection";
+import NewsSection from "@/components/home/News";
 import Tools from "@/components/home/Tools";
 import Aside from "@/components/home/Aside";
 import Container from "@/components/layout/Container";

@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
+	"private": true,
 	"scripts": {
 		"dev": "pnpm --filter @gixy/bit-craft dev",
 		"build": "pnpm --filter '@gixy/bit-craft...' build",
@@ -20,6 +21,7 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
+		"@gixy/eslint-plugin-unused-imports": "workspace:^",
 		"@gixy/types": "workspace:^",
 		"@netlify/edge-functions": "^2.15.4",
 		"@skimhugo/eslint-config": "^0.2.8",

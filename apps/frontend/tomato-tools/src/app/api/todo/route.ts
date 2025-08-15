@@ -51,6 +51,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST request to /api/todo received');
+  console.log('Request headers:', request.headers);
   try {
     const dbClient = createDbClient();
     const authService = new AuthService();

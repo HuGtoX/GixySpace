@@ -8,7 +8,7 @@ const log = createModuleLogger("middleware");
 const protectedPaths = ["/dashboard", "/profile", "/settings"];
 
 // API接口路径中需要认证的
-const protectedApiPaths = ["/api/auth/me", "/api/auth/logout", "/api/user"];
+const protectedApiPaths = ["/api/auth/me", "/api/auth/logout", "/api/user", "/api/todo"];
 
 // 公开的认证相关页面路径
 const publicAuthPaths = [
@@ -22,6 +22,9 @@ const publicAuthPaths = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  log.info({ pathname, method: request.method }, "Request started");
+  log.debug({ headers: request.headers }, "Request headers");
 
   log.debug({ pathname }, "Middleware processing request");
 
@@ -43,6 +46,8 @@ export async function middleware(request: NextRequest) {
   if (isPublicAuthPath || (!isProtectedPath && !isProtectedApiPath)) {
     return response;
   }
+
+  log.info({ response }, "final response");
 
   // 对于需要认证的路径，检查用户是否已登录
   // 这里可以通过检查cookies中的session来判断

@@ -4,6 +4,7 @@ import type {
   AxiosInstance,
   AxiosResponse,
 } from "axios";
+import { message } from "antd";
 import { GuestID } from "@/config/constants";
 
 declare module "axios" {
@@ -53,8 +54,20 @@ instance.interceptors.response.use(
   function (error) {
     // 在浏览器环境中显示错误消息
     if (typeof window !== "undefined") {
-      // console.warn("API Error:", error.message);
-      // 可以在这里添加其他错误处理逻辑
+      console.warn("API Error:", error.message);
+      if (error.status === 401) {
+        message.open({
+          type: "error",
+          content: "用户未授权，请登录",
+          duration: 2,
+        });
+      } else {
+        message.open({
+          type: "error",
+          content: error.message,
+          duration: 2,
+        });
+      }
     }
     return Promise.reject(error);
   },

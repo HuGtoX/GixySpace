@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
     preloadEntriesOnStart: false,
     // 降低最大内存使用量，但可能会轻微增加编译时间。
     webpackMemoryOptimizations: true,
-
   },
   transpilePackages: ["antd"],
   // Webpack 缓存将生成的 Webpack 模块保存在内存和/或磁盘上以提高构建速度。
@@ -30,8 +29,8 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        // destination: "https://tools.sofun.fun/api/:path*",
-        destination: "http://127.0.0.1:8888/api/:path*",
+        destination: "https://tools.sofun.fun/api/:path*",
+        // destination: "http://127.0.0.1:8888/api/:path*",
       },
     ];
   },

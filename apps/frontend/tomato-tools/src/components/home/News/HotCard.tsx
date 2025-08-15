@@ -1,36 +1,47 @@
+"use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { FaSync, FaRegStar } from "react-icons/fa";
 import { Skeleton } from "antd";
 import Image from "next/image";
 import ActionButton from "@/components/ActionButton";
 import axios from "@/lib/axios";
+import CacheStorage from "@/lib/storage";
 import { useRequest } from "ahooks";
 import { SixtySecondsData } from "@gixy/types";
 
-interface NewsCardProps {
+interface HotNewsCardProps {
   title: string;
   icon: React.ReactNode;
   color: string;
   bg: string;
   type: string;
 }
-
-const NewsCard = ({ title, icon, bg, type, color }: NewsCardProps) => {
+const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
   const [items, setItems] = useState<SixtySecondsData[]>([]);
   const { loading, runAsync: fetchNews } = useRequest(
-    async () => {
+    async (refresh?: boolean) => {
+      const cacheStorage = new CacheStorage(window.sessionStorage);
+      if (!refresh && cacheStorage.getItem(type)) {
+        return cacheStorage.getItem(type) as SixtySecondsData[];
+      }
       const response = await axios.get(`/api/news/${type}`);
+      // 缓存数据，过期时间为 60 秒
+      cacheStorage.setItem(type, response, 60);
       return response as SixtySecondsData[];
     },
     { manual: true },
   );
 
   // 初始加载和刷新功能
-  const loadData = useCallback(() => {
-    fetchNews()
-      .then(setItems)
-      .catch((error) => console.log("Faild to load news: ", error));
-  }, [fetchNews, setItems]);
+  const loadData = useCallback(
+    (refresh?: boolean) => {
+      fetchNews(refresh)
+        .then(setItems)
+        .catch((error) => console.log("Faild to load news: ", error));
+    },
+    [fetchNews, setItems],
+  );
 
   useEffect(() => {
     loadData();
@@ -51,7 +62,7 @@ const NewsCard = ({ title, icon, bg, type, color }: NewsCardProps) => {
         <div className="flex items-center gap-2">
           <ActionButton
             color="info"
-            onClick={loadData}
+            onClick={() => loadData(true)}
             loading={loading}
             size="sm"
           >
@@ -134,4 +145,4 @@ const NewsCard = ({ title, icon, bg, type, color }: NewsCardProps) => {
   );
 };
 
-export default NewsCard;
+export default HotNewsCard;

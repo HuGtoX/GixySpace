@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Tabs } from "antd";
-import NewsCard from "./News/HotCard";
-import DailyNews from "./News/DailyNews";
+import NewsCard from "./HotCard";
+import DailyNews from "./DailyNews";
 // 注意：此处引用路径已更改为HotConfig，请确保该文件存在
-import { newsPlatforms, dailyNewsConfig } from "./News/HotConfig";
+import { newsPlatforms, dailyNewsConfig } from "./HotConfig";
 
 const NewsSection = () => {
   // 当前激活的tab键

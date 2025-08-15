@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider, theme, App as AntApp } from "antd";
+import { ConfigProvider, theme, App as AntApp, message } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
 import zhCN from "antd/locale/zh_CN";
 import dayjs from "dayjs";
@@ -21,7 +21,7 @@ export const themeColors = {
   dark: {
     bg: "#1F2937",
     bodyBg: "#111827",
-    inputBg: "#374151",
+    inputBg: "rgba(0, 0, 0, 0.3)",
   },
   light: {
     bg: "#FFFFFF",
@@ -75,6 +75,9 @@ const AntdProvider = ({ children }: AntdProviderProps) => {
         token: {
           colorPrimary: "#FF6347",
           colorBgSpotlight: "rgba(0,0,0,0.7)",
+          colorBgContainer: isDarkMode
+            ? themeColors.dark.inputBg
+            : themeColors.light.inputBg,
         },
         components: componentsTheme(isDarkMode),
       }
