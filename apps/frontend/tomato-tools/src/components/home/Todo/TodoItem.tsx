@@ -1,18 +1,23 @@
 import React from "react";
-import { Tooltip, Modal, message, Spin, Badge, Checkbox } from "antd";
-import { FaTrash, FaHistory, FaClock, FaEdit } from "react-icons/fa";
+import { Tooltip, Badge, Checkbox } from "antd";
+import { FaTrash, FaClock, FaEdit } from "react-icons/fa";
 import { Todo } from "@/lib/drizzle/schema/todo";
 
 interface TodoItemProps {
   todo: Todo;
+  onEdit: (todo: Todo) => void;
+  deleteTodo: (id: string) => void;
 }
 
 // 优先级样式映射
-const priorityStyles: Record<string, string> = {
-  low: "bg-gray-100 text-gray-800",
-  medium: "bg-blue-100 text-blue-800",
-  high: "bg-orange-100 text-orange-800",
-  urgent: "bg-red-100 text-red-800",
+const priorityStyles: Record<
+  string,
+  "default" | "processing" | "warning" | "error"
+> = {
+  low: "default",
+  medium: "processing",
+  high: "warning",
+  urgent: "error",
 };
 
 const priorityText = {
@@ -23,7 +28,7 @@ const priorityText = {
 };
 
 export default function TodoItem(props: TodoItemProps) {
-  const { todo } = props;
+  const { todo, onEdit, deleteTodo } = props;
 
   return (
     <div
@@ -42,13 +47,13 @@ export default function TodoItem(props: TodoItemProps) {
             )}
           </div>
         </div>
+
         <div className="flex flex-col items-end gap-1">
-          {todo.priority && (
-            <Badge
-              className={`text-xs ${priorityStyles[todo.priority]}`}
-              text={priorityText[todo.priority] || todo.priority}
-            />
-          )}
+          <Badge
+            key={todo.priority}
+            status={priorityStyles[todo.priority]}
+            text={priorityText[todo.priority] || todo.priority}
+          />
           {todo.dueDate && (
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
               <FaClock size={12} className="mr-1" />
@@ -64,12 +69,14 @@ export default function TodoItem(props: TodoItemProps) {
             <button
               className="p-1 text-gray-400 hover:text-blue-500"
               aria-label="编辑任务"
+              onClick={() => onEdit(todo)}
             >
               <FaEdit size={14} />
             </button>
           </Tooltip>
           <Tooltip title="删除" placement="top">
             <button
+              onClick={() => deleteTodo(todo.id)}
               className="p-1 text-gray-400 hover:text-red-500"
               aria-label="删除任务"
             >

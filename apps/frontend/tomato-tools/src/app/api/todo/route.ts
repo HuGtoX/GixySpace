@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createDbClient } from "@/lib/drizzle/client";
 import { AuthService } from "@/modules/auth/auth.service";
+import { authorization } from "../authorization";
 import {
   todo,
   todoStatusEnum,
@@ -17,21 +18,8 @@ export async function GET(request: NextRequest) {
   const logger = createRequestLogger(correlationId, "todo/get");
   try {
     const dbClient = createDbClient();
-    const authService = new AuthService();
 
-    const { user, error } = await authService.getCurrentUser();
-
-    logger.info(
-      { userId: user?.id, error },
-      "Get current user request received",
-    );
-
-    if (error || !user) {
-      return NextResponse.json(
-        { error: error || "未授权访问" },
-        { status: 401 },
-      );
-    }
+    const user = await authorization();
 
     const todos = await dbClient.db
       .select()
@@ -51,8 +39,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('POST request to /api/todo received');
-  console.log('Request headers:', request.headers);
+  console.log("POST request to /api/todo received");
+  console.log("Request headers:", request.headers);
   try {
     const dbClient = createDbClient();
     const authService = new AuthService();
@@ -114,9 +102,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // 从URL获取id参数
-    const url = new URL(request.url);
-    const id = url.pathname.split("/").pop();
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
 
     if (!id) {
       return NextResponse.json({ error: "缺少任务ID" }, { status: 400 });
@@ -128,33 +115,22 @@ export async function PUT(request: NextRequest) {
       description: z.string().optional(),
       status: z.enum(todoStatusEnum.enumValues).optional(),
       priority: z.enum(todoPriorityEnum.enumValues).optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.iso.datetime().optional(),
       completed: z.boolean().optional(),
       archived: z.boolean().optional(),
     });
 
     const body = await request.json();
+    console.log("-- [ body ] --", body);
+
     const validatedData = updateSchema.parse(body);
 
     // 构建更新数据
-    const updateData: Record<string, any> = { updatedAt: new Date() };
-
-    if (validatedData.title !== undefined)
-      updateData.title = validatedData.title;
-    if (validatedData.description !== undefined)
-      updateData.description = validatedData.description;
-    if (validatedData.status !== undefined)
-      updateData.status = validatedData.status;
-    if (validatedData.priority !== undefined)
-      updateData.priority = validatedData.priority;
-    if (validatedData.dueDate !== undefined)
-      updateData.dueDate = validatedData.dueDate
-        ? new Date(validatedData.dueDate)
-        : null;
-    if (validatedData.completed !== undefined)
-      updateData.completed = validatedData.completed;
-    if (validatedData.archived !== undefined)
-      updateData.archived = validatedData.archived;
+    const updateData: Record<string, any> = {
+      ...validatedData,
+      dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+      updatedAt: new Date(),
+    };
 
     // 执行更新
     const updatedTodo = await dbClient.db
@@ -193,9 +169,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // 从URL获取id参数
-    const url = new URL(request.url);
-    const id = url.pathname.split("/").pop();
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
 
     if (!id) {
       return NextResponse.json({ error: "缺少任务ID" }, { status: 400 });

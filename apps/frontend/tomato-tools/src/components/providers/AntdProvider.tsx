@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider, theme, App as AntApp, message } from "antd";
+import { ConfigProvider, theme, App as AntApp } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
 import zhCN from "antd/locale/zh_CN";
 import dayjs from "dayjs";

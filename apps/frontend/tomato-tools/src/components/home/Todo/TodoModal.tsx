@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Button, Input, Select, Form, DatePicker } from "antd";
+import { useState, useEffect } from "react";
+import { Button, Input, Select, Form, DatePicker, message } from "antd";
 import { Todo, AddTodo } from "@/lib/drizzle/schema/todo";
 import GModal from "@/components/Modal";
 import axios from "@/lib/axios";
+import dayjs from "dayjs";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -21,45 +22,60 @@ const priorityColors: Record<string, string> = {
 interface TodoModalProps {
   visible: boolean;
   onClose: () => void;
+  initialData?: Todo | null;
 }
 export default function TodoModal(props: TodoModalProps) {
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const { initialData, onClose } = props;
+  const [loading, setLoading] = useState(false);
+
   const [form] = Form.useForm();
 
-  const handleAddTodo = async () => {
+  useEffect(() => {
+    if (initialData) {
+      form.setFieldsValue({
+        title: initialData.title,
+        description: initialData.description,
+        priority: initialData.priority,
+        dueDate: initialData.dueDate ? dayjs(initialData.dueDate) : undefined,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [initialData, form]);
+
+  const handleSubmit = async () => {
     form.validateFields().then(async (values) => {
+      setLoading(true);
       const newTodo: AddTodo = {
         title: values.title,
         description: values.description || "",
         status: "pending",
         priority: values.priority || "medium",
-        dueDate: values.dueDate,
+        dueDate: values.dueDate || undefined,
       };
-
-      console.log("-- [ newTodo ] --", newTodo);
-      await axios.post("/api/todo", newTodo);
-      // form.resetFields();
-    });
-  };
-
-  const handleUpdateTodo = () => {
-    if (!editingTodo) return;
-    form.validateFields().then((values) => {
-      const updatedTodo = {
-        ...editingTodo,
-        title: values.title,
-        description: values.description || "",
-        priority: values.priority || "medium",
-        dueDate: values.dueDate,
-        updatedAt: new Date().toISOString(),
-      };
-      form.resetFields();
+      try {
+        if (!initialData?.id) {
+          await axios.post("/api/todo", newTodo);
+          message.success("任务添加成功");
+        } else {
+          await axios.put(`/api/todo?id=${initialData.id}`, newTodo);
+          message.success("任务更新成功");
+        }
+      } finally {
+        setLoading(false);
+        onClose();
+      }
     });
   };
 
   return (
     <GModal {...props}>
-      <Form form={form} layout="vertical" className="space-y-3">
+      <Form
+        form={form}
+        layout="vertical"
+        className="space-y-3"
+        initialValues={{ priority: "medium" }}
+      >
         <Form.Item
           name="title"
           rules={[{ required: true, message: "请输入任务标题" }]}
@@ -75,7 +91,6 @@ export default function TodoModal(props: TodoModalProps) {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <Form.Item name="priority" label="优先级">
             <Select
-              defaultValue="medium"
               options={[
                 { value: "low", label: "低" },
                 { value: "medium", label: "中" },
@@ -86,17 +101,13 @@ export default function TodoModal(props: TodoModalProps) {
           </Form.Item>
 
           <Form.Item name="dueDate" label="截止日期">
-            <DatePicker format="YYYY-MM-DD" />
+            <DatePicker />
           </Form.Item>
         </div>
 
         <Form.Item>
-          <Button
-            type="primary"
-            block
-            onClick={editingTodo ? handleUpdateTodo : handleAddTodo}
-          >
-            {editingTodo ? "更新任务" : "添加任务"}
+          <Button type="primary" block onClick={handleSubmit} loading={loading}>
+            {initialData?.id ? "更新任务" : "添加任务"}
           </Button>
         </Form.Item>
       </Form>
