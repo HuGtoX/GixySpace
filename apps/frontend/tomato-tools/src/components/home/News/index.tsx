@@ -21,7 +21,7 @@ const NewsSection = () => {
       label: "热搜榜",
       children: (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {newsPlatforms.slice(0, 5).map((platform) => (
+          {newsPlatforms.slice(0, 6).map((platform) => (
             <NewsCard
               key={platform.id}
               title={platform.title}

@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"private": true,
 	"scripts": {
-		"dev": "pnpm --filter @gixy/bit-craft dev",
+		"dev": "pnpm --filter @gixy/tomato-tools dev",
 		"build": "pnpm --filter '@gixy/bit-craft...' build",
 		"dev:new": "pnpm --filter @gixy/tomato-tools dev:pretty",
 		"dev:standard": "pnpm --filter @gixy/tomato-tools dev:standard",

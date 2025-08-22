@@ -7,24 +7,49 @@ import {
   todoStatusEnum,
   todoPriorityEnum,
 } from "@/lib/drizzle/schema/todo";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
-
 import { z } from "zod";
 
+type Status = (typeof todoStatusEnum.enumValues)[number];
 export async function GET(request: NextRequest) {
   const correlationId =
     request.headers.get("x-correlation-id") || generateCorrelationId();
   const logger = createRequestLogger(correlationId, "todo/get");
   try {
     const dbClient = createDbClient();
-
     const user = await authorization();
+
+    // 解析查询参数
+    const status = request.nextUrl.searchParams.get("status");
+    const startDate = request.nextUrl.searchParams.get("startDate");
+    const endDate = request.nextUrl.searchParams.get("endDate");
+
+    // 构建查询条件
+    const conditions = [eq(todo.userId, user.id)];
+
+    if (status) {
+      conditions.push(eq(todo.status, status as Status));
+    }
+
+    if (startDate) {
+      const start = new Date(startDate);
+      if (!isNaN(start.getTime())) {
+        conditions.push(gte(todo.createdAt, start));
+      }
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      if (!isNaN(end.getTime())) {
+        conditions.push(lte(todo.createdAt, end));
+      }
+    }
 
     const todos = await dbClient.db
       .select()
       .from(todo)
-      .where(eq(todo.userId, user.id))
+      .where(and(...conditions))
       .orderBy(todo.createdAt);
 
     return NextResponse.json(todos);
@@ -121,7 +146,6 @@ export async function PUT(request: NextRequest) {
     });
 
     const body = await request.json();
-    console.log("-- [ body ] --", body);
 
     const validatedData = updateSchema.parse(body);
 

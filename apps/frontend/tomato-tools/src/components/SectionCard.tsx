@@ -10,7 +10,7 @@ type SectionCardProps = {
 function SectionCard({ title, plain, right, children }: SectionCardProps) {
   const className = plain
     ? ""
-    : "cursor-pointer rounded-xl bg-white p-4 shadow-md dark:bg-gray-800";
+    : "rounded-xl bg-white p-4 shadow-md dark:bg-gray-800";
 
   return (
     <div className={className}>

@@ -2,11 +2,14 @@ import React from "react";
 import { Tooltip, Badge, Checkbox } from "antd";
 import { FaTrash, FaClock, FaEdit } from "react-icons/fa";
 import { Todo } from "@/lib/drizzle/schema/todo";
+import classNames from "classnames";
 
 interface TodoItemProps {
   todo: Todo;
+  isHistory?: boolean;
   onEdit: (todo: Todo) => void;
   deleteTodo: (id: string) => void;
+  onToggleComplete: (id: string, completed: boolean) => void;
 }
 
 // 优先级样式映射
@@ -28,20 +31,38 @@ const priorityText = {
 };
 
 export default function TodoItem(props: TodoItemProps) {
-  const { todo, onEdit, deleteTodo } = props;
+  const { todo, onEdit, deleteTodo, onToggleComplete, isHistory } = props;
 
   return (
     <div
       key={todo.id}
-      className={`group flex flex-col rounded-md p-3 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 ${todo.status === "completed" ? "opacity-70" : ""}`}
+      className={classNames(
+        "group",
+        "flex",
+        "flex-1",
+        "flex-col",
+        "rounded-md",
+        "p-3",
+        "hover:bg-gray-100",
+        "dark:hover:bg-gray-700",
+        { "opacity-70": todo.status === "completed" && !isHistory },
+      )}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-start gap-2">
-          <Checkbox />
+          <Checkbox
+            checked={todo.status === "completed"}
+            onChange={(e) => onToggleComplete(todo.id, e.target.checked)}
+          />
           <div className="min-w-0 flex-1">
             {todo.title}
             {todo.description && (
-              <p className="mt-1 hidden truncate text-xs text-gray-500 transition-opacity duration-200 group-hover:block dark:text-gray-400">
+              <p
+                className={classNames(
+                  "mt-1 truncate text-xs text-gray-500 transition-opacity duration-200 group-hover:block dark:text-gray-400",
+                  { hidden: !isHistory },
+                )}
+              >
                 {todo.description}
               </p>
             )}

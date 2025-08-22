@@ -1,15 +1,15 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Modal } from "antd";
+import type { ModalProps } from "antd/es/modal";
 import { useTheme } from "@/contexts/ThemeContext";
 
-interface GModalProps {
+type GModalProps = {
   title?: string;
   children: React.ReactNode;
   visible: boolean;
   onClose: () => void;
-  [key: string]: any;
-}
+} & Omit<ModalProps, "title" | "visible" | "onCancel">;
 
 function GModal(props: GModalProps) {
   const { title, children, visible, onClose, ...restProps } = props;

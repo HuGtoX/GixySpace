@@ -56,6 +56,15 @@ export const xueqiuConfig: NewsPlatformConfig = {
   icon: <Image src="/icon/xueqiu.png" alt="雪球" width={20} height={20} />,
 };
 
+// 今日头条
+export const toutiaoConfig: NewsPlatformConfig = {
+  id: "toutiao",
+  title: "今日头条热搜榜",
+  color: "text-toutiao",
+  bg: "bg-toutiao-60",
+  icon: <Image src="/icon/toutiao.ico" alt="今日头条" width={20} height={20} />,
+};
+
 // 每日新闻配置
 export const dailyNewsConfig: NewsPlatformConfig = {
   id: "daily",
@@ -69,8 +78,8 @@ export const dailyNewsConfig: NewsPlatformConfig = {
 export const newsPlatforms = [
   weiboConfig,
   zhihuConfig,
-  juejinConfig,
   douyinConfig,
+  toutiaoConfig,
   xueqiuConfig,
-  dailyNewsConfig,
+  juejinConfig,
 ];

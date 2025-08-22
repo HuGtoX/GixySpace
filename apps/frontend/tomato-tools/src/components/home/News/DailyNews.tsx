@@ -124,9 +124,13 @@ const DailyNews = () => {
                   dataSource={displayNews}
                   renderItem={(item, index) => (
                     <List.Item className="border-none">
-                      <p className="leading-relaxed text-gray-800 dark:text-gray-200">
+                      <a
+                        target="_blank"
+                        href={`https://www.baidu.com/s?wd=${item}`}
+                        className="text-gray-800 dark:text-gray-200"
+                      >
                         {index + 1}. {item}
-                      </p>
+                      </a>
                     </List.Item>
                   )}
                 />

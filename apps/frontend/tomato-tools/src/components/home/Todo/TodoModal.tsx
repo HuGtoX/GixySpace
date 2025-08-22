@@ -5,27 +5,14 @@ import GModal from "@/components/Modal";
 import axios from "@/lib/axios";
 import dayjs from "dayjs";
 
-const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  in_progress: "bg-blue-100 text-blue-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-gray-100 text-gray-800",
-};
-
-const priorityColors: Record<string, string> = {
-  low: "bg-gray-100 text-gray-800",
-  medium: "bg-blue-100 text-blue-800",
-  high: "bg-orange-100 text-orange-800",
-  urgent: "bg-red-100 text-red-800",
-};
-
 interface TodoModalProps {
   visible: boolean;
   onClose: () => void;
+  refresh: () => void;
   initialData?: Todo | null;
 }
 export default function TodoModal(props: TodoModalProps) {
-  const { initialData, onClose } = props;
+  const { initialData, onClose, refresh } = props;
   const [loading, setLoading] = useState(false);
 
   const [form] = Form.useForm();
@@ -61,6 +48,8 @@ export default function TodoModal(props: TodoModalProps) {
           await axios.put(`/api/todo?id=${initialData.id}`, newTodo);
           message.success("任务更新成功");
         }
+        form.resetFields();
+        refresh();
       } finally {
         setLoading(false);
         onClose();

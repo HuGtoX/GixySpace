@@ -28,7 +28,7 @@
 	"eslint.enable": true,
 	"eslint.validate": ["typescript", "typescriptreact"],
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "explicit"
+		// "source.fixAll.eslint": "explicit"
 	},
 	"deno.importMap": "./faas/edge-functions/import_map.json",
 	"deno.path": "C:\\Users\\v_xghaxu\\AppData\\Roaming\\netlify\\Config\\deno-cli\\deno.exe"

@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://tools.sofun.fun/api/:path*",
+        destination: "https://tomato-tools.netlify.app/api/:path*",
         // destination: "http://127.0.0.1:8888/api/:path*",
       },
     ];

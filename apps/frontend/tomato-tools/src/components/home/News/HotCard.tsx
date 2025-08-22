@@ -25,10 +25,16 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
       if (!refresh && cacheStorage.getItem(type)) {
         return cacheStorage.getItem(type) as SixtySecondsData[];
       }
-      const response = await axios.get(`/api/news/${type}`);
-      // 缓存数据，过期时间为 60 秒
-      cacheStorage.setItem(type, response, 60);
-      return response as SixtySecondsData[];
+      const response = await axios.get<{
+        success: boolean;
+        data: SixtySecondsData[];
+      }>(`/api/news?source=${type}`);
+      if (response.success) {
+        // 缓存数据，过期时间为 60 秒
+        cacheStorage.setItem(type, response.data, 60);
+        return response.data;
+      }
+      return [];
     },
     { manual: true },
   );

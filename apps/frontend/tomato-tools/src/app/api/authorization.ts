@@ -5,7 +5,7 @@ export async function authorization() {
   const { user, error } = await authService.getCurrentUser();
 
   if (error || !user) {
-    throw new Error(error || "未授权访问");
+    throw new Error("未授权访问");
   }
 
   return user;
