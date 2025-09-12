@@ -11,15 +11,19 @@ import {
 import GModal from "@/components/Modal";
 import { Todo } from "@/lib/drizzle/schema/todo";
 import axios from "@/lib/axios";
+import type { PaginationResponse } from "@/types";
 import TodoItem from "./TodoItem";
+import TodoModal from "./EditModal";
+import { generateDateRange, DateRangeType } from "@/lib/date";
 
 interface HistoryTodoModalProps {
   visible: boolean;
   onClose: () => void;
 }
 
+type CategoriesDateType = DateRangeType | "all";
 // 分类选项
-const categories = [
+const categories: { id: CategoriesDateType; name: string; icon: any }[] = [
   { id: "all", name: "全部", icon: <FaCalendar size={16} /> },
   { id: "day", name: "本日", icon: <FaCalendarDay size={16} /> },
   { id: "week", name: "本周", icon: <FaCalendarWeek size={16} /> },
@@ -27,43 +31,34 @@ const categories = [
 ];
 
 export default function HistoryTodoModal(props: HistoryTodoModalProps) {
-  const { visible, onClose } = props;
+  const { visible } = props;
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoriesDateType>("all");
   const [aiSummary, setAiSummary] = useState<string>("");
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [todoModalVisible, setTodoModalVisible] = useState(false);
 
   // 获取历史完成任务
   const fetchHistoryTodos = async () => {
     setLoading(true);
     try {
-      const response = await axios.get<Todo[]>("/api/todo");
-      let completedTodos = response.filter(
-        (todo) => todo.status === "completed",
-      );
+      // 构建查询参数
+      const params = new URLSearchParams();
+      params.append("status", "completed");
 
-      if (selectedCategory === "day") {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        completedTodos = completedTodos.filter(
-          (todo) => new Date(todo.updatedAt) >= today,
-        );
-      } else if (selectedCategory === "week") {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        completedTodos = completedTodos.filter(
-          (todo) => new Date(todo.updatedAt) >= oneWeekAgo,
-        );
-      } else if (selectedCategory === "month") {
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        completedTodos = completedTodos.filter(
-          (todo) => new Date(todo.updatedAt) >= oneMonthAgo,
-        );
+      if (selectedCategory !== "all") {
+        const dateRange = generateDateRange(selectedCategory);
+        params.append("startDate", dateRange.start);
+        params.append("endDate", dateRange.end);
       }
 
-      setTodos(completedTodos);
+      const response = await axios.get<PaginationResponse<Todo>>(
+        `/api/todo?${params.toString()}`,
+      );
+      setTodos(response.data);
     } catch (err) {
       console.error("Failed to fetch history todos:", err);
     } finally {
@@ -74,20 +69,30 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   // 生成AI总结
   const generateSummary = async () => {
     setSummaryLoading(true);
+    setAiSummary(""); // 清空之前的总结
     try {
-      // TODO-OPTIMIZE: 集成实际的AI API
-      // 这里只是模拟延迟和结果
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setAiSummary(
-        `根据您${selectedCategory === "all" ? "的所有" : selectedCategory === "week" ? "本周" : "本月"}已完成任务，AI生成了以下总结：\n\n- 共完成 ${todos.length} 项任务\n- 高优先级任务占比 ${Math.round((todos.filter((t) => t.priority === "high" || t.priority === "urgent").length / todos.length) * 100)}%\n- 平均完成时间为 2 天`,
-      );
-      message.success("总结生成成功");
+      const response = await axios.post<any>("/api/todo/summary", {
+        period: "day",
+      });
+
+      if (response.success) {
+        setAiSummary(response.summary);
+        message.success("总结生成成功");
+      } else {
+        throw new Error(response.data.error || "生成总结失败");
+      }
     } catch (error) {
       console.error("生成总结失败:", error);
       message.error("生成总结失败");
     } finally {
       setSummaryLoading(false);
     }
+  };
+
+  // 编辑待办事项
+  const editTodo = (todo: Todo) => {
+    setEditingTodo(todo);
+    setTodoModalVisible(true);
   };
 
   useEffect(() => {
@@ -97,13 +102,20 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   }, [visible, selectedCategory]);
 
   // 切换分类
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = (categoryId: CategoriesDateType) => {
     setSelectedCategory(categoryId);
     setAiSummary(""); // 切换分类时清空总结
   };
 
   return (
     <GModal {...props} title="历史完成任务" width={900}>
+      <TodoModal
+        visible={todoModalVisible}
+        onClose={() => setTodoModalVisible(false)}
+        refresh={fetchHistoryTodos}
+        initialData={editingTodo}
+      />
+
       <div className="flex h-[500px] gap-4">
         {/* 左侧分类列表 */}
         <div className="w-48 shrink-0 border-r border-gray-200 dark:border-gray-700">
@@ -152,8 +164,15 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
         {/* 右侧任务列表和总结区域 */}
         <div className="flex-1 overflow-hidden">
           {/* AI 总结区域 */}
-          {aiSummary && (
+          {summaryLoading ? (
             <div className="mb-4 rounded-md border border-gray-200 bg-blue-50 p-4 dark:border-gray-700 dark:bg-blue-900/20">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                <Spin size="small" />
+                <span>AI正在生成总结中...</span>
+              </div>
+            </div>
+          ) : aiSummary ? (
+            <div className="mb-4 max-h-full overflow-auto rounded-md border border-gray-200 bg-blue-50 p-4 dark:border-gray-700 dark:bg-blue-900/20">
               <div className="mb-2 flex items-center gap-2 font-medium text-blue-600 dark:text-blue-400">
                 <FaBrain size={16} />
                 <span>AI 总结报告</span>
@@ -162,7 +181,7 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
                 {aiSummary}
               </pre>
             </div>
-          )}
+          ) : null}
 
           {/* 任务列表区域 */}
           <div className="h-full overflow-auto">
@@ -180,9 +199,8 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
                       <TodoItem
                         isHistory={true}
                         todo={todo}
-                        onEdit={() => {}} // 历史任务不需要编辑
-                        deleteTodo={() => {}} // 历史任务不需要删除
-                        onToggleComplete={(id, completed) => {}}
+                        onEdit={editTodo}
+                        refresh={fetchHistoryTodos}
                       />
                     </List.Item>
                   )}

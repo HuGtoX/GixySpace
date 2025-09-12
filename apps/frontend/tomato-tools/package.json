@@ -23,6 +23,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
+    "@upstash/redis": "^1.35.1",
     "ahooks": "3.0.0-alpha.18",
     "antd": "^5.26.3",
     "axios": "^1.10.0",

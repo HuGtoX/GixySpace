@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 interface ZhihuRes {
   data: {
@@ -48,6 +49,18 @@ const withTimeout = <T,>(promise: Promise<T>, timeoutMs = 5000): Promise<T> => {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('zhihu');
+    
+    // 检查缓存
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const url = 'https://www.zhihu.com/api/v3/feed/topstory/hot-list-web?limit=20&desktop=true';
     
     const response = await withTimeout(
@@ -80,9 +93,13 @@ export async function GET() {
       };
     });
 
+    // 设置缓存
+    await setCache(cacheKey, result);
+    
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error('获取知乎热点失败:', error);

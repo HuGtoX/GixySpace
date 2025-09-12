@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 interface Res {
   ok: number; // 1 is ok
@@ -28,6 +29,18 @@ interface Res {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('weibo');
+    
+    // 检查缓存
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const response = await fetch('https://weibo.com/ajax/side/hotSearch', {
       headers: {
         accept: 'application/json, text/plain, */*',
@@ -75,9 +88,13 @@ export async function GET() {
         };
       });
 
+    // 设置缓存
+    await setCache(cacheKey, result);
+    
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error('获取微博热点失败:', error);

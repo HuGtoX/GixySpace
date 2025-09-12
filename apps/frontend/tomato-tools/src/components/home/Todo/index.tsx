@@ -3,17 +3,15 @@ import { message, Spin, Button, Divider } from "antd";
 import { FaPlus, FaHistory } from "react-icons/fa";
 import SectionCard from "@/components/SectionCard";
 import { Todo } from "@/lib/drizzle/schema/todo";
-import TodoModal from "./TodoModal";
-import HistoryTodoModal from "./HistoryTodoModal";
+import type { PaginationResponse } from "@/types";
+import TodoModal from "./EditModal";
+import HistoryTodoModal from "./HistoryModal";
 import axios from "@/lib/axios";
 import TodoItem from "./TodoItem";
-import ConfirmModal from "@/components/ConfirmModal";
 
 const TodoList = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [currentTodoId, setCurrentTodoId] = useState<string | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [todoModalVisible, setTodoModalVisible] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -31,10 +29,8 @@ const TodoList = () => {
   const fetchTodos = async () => {
     setLoading(true);
     try {
-      const response = await axios.get<Todo[]>("/api/todo");
-      setTodos(response);
-    } catch (err) {
-      console.error("Failed to fetch todos:", err);
+      const response = await axios.get<PaginationResponse<Todo>>("/api/todo");
+      setTodos(response.data);
     } finally {
       setLoading(false);
     }
@@ -51,42 +47,24 @@ const TodoList = () => {
     setTodoModalVisible(true);
   };
 
-  const deleteTodo = (id: string) => {
-    setCurrentTodoId(id);
-    setDeleteConfirmVisible(true);
-  };
-
   const handleClose = () => {
     setTodoModalVisible(false);
     setEditingTodo(null);
   };
 
-  const onDeleteClose = () => {
-    setCurrentTodoId(null);
-    setDeleteConfirmVisible(false);
-    fetchTodos();
-  };
-
   // 切换任务完成状态
   const toggleComplete = async (id: string, completed: boolean) => {
     try {
+      setLoading(true);
       await axios.put(`/api/todo?id=${id}`, {
         status: completed ? "completed" : "pending",
       });
       message.success(completed ? "任务已完成" : "任务已恢复");
-      fetchTodos();
+      await fetchTodos();
     } catch (error) {
-      console.error("更新任务状态失败:", error);
       message.error("更新任务状态失败");
+      setLoading(false);
     }
-  };
-
-  // 删除待办事项
-  const deleteHandle = async () => {
-    if (!currentTodoId) return;
-    await axios.delete(`/api/todo?id=${currentTodoId}`);
-    setDeleteConfirmVisible(false);
-    message.success("删除成功");
   };
 
   useEffect(() => {
@@ -98,22 +76,10 @@ const TodoList = () => {
       title="待办事项"
       right={
         <div className="flex gap-3">
-          <Button type="text" icon={<FaHistory />} onClick={openHistoryModal}></Button>
+          <Button type="text" icon={<FaHistory />} onClick={openHistoryModal} />
         </div>
       }
     >
-      <ConfirmModal
-        zIndex={1001}
-        title="确认删除"
-        message="确定要删除此任务吗？此操作不可撤销。"
-        visible={deleteConfirmVisible}
-        onClose={onDeleteClose}
-        onConfirm={deleteHandle}
-        confirmText="删除"
-        cancelText="取消"
-        confirmDanger={true}
-      />
-
       <TodoModal
         visible={todoModalVisible}
         onClose={handleClose}
@@ -141,7 +107,7 @@ const TodoList = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
-                  deleteTodo={deleteTodo}
+                  refresh={fetchTodos}
                   onEdit={editTodo}
                   onToggleComplete={toggleComplete}
                 />
@@ -184,7 +150,7 @@ const TodoList = () => {
                   <TodoItem
                     key={todo.id}
                     todo={todo}
-                    deleteTodo={deleteTodo}
+                    refresh={fetchTodos}
                     onEdit={editTodo}
                     onToggleComplete={toggleComplete}
                   />

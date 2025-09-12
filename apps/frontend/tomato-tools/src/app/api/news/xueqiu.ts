@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 interface StockRes {
   data: {
@@ -14,6 +15,18 @@ interface StockRes {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('xueqiu');
+    
+    // 检查缓存
+   const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const url = 'https://stock.xueqiu.com/v5/stock/hot_stock/list.json?size=30&_type=10&type=10';
     
     // 获取cookie
@@ -45,9 +58,13 @@ export async function GET() {
         }
       }));
     
+    // 设置缓存
+    await setCache(cacheKey, result);
+    
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error('获取雪球股票热点失败:', error);

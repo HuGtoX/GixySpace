@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 interface Res {
   data: {
@@ -13,6 +14,18 @@ interface Res {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('douyin');
+    
+    // 检查缓存
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const url = 'https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1';
     
     // 获取cookie
@@ -39,9 +52,13 @@ export async function GET() {
       eventTime: item.event_time
     }));
     
+    // 设置缓存
+    await setCache(cacheKey, result);
+    
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error('获取抖音热点失败:', error);

@@ -103,12 +103,6 @@ export default function Weather() {
     fetchWeather();
   }, [selectedCity]);
 
-  useEffect(() => {
-    // 每30分钟刷新一次数据
-    const interval = setInterval(fetchWeather, 1800000);
-    return () => clearInterval(interval);
-  }, []);
-
   // 添加清除缓存的辅助方法
   const clearWeatherCache = () => {
     const cacheKey = `weatherData_${selectedCity.name}`;
