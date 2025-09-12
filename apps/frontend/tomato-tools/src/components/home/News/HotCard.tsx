@@ -30,8 +30,8 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
         data: SixtySecondsData[];
       }>(`/api/news?source=${type}`);
       if (response.success) {
-        // 缓存数据，过期时间为 60 秒
-        cacheStorage.setItem(type, response.data, 60);
+        // 缓存数据，过期时间为 300 秒
+        cacheStorage.setItem(type, response.data, 300);
         return response.data;
       }
       return [];

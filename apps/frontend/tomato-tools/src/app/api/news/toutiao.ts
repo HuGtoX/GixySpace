@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 export interface ImageInfo {
   uri: string;
@@ -27,8 +28,20 @@ export interface ToutiaoNewsItem {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('toutiao');
+    
+    // 检查缓存
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const response = await fetch(
-      "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00f0184sOpAAAIDAkbkxXJU36PPOCD4AAJs3d7YHjB8DOmdGv0uwdv1c4pMCrsFdXAa-GSelGuXGuyJYrPvkql3.wfHxUPJvf2HaQaKf8VP3KlstrfLD0Oc9MGM9OaPl9bqDfpuwd0",
+      "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00f0184sOpAAAIDAkb极速版XJU36PP极速版D4AAJs3d7YHjB8DOmdGv0uwdv1c4pMCrsFdXAa-GSelGuXGuyJYrPvkql3.wfHxUPJvf2HaQaKf8VP3KlstrfLD0Oc9MGM9OaPl9极速版qDfpuwd0",
       {
         headers: {
           accept: "application/json, text/plain, */*",
@@ -56,22 +69,28 @@ export async function GET() {
     const resp: { data: ToutiaoNewsItem[] } = await response.json();
     const data = resp.data;
 
+    const result = data.map((item) => ({
+      id: item.ClusterId,
+      title: item.QueryWord,
+      url: item.Url,
+      extra: {
+        icon: item.LabelUri.url
+          ? {
+              url: item.LabelUri.url,
+              scale: 1.2,
+            }
+          : undefined,
+        hotValue: item.HotValue,
+      },
+    }));
+    
+    // 设置缓存
+    await setCache(cacheKey, result);
+    
     return NextResponse.json({
       success: true,
-      data: data.map((item) => ({
-        id: item.ClusterId,
-        title: item.QueryWord,
-        url: item.Url,
-        extra: {
-          icon: item.LabelUri.url
-            ? {
-                url: item.LabelUri.url,
-                scale: 1.2,
-              }
-            : undefined,
-          hotValue: item.HotValue,
-        },
-      })),
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error("获取60秒新闻失败:", error);

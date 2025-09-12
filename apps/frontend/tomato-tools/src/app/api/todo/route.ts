@@ -7,9 +7,10 @@ import {
   todoStatusEnum,
   todoPriorityEnum,
 } from "@/lib/drizzle/schema/todo";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";
+import dayjs from "dayjs";
 
 type Status = (typeof todoStatusEnum.enumValues)[number];
 export async function GET(request: NextRequest) {
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
     const status = request.nextUrl.searchParams.get("status");
     const startDate = request.nextUrl.searchParams.get("startDate");
     const endDate = request.nextUrl.searchParams.get("endDate");
+    const page = parseInt(request.nextUrl.searchParams.get("page") || "1");
+    const limit = parseInt(request.nextUrl.searchParams.get("limit") || "15");
 
     // 构建查询条件
     const conditions = [eq(todo.userId, user.id)];
@@ -33,26 +36,46 @@ export async function GET(request: NextRequest) {
     }
 
     if (startDate) {
-      const start = new Date(startDate);
+      const start = dayjs(startDate, "YYYY-MM-DD").startOf("day").toDate();
       if (!isNaN(start.getTime())) {
         conditions.push(gte(todo.createdAt, start));
       }
     }
 
     if (endDate) {
-      const end = new Date(endDate);
+      const end = dayjs(endDate, "YYYY-MM-DD").endOf("day").toDate();
       if (!isNaN(end.getTime())) {
         conditions.push(lte(todo.createdAt, end));
       }
     }
 
+    // 计算分页偏移量
+    const offset = (page - 1) * limit;
+
     const todos = await dbClient.db
       .select()
       .from(todo)
       .where(and(...conditions))
-      .orderBy(todo.createdAt);
+      .orderBy(todo.createdAt)
+      .limit(limit)
+      .offset(offset);
 
-    return NextResponse.json(todos);
+    // 获取总数
+    const totalResult = await dbClient.db
+      .select({ count: sql<number>`count(*)` })
+      .from(todo)
+      .where(and(...conditions));
+    const total = totalResult[0]?.count || 0;
+
+    return NextResponse.json({
+      data: todos,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     logger.error({ error }, "Get todos error");
 
@@ -99,7 +122,9 @@ export async function POST(request: NextRequest) {
         title: validatedData.title,
         description: validatedData.description,
         priority: validatedData.priority,
-        dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+        dueDate: validatedData.dueDate
+          ? dayjs(validatedData.dueDate).toDate()
+          : null,
         status: "pending",
       })
       .returning();
@@ -152,8 +177,10 @@ export async function PUT(request: NextRequest) {
     // 构建更新数据
     const updateData: Record<string, any> = {
       ...validatedData,
-      dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
-      updatedAt: new Date(),
+      dueDate: validatedData.dueDate
+        ? dayjs(validatedData.dueDate).toDate()
+        : null,
+      updatedAt: dayjs().toDate(),
     };
 
     // 执行更新

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
 
 interface Res {
   data: {
@@ -11,6 +12,18 @@ interface Res {
 
 export async function GET() {
   try {
+    const cacheKey = generateNewsCacheKey('juejin');
+    
+    // 检查缓存
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return NextResponse.json({
+        success: true,
+        data: cachedData,
+        cached: true
+      });
+    }
+
     const url = 'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&type=hot&spider=0';
     
     const response = await fetch(url);
@@ -27,10 +40,14 @@ export async function GET() {
       title: item.content.title,
       url: `https://juejin.cn/post/${item.content.content_id}`
     }));
+   
+    // 设置缓存
+    await setCache(cacheKey, result);
     
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      cached: false
     });
   } catch (error) {
     console.error('获取掘金热点失败:', error);
