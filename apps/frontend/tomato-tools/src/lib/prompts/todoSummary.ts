@@ -15,22 +15,20 @@ export const TODO_SUMMARY_PROMPTS = {
    * 日报总结提示词
    */
   daily: (options: TodoSummaryPromptOptions) => `
-请根据用户今日完成的待办任务生成一份详细的日报总结。
-
 ## 任务完成情况
 - report_type: ${options.period}
 - report_date_range: 今日
 - author: ${options.userName}
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
+
+请生成一份详细清晰的本日任务完成总结，帮助用户快速了解本日任务完成情况。
 `,
 
   /**
-   * 周报总结提示词
+   * 周总结提示词
    */
   weekly: (options: TodoSummaryPromptOptions) => `
-请根据用户本周完成的待办任务生成一份详细的周报总结。
-
 ## 任务完成情况  
 - report_type: ${options.period}
 - report_date_range: 本周
@@ -38,15 +36,13 @@ export const TODO_SUMMARY_PROMPTS = {
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 
-请生成一份全面的周度工作总结，帮助用户更好地规划下一周的工作。
+请生成一份详细清晰的一周任务完成总结，帮助用户快速了解本周任务完成情况。
 `,
 
   /**
    * 月报总结提示词
    */
   monthly: (options: TodoSummaryPromptOptions) => `
-请根据用户本月完成的待办任务生成一份详细的月报总结。
-
 ## 任务完成情况
 - report_type: ${options.period}
 - report_date_range: 本月
@@ -54,7 +50,23 @@ export const TODO_SUMMARY_PROMPTS = {
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 
-请生成一份详实的月度工作总结，帮助用户回顾成长并规划未来。
+请生成一份详实的月度任务总结，帮助用户回顾成长并规划未来。
+`,
+
+  /**
+   * 全部任务总结提示词
+   */
+  all: (options: TodoSummaryPromptOptions) => `
+请根据用户所有已完成的待办任务生成一份全面的工作总结。
+
+## 任务完成情况
+- report_type: ${options.period}
+- report_date_range: 全部时间
+- author: ${options.userName}
+- raw_task_list: ${options.todos}
+- 共完成 ${options.completedCount} 项任务
+
+请生成一份全面的工作总结，帮助用户回顾所有的工作成果和成长历程。
 `,
 };
 
@@ -77,6 +89,8 @@ export const getTodoSummaryPrompt = (
       return TODO_SUMMARY_PROMPTS.weekly(promptOptions);
     case "month":
       return TODO_SUMMARY_PROMPTS.monthly(promptOptions);
+    case "all":
+      return TODO_SUMMARY_PROMPTS.all(promptOptions);
     default:
       return TODO_SUMMARY_PROMPTS.daily(promptOptions);
   }

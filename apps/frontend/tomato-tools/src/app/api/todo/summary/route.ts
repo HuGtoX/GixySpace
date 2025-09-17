@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { getTodoSummaryPrompt } from "@/lib/prompts/todoSummary";
-import type { TodoSummaryRequest, PaginationResponse } from "@/types";
+import type { TodoSummaryRequest } from "@/types";
 import { authorization } from "../../authorization";
-import { Todo } from "@/lib/drizzle/schema/todo";
+import { todo } from "@/lib/drizzle/schema/todo";
+import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
 import type { AISummaryResponseData } from "@/types/ai-response";
 import { generateDateRange, DateRangeType } from "@/lib/date";
 import { z } from "zod";
-
+import { createDbClient } from "@/lib/drizzle/client";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
+import dayjs from "dayjs";
 // 302.ai API配置
 const AI_API_URL = "https://api.302.ai/v1/chat/completions";
 
@@ -21,46 +24,151 @@ const getApiKey = () => {
   return apiKey;
 };
 
+// 生成总结标题的辅助函数
+const generateSummaryTitle = (
+  period: string,
+  dateRange?: { start: string; end: string },
+) => {
+  const now = dayjs();
+  switch (period) {
+    case "day":
+      return `${now.format("YYYY年MM月DD日")}工作总结`;
+    case "week":
+      return `${now.format("YYYY年第WW周")}工作总结`;
+    case "month":
+      return `${now.format("YYYY年MM月")}工作总结`;
+    case "all":
+      return "全部任务工作总结";
+    default:
+      return "工作总结";
+  }
+};
+
+// 生成时间周期标识的辅助函数
+const generatePeriodIdentifier = (
+  period: string,
+  dateRange?: { start: string; end: string },
+) => {
+  const now = dayjs();
+  switch (period) {
+    case "day":
+      return now.format("YYYY-MM-DD");
+    case "week":
+      return now.format("YYYY-[W]WW");
+    case "month":
+      return now.format("YYYY-MM");
+    case "all":
+      return "all-time";
+    default:
+      return now.format("YYYY-MM-DD");
+  }
+};
+
 export async function POST(request: NextRequest) {
   const user = await authorization();
+  let summaryId: string | null = null;
 
   try {
     const body = (await request.json()) as TodoSummaryRequest;
-    const { period = "day" } = body;
 
     // 验证请求数据
     const schema = z.object({
       period: z.enum(["day", "week", "month", "all"]).optional(),
     });
     const validatedData = schema.parse(body);
+    const period = validatedData.period || "day";
 
-    // 构建查询参数
-    const params = new URLSearchParams();
-    params.append("status", "completed");
+    // 直接从数据库查询已完成的待办事项
+    const dbClient = createDbClient();
 
-    if (validatedData.period !== "all") {
-      const dateRange = generateDateRange(
-        validatedData.period as DateRangeType,
-      );
-      params.append("startDate", dateRange.start);
-      params.append("endDate", dateRange.end);
+    // 构建查询条件
+    const conditions = [eq(todo.userId, user.id), eq(todo.status, "completed")];
+    let dateRange: { start: string; end: string } | undefined;
+
+    // 根据时间周期添加日期范围条件
+    if (period !== "all") {
+      dateRange = generateDateRange(period as DateRangeType);
+
+      // 使用更精确的日期范围计算
+      const startDate = dayjs(dateRange.start).startOf("day").toDate();
+      const endDate = dayjs(dateRange.end).endOf("day").toDate();
+
+      console.log(`查询${period}范围: ${dateRange.start} 到 ${dateRange.end}`);
+
+      // 添加时间范围过滤条件
+      conditions.push(gte(todo.updatedAt, startDate));
+      conditions.push(lte(todo.updatedAt, endDate));
     }
-    const resp = await axios.get<PaginationResponse<Todo>>(
-      `/api/todo?${params.toString()}`,
-    );
+
+    // 查询已完成的待办事项
+    const completedTodos = await dbClient.db
+      .select()
+      .from(todo)
+      .where(and(...conditions))
+      .orderBy(todo.updatedAt);
+
+    console.log(`查询到 ${completedTodos.length} 个已完成的任务 (${period})`);
+
+    // 生成总结标题和周期标识
+    const title = generateSummaryTitle(period, dateRange);
+    const periodIdentifier = generatePeriodIdentifier(period, dateRange);
+
+    // 创建新记录
+    const summaryRecord = await dbClient.db
+      .insert(aiSummary)
+      .values({
+        userId: user.id,
+        title,
+        summaryType: period as any,
+        period: periodIdentifier,
+        todoCount: completedTodos.length,
+        status: "generating",
+      })
+      .returning();
+    summaryId = summaryRecord[0].id;
+
+    // 如果没有找到已完成的任务，更新状态并返回
+    if (completedTodos.length === 0) {
+      const periodLabels = {
+        day: "今日",
+        week: "本周",
+        month: "本月",
+        all: "全部时间",
+      };
+      const periodLabel =
+        periodLabels[period as keyof typeof periodLabels] || "指定时间";
+      const emptyMessage = `${periodLabel}暂无已完成的任务，继续加油！💪`;
+
+      await dbClient.db
+        .update(aiSummary)
+        .set({
+          content: emptyMessage,
+          status: "completed",
+          updatedAt: new Date(),
+        })
+        .where(eq(aiSummary.id, summaryId));
+
+      return NextResponse.json({
+        success: true,
+        summary: emptyMessage,
+        summaryId,
+        isEmpty: true,
+      });
+    }
 
     // 生成AI提示词
     const prompt = getTodoSummaryPrompt(period as any, {
-      userName: user.user_metadata.name,
+      userName: user.user_metadata.name || "用户",
       todos: JSON.stringify(
-        resp.data.map((todo) => ({
-          title: todo.title,
-          description: todo.description,
-          createdAt: todo.createdAt,
-          priority: todo.priority,
+        completedTodos.map((todoItem) => ({
+          title: todoItem.title,
+          description: todoItem.description,
+          createdAt: todoItem.createdAt,
+          updatedAt: todoItem.updatedAt,
+          priority: todoItem.priority,
         })),
       ),
-      completedCount: resp.pagination.total,
+      completedCount: completedTodos.length,
     });
 
     // 调用302.ai API
@@ -85,17 +193,45 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    const aiResponse = response.data || "无法生成总结";
+    const aiResponse = response.data;
+    const summaryContent = aiResponse.choices[0].message.content;
 
-    const responseData = {
+    // 更新总结记录为完成状态
+    await dbClient.db
+      .update(aiSummary)
+      .set({
+        content: summaryContent,
+        status: "completed",
+        prompt: process.env.NODE_ENV === "development" ? prompt : null, // 仅开发环境保存提示词
+        updatedAt: new Date(),
+      })
+      .where(eq(aiSummary.id, summaryId));
+
+    return NextResponse.json({
       success: true,
-      summary: aiResponse.choices[0].message.content,
-      prompt,
-    };
-
-    return NextResponse.json(responseData);
+      summary: summaryContent,
+      summaryId,
+      prompt: process.env.NODE_ENV === "development" ? prompt : undefined,
+    });
   } catch (error: any) {
     console.error("AI总结生成失败:", error);
+
+    // 如果有summaryId，更新错误状态
+    if (summaryId) {
+      try {
+        const dbClient = createDbClient();
+        await dbClient.db
+          .update(aiSummary)
+          .set({
+            status: "failed",
+            errorMessage: error.message,
+            updatedAt: new Date(),
+          })
+          .where(eq(aiSummary.id, summaryId));
+      } catch (updateError) {
+        console.error("更新总结错误状态失败:", updateError);
+      }
+    }
 
     // 返回友好的错误信息
     if (error.response?.status === 401) {
@@ -119,9 +255,69 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json(
-    { error: "请使用POST方法请求此接口" },
-    { status: 405 },
-  );
+export async function GET(request: NextRequest) {
+  const user = await authorization();
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const pageSize = parseInt(searchParams.get("pageSize") || "10");
+    const summaryType = searchParams.get("type") as
+      | "day"
+      | "week"
+      | "month"
+      | "all"
+      | null;
+
+    const dbClient = createDbClient();
+
+    // 构建查询条件
+    const conditions = [eq(aiSummary.userId, user.id)];
+    if (summaryType) {
+      conditions.push(eq(aiSummary.summaryType, summaryType));
+    }
+
+    // 查询总结列表
+    const summaries = await dbClient.db
+      .select({
+        id: aiSummary.id,
+        title: aiSummary.title,
+        summaryType: aiSummary.summaryType,
+        period: aiSummary.period,
+        todoCount: aiSummary.todoCount,
+        status: aiSummary.status,
+        createdAt: aiSummary.createdAt,
+        updatedAt: aiSummary.updatedAt,
+      })
+      .from(aiSummary)
+      .where(and(...conditions))
+      .orderBy(desc(aiSummary.createdAt))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
+
+    // 查询总数
+    const totalCountResult = await dbClient.db
+      .select()
+      .from(aiSummary)
+      .where(and(...conditions));
+
+    const totalCount = totalCountResult.length;
+
+    return NextResponse.json({
+      success: true,
+      data: summaries,
+      pagination: {
+        page,
+        pageSize,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    });
+  } catch (error: any) {
+    console.error("获取总结列表失败:", error);
+    return NextResponse.json(
+      { error: "获取总结列表时发生错误", details: error.message },
+      { status: 500 },
+    );
+  }
 }

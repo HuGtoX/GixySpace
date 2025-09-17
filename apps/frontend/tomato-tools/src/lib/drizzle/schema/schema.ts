@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { todo } from "./todo";
-
+import { aiSummary } from "./aiSummary";
 // 用户角色枚举
 export const userRoleEnum = pgEnum("user_role", ["user", "admin", "anonymous"]);
 
@@ -83,6 +83,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(userSession),
   passwordResetTokens: many(passwordResetToken),
   todos: many(todo),
+  aiSummaries: many(aiSummary),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -108,6 +109,9 @@ export const passwordResetTokenRelations = relations(
     }),
   }),
 );
+
+// 导出表
+export { aiSummary } from "./aiSummary";
 
 // 类型导出
 export type User = typeof user.$inferSelect;
