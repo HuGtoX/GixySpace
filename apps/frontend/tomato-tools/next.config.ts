@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
+        source: "/api/v2/:path*",
         destination: "https://tomato-tools.netlify.app/api/:path*",
         // destination: "http://127.0.0.1:8888/api/:path*",
       },
