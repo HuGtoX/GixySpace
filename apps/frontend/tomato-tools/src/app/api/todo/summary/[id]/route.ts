@@ -6,12 +6,12 @@ import { eq, and } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await authorization();
 
   try {
-    const summaryId = params.id;
+    const { id: summaryId } = await params;
 
     if (!summaryId) {
       return NextResponse.json({ error: "总结ID不能为空" }, { status: 400 });
@@ -25,8 +25,6 @@ export async function GET(
       .from(aiSummary)
       .where(and(eq(aiSummary.id, summaryId), eq(aiSummary.userId, user.id)))
       .limit(1);
-
-    console.log("-- [ summaryDetail ] --", summaryDetail);
 
     if (summaryDetail.length === 0) {
       return NextResponse.json(
@@ -50,12 +48,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await authorization();
 
   try {
-    const summaryId = params.id;
+    const { id: summaryId } = await params;
 
     if (!summaryId) {
       return NextResponse.json({ error: "总结ID不能为空" }, { status: 400 });
