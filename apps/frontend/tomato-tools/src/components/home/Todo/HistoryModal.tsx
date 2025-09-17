@@ -6,8 +6,6 @@ import {
   FaCalendarAlt,
   FaCalendarDay,
   FaBrain,
-  FaTrash,
-  FaEye,
   FaEnvira,
 } from "react-icons/fa";
 import GModal from "@/components/Modal";
@@ -17,6 +15,7 @@ import type { PaginationResponse } from "@/types";
 import TodoItem from "./TodoItem";
 import TodoModal from "./EditModal";
 import AISummarySection from "./AISummarySection";
+import AISummaryList from "./SummaryList";
 import { generateDateRange, DateRangeType } from "@/lib/date";
 
 interface HistoryTodoModalProps {
@@ -58,13 +57,6 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   // 原有的AI总结功能状态
   const [aiSummary, setAiSummary] = useState<string>("");
   const [summaryLoading, setSummaryLoading] = useState(false);
-
-  // AI总结历史相关状态
-  const [aiSummaries, setAiSummaries] = useState<AISummary[]>([]);
-  const [selectedSummary, setSelectedSummary] = useState<AISummary | null>(
-    null,
-  );
-  const [summaryDetailVisible, setSummaryDetailVisible] = useState(false);
 
   // 获取历史完成任务
   const fetchHistoryTodos = async () => {
@@ -117,6 +109,8 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
           message.info(`${periodLabel}暂无已完成的任务`);
         } else {
           message.success(`${periodLabel}总结生成成功`);
+          // 生成总结成功后切换到AI总结分类
+          setSelectedCategory("ai-summary");
         }
       } else {
         throw new Error(response.data.error || "生成总结失败");
@@ -129,48 +123,6 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
     }
   };
 
-  // 获取AI总结历史
-  const fetchAISummaries = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<PaginationResponse<AISummary>>(
-        "/api/todo/summary?page=1&pageSize=20",
-      );
-      setAiSummaries(response.data);
-    } catch (err) {
-      console.error("Failed to fetch AI summaries:", err);
-      message.error("获取AI总结失败");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 删除AI总结
-  const deleteSummary = async (id: string) => {
-    try {
-      await axios.delete(`/api/todo/summary/${id}`);
-      message.success("删除成功");
-      fetchAISummaries();
-    } catch (err) {
-      console.error("Failed to delete summary:", err);
-      message.error("删除失败");
-    }
-  };
-
-  // 查看AI总结详情
-  const viewSummaryDetail = async (summary: AISummary) => {
-    try {
-      const response = await axios.get<AISummary>(
-        `/api/todo/summary/${summary.id}`,
-      );
-      setSelectedSummary(response);
-      setSummaryDetailVisible(true);
-    } catch (err) {
-      console.error("Failed to fetch summary detail:", err);
-      message.error("获取总结详情失败");
-    }
-  };
-
   // 编辑待办事项
   const editTodo = (todo: Todo) => {
     setEditingTodo(todo);
@@ -179,9 +131,7 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
 
   useEffect(() => {
     if (visible) {
-      if (selectedCategory === "ai-summary") {
-        fetchAISummaries();
-      } else {
+      if (selectedCategory !== "ai-summary") {
         fetchHistoryTodos();
       }
     }
@@ -190,9 +140,6 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   // 切换分类
   const handleCategoryChange = (categoryId: CategoriesDateType) => {
     setSelectedCategory(categoryId);
-    // 重置选中的总结
-    setSelectedSummary(null);
-    setSummaryDetailVisible(false);
     // 切换分类时清空当前总结
     setAiSummary("");
   };
@@ -259,126 +206,40 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
 
         {/* 右侧内容区域 */}
         <div className="flex-1 overflow-hidden">
+          {/* AI 总结区域 */}
+          <AISummarySection
+            summaryLoading={summaryLoading}
+            aiSummary={aiSummary}
+          />
           {selectedCategory === "ai-summary" ? (
-            // AI总结历史列表
+            // 使用新的AISummaryList组件
+            <AISummaryList visible={visible} />
+          ) : (
             <div className="h-full overflow-auto">
               <Spin spinning={loading} tip="加载中...">
-                <div className="space-y-4">
-                  {summaryDetailVisible && selectedSummary ? (
-                    // 总结详情视图
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <Button
-                          onClick={() => setSummaryDetailVisible(false)}
-                          type="link"
-                          className="p-0"
-                        >
-                          ← 返回列表
-                        </Button>
-                      </div>
-                      <AISummarySection
-                        summaryLoading={false}
-                        aiSummary={selectedSummary.content}
-                      />
-                    </div>
-                  ) : (
-                    // 总结列表视图
-                    <>
-                      {aiSummaries.length === 0 ? (
-                        <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-                          <div className="mb-2 text-4xl">🤖</div>
-                          <p>暂无AI总结记录</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {aiSummaries.map((summary) => (
-                            <div
-                              key={summary.id}
-                              className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                            >
-                              <div className="mb-2 flex items-center justify-between">
-                                <h3 className="font-medium text-gray-900 dark:text-white">
-                                  {summary.title}
-                                </h3>
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<FaEye />}
-                                    onClick={() => viewSummaryDetail(summary)}
-                                  >
-                                    查看
-                                  </Button>
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    danger
-                                    icon={<FaTrash />}
-                                    onClick={() => deleteSummary(summary.id)}
-                                  >
-                                    删除
-                                  </Button>
-                                </div>
-                              </div>
-                              <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                时间周期:{" "}
-                                {summary.period === "day"
-                                  ? "本日"
-                                  : summary.period === "week"
-                                    ? "本周"
-                                    : summary.period === "month"
-                                      ? "本月"
-                                      : "全部"}
-                              </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                创建时间:{" "}
-                                {new Date(summary.createdAt).toLocaleString()}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                {todos.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                    <div className="mb-2 text-4xl">📋</div>
+                    <p>暂无完成任务</p>
+                  </div>
+                ) : (
+                  <List
+                    dataSource={todos}
+                    renderItem={(todo) => (
+                      <List.Item key={todo.id} className="p-0">
+                        <TodoItem
+                          isHistory={true}
+                          todo={todo}
+                          onEdit={editTodo}
+                          refresh={fetchHistoryTodos}
+                        />
+                      </List.Item>
+                    )}
+                    className="divide-y divide-gray-100 dark:divide-gray-800"
+                  />
+                )}
               </Spin>
             </div>
-          ) : (
-            // 任务列表和总结区域
-            <>
-              {/* AI 总结区域 */}
-              <AISummarySection
-                summaryLoading={summaryLoading}
-                aiSummary={aiSummary}
-              />
-
-              {/* 任务列表区域 */}
-              <div className="h-full overflow-auto">
-                <Spin spinning={loading} tip="加载中...">
-                  {todos.length === 0 ? (
-                    <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-                      <div className="mb-2 text-4xl">📋</div>
-                      <p>暂无完成任务</p>
-                    </div>
-                  ) : (
-                    <List
-                      dataSource={todos}
-                      renderItem={(todo) => (
-                        <List.Item key={todo.id} className="p-0">
-                          <TodoItem
-                            isHistory={true}
-                            todo={todo}
-                            onEdit={editTodo}
-                            refresh={fetchHistoryTodos}
-                          />
-                        </List.Item>
-                      )}
-                      className="divide-y divide-gray-100 dark:divide-gray-800"
-                    />
-                  )}
-                </Spin>
-              </div>
-            </>
           )}
         </div>
       </div>

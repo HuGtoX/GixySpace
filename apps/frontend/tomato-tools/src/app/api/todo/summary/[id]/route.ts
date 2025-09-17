@@ -26,6 +26,8 @@ export async function GET(
       .where(and(eq(aiSummary.id, summaryId), eq(aiSummary.userId, user.id)))
       .limit(1);
 
+    console.log("-- [ summaryDetail ] --", summaryDetail);
+
     if (summaryDetail.length === 0) {
       return NextResponse.json(
         { error: "总结不存在或无权访问" },

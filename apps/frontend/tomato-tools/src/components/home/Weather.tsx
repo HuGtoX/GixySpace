@@ -81,7 +81,7 @@ export default function Weather() {
 
       // 缓存不存在或已过期，从API获取新数据
       const response = await fetch(
-        `/api/hf/weather?lat=${selectedCity.lat}&lon=${selectedCity.lon}`,
+        `/api/v2/hf/weather?lat=${selectedCity.lat}&lon=${selectedCity.lon}`,
       );
       if (!response.ok) throw new Error("网络请求失败");
       const data = await response.json();
