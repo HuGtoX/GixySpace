@@ -3,7 +3,6 @@ import { FaComment, FaImage } from "react-icons/fa";
 import SectionCard from "@/components/SectionCard";
 import Tool from "./Tool";
 import Todo from "./Todo";
-
 const AIToolItem = ({
   icon,
   name,

@@ -5,7 +5,6 @@ import type {
   AxiosResponse,
 } from "axios";
 import { message } from "antd";
-import { GuestID } from "@/config/constants";
 
 declare module "axios" {
   interface AxiosInstance {
@@ -32,12 +31,6 @@ instance.interceptors.request.use(
     config.headers = {
       "Content-Type": "application/json", //配置请求头
     };
-
-    // 添加访客ID
-    if (typeof window !== "undefined") {
-      const guestId = localStorage.getItem(GuestID) || "default-guest-id";
-      config.headers["X-Guest-ID"] = guestId;
-    }
 
     return config;
   },
