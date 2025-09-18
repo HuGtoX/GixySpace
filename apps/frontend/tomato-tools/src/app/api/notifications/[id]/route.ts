@@ -36,10 +36,10 @@ const updateNotificationSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function GET(
       data: notification,
     });
   } catch (error) {
-    log.error("Failed to get notification detail", { error, id: params.id });
+    log.error("Failed to get notification detail", { error });
 
     return NextResponse.json(
       {
@@ -87,10 +87,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateNotificationSchema.parse(body);
 
@@ -162,7 +162,7 @@ export async function PUT(
       data: updatedNotification,
     });
   } catch (error) {
-    log.error("Failed to update notification", { error, id: params.id });
+    log.error("Failed to update notification", { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -190,10 +190,10 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -227,7 +227,7 @@ export async function DELETE(
       message: "通知删除成功",
     });
   } catch (error) {
-    log.error("Failed to delete notification", { error, id: params.id });
+    log.error("Failed to delete notification", { error });
 
     return NextResponse.json(
       {
