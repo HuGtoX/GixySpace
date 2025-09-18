@@ -17,8 +17,6 @@ export const TODO_SUMMARY_PROMPTS = {
   daily: (options: TodoSummaryPromptOptions) => `
 ## 任务完成情况
 - report_type: ${options.period}
-- report_date_range: 今日
-- author: ${options.userName}
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 
@@ -31,8 +29,6 @@ export const TODO_SUMMARY_PROMPTS = {
   weekly: (options: TodoSummaryPromptOptions) => `
 ## 任务完成情况  
 - report_type: ${options.period}
-- report_date_range: 本周
-- author: ${options.userName}
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 
@@ -45,8 +41,6 @@ export const TODO_SUMMARY_PROMPTS = {
   monthly: (options: TodoSummaryPromptOptions) => `
 ## 任务完成情况
 - report_type: ${options.period}
-- report_date_range: 本月
-- author: ${options.userName}
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 
@@ -61,8 +55,6 @@ export const TODO_SUMMARY_PROMPTS = {
 
 ## 任务完成情况
 - report_type: ${options.period}
-- report_date_range: 全部时间
-- author: ${options.userName}
 - raw_task_list: ${options.todos}
 - 共完成 ${options.completedCount} 项任务
 

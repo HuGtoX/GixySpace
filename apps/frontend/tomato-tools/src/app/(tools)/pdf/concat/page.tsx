@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Button, message, List, Typography } from "antd";
 import { PDFDocument } from "pdf-lib";
 import { Container } from "@/components/layout/ToolsLayout";
-import DragList from "@/components/pdfConcat/DragList";
+import DragList from "@/components/pdf/DragList";
 import FileUploader from "@/components/FileUploader";
-import { content } from "@/components/pdfConcat/Content";
+import { content } from "@/components/pdf/Content";
 
 type RcFileType = File & { id: string };
 export interface CustomUploadFile extends RcFileType {
