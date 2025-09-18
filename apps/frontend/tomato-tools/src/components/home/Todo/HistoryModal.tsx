@@ -212,7 +212,6 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
             aiSummary={aiSummary}
           />
           {selectedCategory === "ai-summary" ? (
-            // 使用新的AISummaryList组件
             <AISummaryList visible={visible} />
           ) : (
             <div className="h-full overflow-auto">

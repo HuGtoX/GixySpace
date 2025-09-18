@@ -34,8 +34,10 @@ export default function AISummarySection({
         <span>AI 总结报告</span>
       </div>
       <div className="prose prose-sm max-w-none text-gray-700 dark:prose-invert dark:text-gray-300">
-        {/* @ts-expect-error - ReactMarkdown 类型与 React 19 暂时不兼容 */}
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiSummary}</ReactMarkdown>
+        {(ReactMarkdown as any)({
+          remarkPlugins: [remarkGfm],
+          children: aiSummary,
+        })}
       </div>
     </div>
   );

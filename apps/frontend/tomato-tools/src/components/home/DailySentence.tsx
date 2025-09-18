@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { FaSync, FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle } from "react-icons/fa";
 import SectionCard from "@/components/SectionCard";
-import { Button, message } from "antd";
+import { message } from "antd";
 import axios from "@/lib/axios";
 import { DailySentence as Reuslt, ResOrNull } from "@gixy/types";
 import dayjs from "dayjs";
@@ -23,8 +23,7 @@ export default function DailySentence() {
     }
     try {
       setLoading(true);
-      // 添加调试信息
-      const data = await axios.get<Reuslt>("/api/yiyan/get");
+      const data = await axios.get<Reuslt>("/api/v2/yiyan/get");
       setYiyan(data);
       const date = dayjs().format("YYYY-MM-DD");
       localStorage.setItem("yiyan", JSON.stringify({ ...data, date }));
@@ -44,18 +43,7 @@ export default function DailySentence() {
   }, []);
 
   return (
-    <SectionCard
-      title="每日一句"
-      right={
-        <Button
-          type="text"
-          size="small"
-          icon={<FaSync />}
-          loading={loading}
-          onClick={fetchYiyan}
-        />
-      }
-    >
+    <SectionCard title="每日一言">
       <div className="text-center">
         {yiyan ? (
           <>

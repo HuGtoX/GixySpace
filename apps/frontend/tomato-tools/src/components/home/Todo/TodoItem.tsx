@@ -123,15 +123,17 @@ export default function TodoItem(props: TodoItemProps) {
         <div className="mt-2 hidden items-center justify-between gap-2 text-xs text-gray-500 duration-200 group-hover:flex dark:text-gray-400">
           <span>创建时间：{new Date(todo.createdAt).toLocaleDateString()}</span>
           <div className="flex gap-1">
-            <Tooltip title="编辑" placement="top">
-              <button
-                className="p-1 text-gray-400 hover:text-blue-500"
-                aria-label="编辑任务"
-                onClick={() => onEdit(todo)}
-              >
-                <FaEdit size={14} />
-              </button>
-            </Tooltip>
+            {!isHistory && (
+              <Tooltip title="编辑" placement="top">
+                <button
+                  className="p-1 text-gray-400 hover:text-blue-500"
+                  aria-label="编辑任务"
+                  onClick={() => onEdit(todo)}
+                >
+                  <FaEdit size={14} />
+                </button>
+              </Tooltip>
+            )}
 
             <Tooltip title="删除" placement="top">
               <button

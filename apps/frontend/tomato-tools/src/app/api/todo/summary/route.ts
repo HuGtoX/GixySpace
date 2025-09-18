@@ -34,7 +34,7 @@ const generateSummaryTitle = (
     case "day":
       return `${now.format("YYYY年MM月DD日")}工作总结`;
     case "week":
-      return `${now.format("YYYY年第WW周")}工作总结`;
+      return `${now.format("YYYY年第w周")}工作总结`;
     case "month":
       return `${now.format("YYYY年MM月")}工作总结`;
     case "all":
@@ -54,7 +54,7 @@ const generatePeriodIdentifier = (
     case "day":
       return now.format("YYYY-MM-DD");
     case "week":
-      return now.format("YYYY-[W]WW");
+      return now.format("YYYY-[W]w");
     case "month":
       return now.format("YYYY-MM");
     case "all":
@@ -92,8 +92,6 @@ export async function POST(request: NextRequest) {
       // 使用更精确的日期范围计算
       const startDate = dayjs(dateRange.start).startOf("day").toDate();
       const endDate = dayjs(dateRange.end).endOf("day").toDate();
-
-      console.log(`查询${period}范围: ${dateRange.start} 到 ${dateRange.end}`);
 
       // 添加时间范围过滤条件
       conditions.push(gte(todo.updatedAt, startDate));
@@ -138,15 +136,6 @@ export async function POST(request: NextRequest) {
       const periodLabel =
         periodLabels[period as keyof typeof periodLabels] || "指定时间";
       const emptyMessage = `${periodLabel}暂无已完成的任务，继续加油！💪`;
-
-      await dbClient.db
-        .update(aiSummary)
-        .set({
-          content: emptyMessage,
-          status: "completed",
-          updatedAt: new Date(),
-        })
-        .where(eq(aiSummary.id, summaryId));
 
       return NextResponse.json({
         success: true,
