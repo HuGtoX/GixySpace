@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { Upload, message, Typography, Alert } from "antd";
+import { Upload, Typography, Alert, App } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
 import { useDeviceDetect } from "@/hooks/useDeviceDetect";
@@ -36,6 +36,7 @@ interface FileUploaderProps {
   maxSizeDesktop?: number; // 桌面端最大文件大小（MB），默认50
   uploadText?: string; // 上传提示文本
   disabled?: boolean; // 是否禁用上传
+  acceptText: string; // 可接受的文件类型描述文本
   fileTypeValidator?: (file: File) => boolean; // 自定义文件类型验证函数（默认检查是否为图片）
   errorMessages?: {
     invalidType?: string; // 文件类型错误提示
@@ -68,34 +69,26 @@ const FileUploader = ({
   fileFilter,
   onUploadSuccess,
   onUploadError,
+  acceptText,
   loadingText = "正在处理...",
 }: FileUploaderProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isMobile } = useDeviceDetect();
+  const { message } = App.useApp();
 
   const inputAccept = useMemo(() => {
     return accept.join(",");
   }, [accept]);
 
-  const acceptText = useMemo(() => {
-    const text = [];
-    for (const [key, value] of Object.entries(AcceptMap)) {
-      if (accept.includes(value as AcceptType)) {
-        text.push(key);
-      }
-    }
-    return text.join("、");
-  }, [accept]);
-
   // 处理文件函数
   const processFiles = useCallback(
     async (fileList: File[]) => {
-      if (isLoading) {
+      if (isLoading || fileList.length === 0) {
         return;
       }
-      if (fileList.length === 0) {
-        return;
-      }
+
+      console.log("-- [ fileList ] --", fileList);
+
       if (maxFiles && fileList.length > maxFiles) {
         const errorMsg =
           errorMessages?.maxFiles || `最多只能上传${maxFiles}个文件`;
@@ -121,9 +114,15 @@ const FileUploader = ({
           if (fileTypeValidator) {
             isValidType = fileTypeValidator(file);
           }
+
           if (accept) {
-            isValidType = accept?.some((type) => type === file.type);
+            isValidType = accept?.some((type) => {
+              if (type === file.type) return true;
+              if (type === "image/*" && file.type.startsWith("image/"))
+                return true;
+            });
           }
+
           if (!isValidType) {
             invalidFiles.push(
               `${file.name} (${errorMessages?.invalidType || "文件类型不支持"})`,
@@ -132,7 +131,7 @@ const FileUploader = ({
           }
 
           // 验证文件大小
-          if (!checkFileSizeLimit(file, true)) {
+          if (!checkFileSizeLimit(file, currentMaxSize)) {
             invalidFiles.push(
               `${file.name} (${errorMessages?.overSize || `超过${currentMaxSize}MB限制`})`,
             );
@@ -191,6 +190,7 @@ const FileUploader = ({
       fileFilter,
       onUploadSuccess,
       onUploadError,
+      message,
     ],
   );
 
@@ -251,21 +251,16 @@ const FileUploader = ({
           }}
         >
           <p className="ant-upload-drag-icon">
-            <InboxOutlined
-              className="text-primary dark:text-primary"
-              style={{
-                fontSize: isMobile ? "48px" : "64px",
-              }}
-            />
+            <InboxOutlined className="text-primary" />
           </p>
           <Typography.Title level={isMobile ? 5 : 4}>
             {isLoading
               ? loadingText
               : uploadText ||
-                (isMobile ? "点击上传" : "拖放文件到这里，或点击上传")}
+                (isMobile ? "点击上传" : "点击或拖拽图片到此区域上传")}
           </Typography.Title>
 
-          <Text type="secondary">{`支持${acceptText}格式文件`}</Text>
+          <Text type="secondary">{acceptText}</Text>
           <br />
           <Text type="secondary">
             单个文件大小限制：{isMobile ? "20MB" : "50MB"}
@@ -274,8 +269,8 @@ const FileUploader = ({
       </div>
 
       <Alert
-        message="提示"
-        description={`您正在使用${isMobile ? "移动" : "桌面"}设备模式，单个文件大小限制为${isMobile ? maxSizeMobile : maxSizeDesktop}MB。`}
+        message="隐私保护"
+        description={`所有图片处理都在您的浏览器本地进行，不会上传到服务器，确保您的隐私安全。`}
         type="info"
         showIcon
         style={{ marginTop: "16px" }}

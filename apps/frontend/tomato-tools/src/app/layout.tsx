@@ -17,7 +17,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('isDarkMode');
+                  const isDarkMode = savedTheme !== null ? JSON.parse(savedTheme) : true;
+                  if (!isDarkMode) {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {
+                  // 如果解析失败，保持默认的暗色主题（已经在className中设置）
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           <AntdProvider>

@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Button, message, List, Typography } from "antd";
 import { PDFDocument } from "pdf-lib";
 import { Container } from "@/components/layout/ToolsLayout";
-import DragList from "@/components/pdf/DragList";
+import DragList from "../components/DragList";
 import FileUploader from "@/components/FileUploader";
-import { content } from "@/components/pdf/Content";
+import { concatContent } from "../components/Content";
 
 type RcFileType = File & { id: string };
 export interface CustomUploadFile extends RcFileType {
@@ -81,7 +81,7 @@ const ConcatPage: React.FC = () => {
     <Container
       title="PDF合并"
       instructions={{
-        content,
+        content: concatContent,
       }}
       footer={
         <div style={{ display: "flex", gap: 16 }}>
@@ -111,6 +111,7 @@ const ConcatPage: React.FC = () => {
       <FileUploader
         onUploadSuccess={handleUpload}
         accept={["application/pdf"]}
+        acceptText="支持PDF格式文件"
         multiple
       />
 

@@ -11,7 +11,7 @@ import { Button, Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "./components/BatchActions";
 import ConversionSettings from "./components/ConversionSettings";
-import FileUploader from "./components/FileUploader";
+import FileUploader from "@/components/FileUploader";
 import ImageItem from "./components/ImageItem";
 import { ImageFile, ConversionSettings as SettingsType } from "./types";
 
@@ -404,12 +404,15 @@ export default function ImageTransformPage() {
         </Modal>
 
         <Row gutter={[24, 24]}>
-          {/* 左侧内容 - 上传区 */}
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <FileUploader onFilesAdded={handleFilesAdded} />
+            <FileUploader
+              multiple
+              accept={["image/*"]}
+              acceptText="支持单个或批量上传。支持 JPG、PNG、WebP 等格式"
+              onUploadSuccess={handleFilesAdded}
+            />
           </Col>
 
-          {/* 右侧内容 - 设置区 */}
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <ConversionSettings
               settings={settings}

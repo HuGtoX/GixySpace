@@ -369,8 +369,8 @@ export const saveImage = (blob: Blob, filename: string) => {
 };
 
 // 检查文件大小限制
-export const checkFileSizeLimit = (file: File, isMobile: boolean): boolean => {
-  const maxSize = isMobile ? 20 * 1024 * 1024 : 50 * 1024 * 1024; // 20MB for mobile, 50MB for desktop
+export const checkFileSizeLimit = (file: File, size: number): boolean => {
+  const maxSize = size * 1024 * 1024; // 20MB for mobile, 50MB for desktop
   return file.size <= maxSize;
 };
 
