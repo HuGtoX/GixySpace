@@ -9,6 +9,7 @@ import {
 import { relations } from "drizzle-orm";
 import { todo } from "./todo";
 import { aiSummary } from "./aiSummary";
+import { notification, userNotification } from "./notification";
 // 用户角色枚举
 export const userRoleEnum = pgEnum("user_role", ["user", "admin", "anonymous"]);
 
@@ -84,6 +85,8 @@ export const userRelations = relations(user, ({ one, many }) => ({
   passwordResetTokens: many(passwordResetToken),
   todos: many(todo),
   aiSummaries: many(aiSummary),
+  notifications: many(userNotification),
+  createdNotifications: many(notification),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -112,6 +115,14 @@ export const passwordResetTokenRelations = relations(
 
 // 导出表
 export { aiSummary } from "./aiSummary";
+export {
+  notification,
+  userNotification,
+  notificationStats,
+  notificationRelations,
+  userNotificationRelations,
+  notificationStatsRelations,
+} from "./notification";
 
 // 类型导出
 export type User = typeof user.$inferSelect;
@@ -122,3 +133,15 @@ export type UserSession = typeof userSession.$inferSelect;
 export type NewUserSession = typeof userSession.$inferInsert;
 export type PasswordResetToken = typeof passwordResetToken.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetToken.$inferInsert;
+
+// 导出通知相关类型
+export type {
+  Notification,
+  NewNotification,
+  UserNotification,
+  NewUserNotification,
+  NotificationStats,
+  NewNotificationStats,
+  NotificationWithStats,
+  UserNotificationWithDetails,
+} from "./notification";

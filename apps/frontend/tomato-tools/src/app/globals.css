@@ -13,25 +13,25 @@
 
   /* 预定义颜色类 */
   .theme-blue {
-    @apply bg-blue-50 text-blue-400;
+    @apply bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400;
   }
   .theme-green {
-    @apply bg-green-50 text-green-400;
+    @apply bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400;
   }
   .theme-purple {
-    @apply bg-purple-50 text-purple-400;
+    @apply bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400;
   }
   .theme-red {
-    @apply bg-red-50 text-red-400;
+    @apply bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400;
   }
   .theme-yellow {
-    @apply bg-yellow-50 text-yellow-400;
+    @apply bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400;
   }
   .theme-indigo {
-    @apply bg-indigo-50 text-indigo-400;
+    @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400;
   }
   .theme-gray {
-    @apply bg-gray-50 text-gray-400;
+    @apply bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400;
   }
 }
 
@@ -124,6 +124,38 @@ body::-webkit-scrollbar-thumb:hover {
 
   .item-hover {
     @apply cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800;
+  }
+
+  /* 通用背景样式 */
+  .bg-surface {
+    @apply bg-white dark:bg-gray-800;
+  }
+
+  .bg-surface-secondary {
+    @apply bg-gray-50 dark:bg-gray-900;
+  }
+
+  /* 通用文本样式 */
+  .text-primary {
+    @apply text-gray-900 dark:text-white;
+  }
+
+  .text-secondary {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+
+  .text-tertiary {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  /* 通用边框样式 */
+  .border-surface {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  /* 卡片样式 */
+  .card-surface {
+    @apply border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800;
   }
 
   /* 自定义滚动条样式 */

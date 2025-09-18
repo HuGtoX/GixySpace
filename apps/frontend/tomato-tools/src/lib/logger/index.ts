@@ -3,9 +3,7 @@ import pino, { Logger } from "pino";
 // 检测是否使用 Turbopack
 // 检查环境变量和命令行参数
 const isTurbopack =
-  process.env.TURBOPACK === "1" ||
-  process.argv.includes("--turbopack") ||
-  process.env.NEXT_RUNTIME === "edge";
+  process.env.TURBOPACK === "1" || process.env.NEXT_RUNTIME === "edge";
 
 // 颜色代码
 const colors = {

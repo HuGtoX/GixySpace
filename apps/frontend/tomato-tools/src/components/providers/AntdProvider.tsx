@@ -38,6 +38,9 @@ const componentsTheme = (isDarkMode: boolean) => ({
   Input: {
     borderRadius: 8,
     controlHeight: 40,
+    colorBgContainer: isDarkMode
+      ? themeColors.dark.inputBg
+      : themeColors.light.inputBg,
   },
   Layout: {
     bodyBg: isDarkMode ? themeColors.dark.bodyBg : themeColors.light.bodyBg, // gray-900 : gray-50
@@ -50,12 +53,39 @@ const componentsTheme = (isDarkMode: boolean) => ({
     boxShadow: isDarkMode
       ? "0 4px 6px -1px rgba(0, 0, 0, 0.3)"
       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    colorBgContainer: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+    colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
   },
   Modal: {
     borderRadius: 12,
+    contentBg: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+    headerBg: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
   },
   Drawer: {
     borderRadius: 12,
+    colorBgElevated: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+  },
+  Table: {
+    colorBgContainer: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+    colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
+  },
+  Select: {
+    colorBgContainer: isDarkMode
+      ? themeColors.dark.inputBg
+      : themeColors.light.inputBg,
+    colorBgElevated: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+  },
+  DatePicker: {
+    colorBgContainer: isDarkMode
+      ? themeColors.dark.inputBg
+      : themeColors.light.inputBg,
+    colorBgElevated: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+  },
+  Popover: {
+    colorBgElevated: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
+  },
+  Dropdown: {
+    colorBgElevated: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
   },
 });
 
@@ -76,8 +106,19 @@ const AntdProvider = ({ children }: AntdProviderProps) => {
           colorPrimary: "#FF6347",
           colorBgSpotlight: "rgba(0,0,0,0.7)",
           colorBgContainer: isDarkMode
-            ? themeColors.dark.inputBg
-            : themeColors.light.inputBg,
+            ? themeColors.dark.bg
+            : themeColors.light.bg,
+          colorBgLayout: isDarkMode
+            ? themeColors.dark.bodyBg
+            : themeColors.light.bodyBg,
+          colorBgElevated: isDarkMode
+            ? themeColors.dark.bg
+            : themeColors.light.bg,
+          colorBorder: isDarkMode ? "#374151" : "#D9D9D9",
+          colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
+          colorText: isDarkMode ? "#F9FAFB" : "#000000",
+          colorTextSecondary: isDarkMode ? "#D1D5DB" : "#666666",
+          colorTextTertiary: isDarkMode ? "#9CA3AF" : "#999999",
         },
         components: componentsTheme(isDarkMode),
       }

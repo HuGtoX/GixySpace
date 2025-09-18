@@ -2,18 +2,12 @@
 
 import React from "react";
 import { Affix, Input, Button, Dropdown, Avatar, MenuProps } from "antd";
-import {
-  FaSun,
-  FaMoon,
-  FaBell,
-  FaUser,
-  FaCog,
-  FaSignOutAlt,
-} from "react-icons/fa";
+import { FaSun, FaMoon, FaUser, FaCog, FaSignOutAlt } from "react-icons/fa";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 const { Search } = Input;
 
@@ -100,9 +94,7 @@ const Header = () => {
               onClick={toggleTheme}
               className="transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
             />
-            <Button shape="circle" icon={<FaBell />} className="relative">
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-            </Button>
+            <NotificationDropdown />
             {user ? (
               <div className="flex items-center space-x-3">
                 <span className="hidden text-sm font-medium text-gray-700 dark:text-gray-300 md:block">
