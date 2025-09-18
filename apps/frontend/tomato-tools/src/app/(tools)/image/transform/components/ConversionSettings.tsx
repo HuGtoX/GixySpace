@@ -66,7 +66,7 @@ const ConversionSettings = ({
             <Option value="ico">ICO</Option>
           </Select>
           {currentFormat && settings.format !== currentFormat && (
-            <Typography.Text type="success" className="block mt-1">
+            <Typography.Text type="success" className="mt-1 block">
               从 {currentFormat.toUpperCase()} 转换为{" "}
               {settings.format.toUpperCase()}
             </Typography.Text>
@@ -92,7 +92,9 @@ const ConversionSettings = ({
               <Typography.Text type="secondary">
                 当前质量: {settings.quality}%
                 {settings.quality >= 90 && " (高质量)"}
-                {settings.quality >= 70 && settings.quality < 90 && " (中等质量)"}
+                {settings.quality >= 70 &&
+                  settings.quality < 90 &&
+                  " (中等质量)"}
                 {settings.quality < 70 && " (压缩模式)"}
               </Typography.Text>
             </Space>

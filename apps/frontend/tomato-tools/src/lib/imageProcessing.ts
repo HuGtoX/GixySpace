@@ -139,6 +139,208 @@ export const convertImage = async (
   });
 };
 
+/**
+ * 将图片转换为SVG格式
+ * @param file - 图片文件
+ * @param settings - SVG转换设置
+ * @returns 转换结果
+ */
+export async function convertImageToSVG(
+  file: File,
+  settings: {
+    precision: number;
+    colorMode: "auto" | "color" | "grayscale" | "monochrome";
+    removeBackground: boolean;
+    simplifyPaths: boolean;
+  },
+): Promise<{
+  preview: string;
+  blob: Blob;
+  format: "svg";
+  size: number;
+}> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    img.onload = async () => {
+      try {
+        // 设置canvas尺寸
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // 绘制图片到canvas
+        ctx!.drawImage(img, 0, 0);
+
+        // 获取图片数据
+        const imageData = ctx!.getImageData(0, 0, canvas.width, canvas.height);
+
+        // 创建SVG
+        const svg = createSVGFromImageData(imageData, settings);
+
+        // 将SVG转换为Blob
+        const svgBlob = new Blob([svg], { type: "image/svg+xml" });
+
+        // 创建预览URL
+        const previewUrl = URL.createObjectURL(svgBlob);
+
+        resolve({
+          preview: previewUrl,
+          blob: svgBlob,
+          format: "svg",
+          size: svgBlob.size,
+        });
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    img.onerror = () => {
+      reject(new Error("图片加载失败"));
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/**
+ * 从ImageData创建SVG
+ */
+function createSVGFromImageData(
+  imageData: ImageData,
+  settings: {
+    precision: number;
+    colorMode: "auto" | "color" | "grayscale" | "monochrome";
+    removeBackground: boolean;
+    simplifyPaths: boolean;
+  },
+): string {
+  const { width, height, data } = imageData;
+
+  // 简化的SVG创建逻辑
+  // 在实际应用中，这里应该使用更复杂的矢量化算法
+  // 这里提供一个基础的实现
+
+  let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // 根据颜色模式处理
+  switch (settings.colorMode) {
+    case "monochrome":
+      svgContent += createMonochromeSVG(data, width, height, settings);
+      break;
+    case "grayscale":
+      svgContent += createGrayscaleSVG(data, width, height, settings);
+      break;
+    case "color":
+    case "auto":
+    default:
+      svgContent += createColorSVG(data, width, height, settings);
+      break;
+  }
+
+  svgContent += "</svg>";
+
+  return svgContent;
+}
+
+/**
+ * 创建彩色SVG
+ */
+function createColorSVG(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  settings: { precision: number; simplifyPaths: boolean },
+): string {
+  // 简化的彩色SVG创建
+  // 实际应用中应使用Potrace或类似算法
+  const step = Math.max(1, 11 - settings.precision);
+  let content = "";
+
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      if (a > 128) {
+        // 忽略透明像素
+        const size = step;
+        content += `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="rgb(${r},${g},${b})" />`;
+      }
+    }
+  }
+
+  return content;
+}
+
+/**
+ * 创建灰度SVG
+ */
+function createGrayscaleSVG(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  settings: { precision: number; simplifyPaths: boolean },
+): string {
+  const step = Math.max(1, 11 - settings.precision);
+  let content = "";
+
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      if (a > 128) {
+        const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+        const size = step;
+        content += `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="rgb(${gray},${gray},${gray})" />`;
+      }
+    }
+  }
+
+  return content;
+}
+
+/**
+ * 创建单色SVG
+ */
+function createMonochromeSVG(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  settings: { precision: number; simplifyPaths: boolean },
+): string {
+  const step = Math.max(1, 11 - settings.precision);
+  let content = "";
+
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      if (a > 128) {
+        const brightness = (r + g + b) / 3;
+        if (brightness > 128) {
+          const size = step;
+          content += `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="black" />`;
+        }
+      }
+    }
+  }
+
+  return content;
+}
+
 // 获取推荐格式
 export const getRecommendedFormat = (
   currentFormat: ImageFormat,
