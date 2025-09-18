@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Modal } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
-import { FaDownload } from "react-icons/fa";
+import { otherToolsMenu } from "@/config/tools";
 import IconWrapper from "@/components/IconWrapper";
 
 interface ToolsModalProps {
@@ -11,16 +11,6 @@ interface ToolsModalProps {
 }
 
 // 定义其他工具菜单数据
-const otherTools = [
-  {
-    id: 6,
-    name: "URL图标下载",
-    url: "/icon/download",
-    background: "bg-purple-500/10 dark:bg-purple-500/10",
-    icon: <FaDownload className="text-purple-500 dark:text-purple-400" />,
-    description: "获取网站图标并下载",
-  },
-];
 
 export default function ToolsModal({ visible, onClose }: ToolsModalProps) {
   const { isDarkMode } = useTheme();
@@ -68,7 +58,7 @@ export default function ToolsModal({ visible, onClose }: ToolsModalProps) {
         {/* 内容区域 */}
         <div className="p-6">
           <div className="grid grid-cols-2 gap-4">
-            {otherTools.map((item) => (
+            {otherToolsMenu.map((item) => (
               <div
                 key={item.id}
                 className="tool-icon ripple pixel-grow cursor-pointer rounded-xl bg-white p-4 text-center shadow-sm hover:shadow-md dark:bg-gray-800"

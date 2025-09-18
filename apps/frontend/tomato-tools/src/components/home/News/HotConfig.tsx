@@ -44,7 +44,7 @@ export const douyinConfig: NewsPlatformConfig = {
   title: "抖音热搜榜",
   color: "text-douyin",
   bg: "bg-douyin-60",
-  icon: <Image src="/news-icon/douyin.png" alt="抖音" width={20} height={20} />,
+  icon: <img src="/news-icon/douyin.png" alt="抖音" width={20} height={20} />,
 };
 
 // 雪球配置
@@ -53,7 +53,7 @@ export const xueqiuConfig: NewsPlatformConfig = {
   title: "雪球热搜榜",
   color: "text-xueqiu",
   bg: "bg-xueqiu-60",
-  icon: <Image src="/news-icon/xueqiu.png" alt="雪球" width={20} height={20} />,
+  icon: <img src="/news-icon/xueqiu.png" alt="雪球" width={20} height={20} />,
 };
 
 // 今日头条
@@ -63,7 +63,7 @@ export const toutiaoConfig: NewsPlatformConfig = {
   color: "text-toutiao",
   bg: "bg-toutiao-60",
   icon: (
-    <Image src="/news-icon/toutiao.ico" alt="今日头条" width={20} height={20} />
+    <img src="/news-icon/toutiao.ico" alt="今日头条" width={20} height={20} />
   ),
 };
 

@@ -76,10 +76,7 @@ const ImageItem = ({
   };
 
   return (
-    <Card
-      className="mb-4"
-      bodyStyle={{ padding: isMobile ? "12px" : "16px" }}
-    >
+    <Card className="mb-4" bodyStyle={{ padding: isMobile ? "12px" : "16px" }}>
       <Row gutter={[16, 16]} align="middle">
         <Col xs={24} sm={6} md={4} lg={3} xl={3}>
           <div className="relative">
@@ -88,7 +85,7 @@ const ImageItem = ({
               alt={name}
               width="100%"
               height={80}
-              className="object-cover rounded"
+              className="rounded object-cover"
               preview={false}
             />
             {onPreview && (
@@ -96,7 +93,7 @@ const ImageItem = ({
                 type="primary"
                 icon={<EyeOutlined />}
                 size="small"
-                className="absolute top-1 right-1 opacity-80"
+                className="absolute right-1 top-1 opacity-80"
                 onClick={() => onPreview(imageFile)}
               />
             )}
@@ -154,9 +151,7 @@ const ImageItem = ({
         <Col xs={24} sm={6} md={6} lg={6} xl={6}>
           <Space
             direction={isMobile ? "horizontal" : "vertical"}
-            className={`w-full ${
-              isMobile ? "justify-center" : "justify-end"
-            }`}
+            className={`w-full ${isMobile ? "justify-center" : "justify-end"}`}
           >
             {onConvert && ["idle", "error"].includes(status) && (
               <Tooltip title="转换">

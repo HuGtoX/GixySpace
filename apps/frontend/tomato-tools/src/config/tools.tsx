@@ -1,5 +1,11 @@
-import { FaFileExport, FaImage, FaFileImport, FaCode } from "react-icons/fa";
-import { FaGithub } from "react-icons/fa6";
+import {
+  FaFileExport,
+  FaImage,
+  FaFileImport,
+  FaCode,
+  FaDownload,
+  FaGithub,
+} from "react-icons/fa";
 
 // 工具选项数据
 export const toolsMenu = [
@@ -41,5 +47,24 @@ export const toolsMenu = [
     background: "bg-blue-500/10 dark:bg-blue-500/10",
     icon: <FaCode className="text-teal-500 dark:text-teal-400" />,
     description: "React编辑器实现实时编辑渲染",
+  },
+];
+
+export const otherToolsMenu = [
+  {
+    id: 6,
+    name: "URL图标下载",
+    url: "/icon/download",
+    background: "bg-purple-500/10 dark:bg-purple-500/10",
+    icon: <FaDownload className="text-purple-500 dark:text-purple-400" />,
+    description: "获取网站图标并下载",
+  },
+  {
+    id: 7,
+    name: "图片转SVG",
+    url: "/image/svg-convert",
+    background: "bg-yellow-500/10 dark:bg-yellow-500/10",
+    icon: <FaImage className="text-yellow-500 dark:text-yellow-400" />,
+    description: "图片转SVG格式",
   },
 ];

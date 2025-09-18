@@ -18,6 +18,35 @@ interface FileUploaderProps {
   onFilesAdded: (files: ImageFile[]) => void;
 }
 
+// 生成文件指纹，用于相同文件识别
+const generateFileFingerprint = async (file: File): Promise<string> => {
+  try {
+    // 使用文件名、大小、最后修改时间创建指纹
+    const fingerprintData = `${file.name}-${file.size}-${file.lastModified}`;
+
+    // 如果支持crypto API，生成哈希值
+    if (window.crypto && window.crypto.subtle) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(fingerprintData);
+      const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // 降级方案：使用简单的字符串哈希
+    let hash = 0;
+    for (let i = 0; i < fingerprintData.length; i++) {
+      const char = fingerprintData.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // 转换为32位整数
+    }
+    return Math.abs(hash).toString(36);
+  } catch (error) {
+    console.warn("生成文件指纹失败，使用UUID:", error);
+    return uuidv4();
+  }
+};
+
 const FileUploader = ({ onFilesAdded }: FileUploaderProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isMobile } = useDeviceDetect();
@@ -54,9 +83,11 @@ const FileUploader = ({ onFilesAdded }: FileUploaderProps) => {
           try {
             const preview = await createPreviewUrl(file);
             const format = detectImageFormat(file);
+            // 为相同文件生成一致的ID
+            const fileId = await generateFileFingerprint(file);
 
             validFiles.push({
-              id: uuidv4(),
+              id: fileId,
               file,
               preview,
               format,
@@ -91,7 +122,7 @@ const FileUploader = ({ onFilesAdded }: FileUploaderProps) => {
 
   // 处理文件选择
   const handleFileUpload = useCallback(
-    (options: Parameters<NonNullable<UploadProps['customRequest']>>[0]) => {
+    (options: Parameters<NonNullable<UploadProps["customRequest"]>>[0]) => {
       const { file, onSuccess } = options;
 
       // 单个文件上传处理
