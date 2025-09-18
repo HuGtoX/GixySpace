@@ -62,7 +62,6 @@ const ConversionSettings = ({
             <Option value="jpg">JPG</Option>
             <Option value="png">PNG</Option>
             <Option value="webp">WEBP</Option>
-            <Option value="svg">SVG</Option>
             <Option value="ico">ICO</Option>
           </Select>
           {currentFormat && settings.format !== currentFormat && (

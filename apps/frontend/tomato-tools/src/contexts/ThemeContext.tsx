@@ -21,28 +21,25 @@ interface ThemeProviderProps {
 }
 
 const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  // 使用函数初始化形式，确保在组件初始化时就确定主题
-  // 服务端和客户端保持一致的初始值
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+  // 服务端和客户端都使用相同的初始值，避免水合不匹配
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // 在客户端水合完成后，再从localStorage加载用户的主题偏好
+  // 在客户端水合完成后，同步localStorage的主题设置
   useEffect(() => {
-    setIsHydrated(true);
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem("isDarkMode");
-      if (savedTheme !== null) {
-        setIsDarkMode(JSON.parse(savedTheme));
+    if (typeof window !== "undefined") {
+      try {
+        const savedTheme = localStorage.getItem("isDarkMode");
+        if (savedTheme !== null) {
+          const parsedTheme = JSON.parse(savedTheme);
+          if (parsedTheme !== isDarkMode) {
+            setIsDarkMode(parsedTheme);
+          }
+        }
+      } catch (e) {
+        // 解析失败时保持当前状态
       }
     }
   }, []);
-
-  // 只在水合完成后设置文档类名，避免水合过程中主题切换导致的className不匹配
-  useEffect(() => {
-    if (isHydrated) {
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, [isDarkMode, isHydrated]);
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode;

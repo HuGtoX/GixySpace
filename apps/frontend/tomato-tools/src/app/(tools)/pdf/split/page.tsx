@@ -12,6 +12,7 @@ import {
 import Container from "@/components/layout/ToolsLayout/Container";
 import { downloadFile } from "@gixy/utils";
 import FileUploader from "@/components/FileUploader";
+import { splitContent } from "../components/Content";
 import { PDFDocument } from "pdf-lib";
 
 let pdfjsLib: any = null;
@@ -58,7 +59,6 @@ const PdfSplitPage = () => {
   // 因为存在dom对象的操作，pdfjs包需要动态导入进行水合
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Import PDF.js...
       import("pdfjs-dist").then((pdfjsObject) => {
         pdfjsLib = pdfjsObject;
         // Set the worker source...
@@ -210,11 +210,9 @@ const PdfSplitPage = () => {
         const pdfBytes = e?.target?.result as ArrayBuffer;
         setPdfBytes(pdfBytes);
 
-        // 2. 使用 pdf-lib 加载 PDF 文档
         const pdfDoc = await PDFDocument.load(pdfBytes);
         setPdfDoc(pdfDoc);
 
-        // 渲染页面
         await renderPages();
       };
       reader.readAsArrayBuffer(file);
@@ -240,7 +238,6 @@ const PdfSplitPage = () => {
   // 监听scale变化，重新渲染页面
   React.useEffect(() => {
     if (pdfBytes) {
-      // 添加延迟确保scale更新完成
       const timer = setTimeout(() => {
         renderPages();
       }, 100);
@@ -248,18 +245,6 @@ const PdfSplitPage = () => {
       return () => clearTimeout(timer);
     }
   }, [scale, renderPages, pdfBytes]);
-
-  // 工具说明内容
-  const instructions = {
-    title: "使用说明",
-    content: [
-      "上传PDF文件：点击下方的文件上传按钮，选择需要拆分的PDF文档（仅支持PDF格式）。",
-      "预览页面：上传成功后，页面会显示所有PDF页面的缩略图，每个缩略图右上角显示页码。",
-      "选择页面：点击需要拆分的页面缩略图，选中的页面会显示蓝色边框和背景色（可多选）。",
-      "执行拆分：确认选择后，点击顶部的“完成”按钮，系统将生成并自动下载拆分后的PDF文件（仅包含选中页面）。",
-    ],
-    tips: "整个转换过程都在您的本地进行，我们不会上传任何数据到云端服务器",
-  };
 
   return (
     <Container
@@ -320,13 +305,7 @@ const PdfSplitPage = () => {
         </div>
       }
       instructions={{
-        ...instructions,
-        content: [
-          "上传PDF文件：点击下方的文件上传按钮，选择需要拆分的PDF文档（仅支持PDF格式）。",
-          "创建分区：点击'添加分区'按钮可以创建多个拆分区域。",
-          "选择页面：先选择要添加页面的分区，然后点击PDF页面缩略图将其添加到该分区。",
-          "执行拆分：确认选择后，点击顶部的'完成拆分'按钮，系统将为每个分区生成并自动下载对应的PDF文件。",
-        ],
+        content: splitContent,
       }}
     >
       <Content>
@@ -408,6 +387,7 @@ const PdfSplitPage = () => {
         </div>
         <FileUploader
           accept={["application/pdf"]}
+          acceptText="支持PDF格式文件"
           onUploadSuccess={handleUpload}
           multiple
         />

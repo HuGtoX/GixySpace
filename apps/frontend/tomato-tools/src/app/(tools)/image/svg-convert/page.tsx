@@ -6,7 +6,7 @@ import { convertImageToSVG, saveImage } from "@/lib/imageProcessing";
 import { Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "../transform/components/BatchActions";
-import FileUploader from "../transform/components/FileUploader";
+import FileUploader from "@/components/FileUploader";
 import ImageItem from "../transform/components/ImageItem";
 import { ImageFile } from "../transform/types";
 import { svgInstructions } from "./instructions";
@@ -37,63 +37,8 @@ export default function SVGConvertPage() {
 
   // 处理新添加的文件
   const handleFilesAdded = useCallback((files: ImageFile[]) => {
-    // 检查文件ID是否已存在，防止重复添加
     setImageFiles((prevFiles) => {
-      // 获取已有文件的ID集合
-      const existingIds = new Set(prevFiles.map((file) => file.id));
-
-      // 同时检查文件名和文件大小，避免相同文件重复上传
-      const existingFiles = new Set(
-        prevFiles.map((file) => `${file.name}-${file.size}`),
-      );
-
-      // 分别统计不同类型重复的文件
-      const duplicateIds: string[] = [];
-      const duplicateContents: string[] = [];
-      const newFiles: ImageFile[] = [];
-
-      // 过滤掉已存在的文件（基于ID）和相同内容的文件（基于文件名和大小）
-      files.forEach((file) => {
-        // 检查ID是否已存在
-        if (existingIds.has(file.id)) {
-          duplicateIds.push(file.name);
-          return;
-        }
-
-        // 检查文件内容是否相同（基于文件名和大小）
-        const fileKey = `${file.name}-${file.size}`;
-        if (existingFiles.has(fileKey)) {
-          duplicateContents.push(file.name);
-          return;
-        }
-
-        // 新文件
-        newFiles.push(file);
-      });
-
-      // 提供详细的重复文件提示
-      const totalDuplicates = duplicateIds.length + duplicateContents.length;
-      if (totalDuplicates > 0) {
-        const messages: string[] = [];
-        if (duplicateIds.length > 0) {
-          messages.push(`${duplicateIds.length}个文件ID重复`);
-        }
-        if (duplicateContents.length > 0) {
-          messages.push(`${duplicateContents.length}个文件内容重复`);
-        }
-        message.warning(
-          `跳过${totalDuplicates}个重复文件: ${messages.join("，")}`,
-        );
-      }
-
-      // 如果没有新文件，直接返回原状态
-      if (newFiles.length === 0) {
-        return prevFiles;
-      }
-
-      // 否则添加新文件
-      message.success(`成功添加 ${newFiles.length} 个新文件`);
-      return [...prevFiles, ...newFiles];
+      return [...prevFiles, ...files];
     });
   }, []);
 
@@ -498,10 +443,14 @@ export default function SVGConvertPage() {
         <Col xs={24} lg={16}>
           {/* 文件上传区域 */}
           <div className="mb-8">
-            <FileUploader onFilesAdded={handleFilesAdded} />
+            <FileUploader
+              multiple
+              accept={["image/*"]}
+              acceptText="支持单个或批量上传。支持 JPG、PNG、WebP 等格式"
+              onUploadSuccess={handleFilesAdded}
+            />
           </div>
 
-          {/* 图片列表 */}
           {imageFiles.length > 0 && (
             <div>
               <div className="mb-4 flex items-center justify-between">
