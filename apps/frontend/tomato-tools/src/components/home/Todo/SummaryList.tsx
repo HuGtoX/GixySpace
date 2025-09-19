@@ -153,14 +153,7 @@ export default function AISummaryList({ visible }: AISummaryListProps) {
                         </div>
                       </div>
                       <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        时间周期:{" "}
-                        {summary.period === "day"
-                          ? "本日"
-                          : summary.period === "week"
-                            ? "本周"
-                            : summary.period === "month"
-                              ? "本月"
-                              : "全部"}
+                        时间周期: {summary.period}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         创建时间: {new Date(summary.createdAt).toLocaleString()}
