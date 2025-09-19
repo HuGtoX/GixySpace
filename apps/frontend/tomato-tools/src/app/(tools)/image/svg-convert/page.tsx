@@ -288,6 +288,9 @@ export default function SVGConvertPage() {
           </label>
           <div className="relative">
             <input
+              aria-label="Conversion precision slider"
+              title="Adjust conversion precision"
+              placeholder="Conversion precision"
               type="range"
               min="1"
               max="10"
