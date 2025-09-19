@@ -67,4 +67,12 @@ export const otherToolsMenu = [
     icon: <FaImage className="text-yellow-500 dark:text-yellow-400" />,
     description: "图片转SVG格式",
   },
+  {
+    id: 8,
+    name: "GIF转换工坊",
+    url: "/image/gif-convert",
+    background: "bg-red-500/10 dark:bg-red-500/10",
+    icon: <FaImage className="text-red-500 dark:text-red-400" />,
+    description: "GIF与图片互转、拼接",
+  },
 ];
