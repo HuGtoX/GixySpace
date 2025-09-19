@@ -1,5 +1,5 @@
 import { Modal, Card, Divider } from "antd";
-import type { WeatherData } from "@gixy/types";
+import type { WeatherInfoResponse } from "@/app/api/types";
 import { FaWind } from "react-icons/fa";
 import "qweather-icons/font/qweather-icons.css"; // 引入天气图标样式
 
@@ -25,7 +25,7 @@ const getWeatherIconColor = (weatherText: string) => {
 interface DetailModalProps {
   isModalVisible: boolean;
   setIsModalVisible: (visible: boolean) => void;
-  weatherData: WeatherData | null;
+  weatherData: WeatherInfoResponse | null;
 }
 
 const DetailModal: React.FC<DetailModalProps> = ({
@@ -93,24 +93,26 @@ const DetailModal: React.FC<DetailModalProps> = ({
           </div>
         </Card>
 
-        <Card bordered={false} title="空气质量" className="mb-3">
-          <div className="mb-2 flex items-center p-2">
-            <div
-              className={`flex h-10 w-10 items-center justify-center rounded-full ${getAqiColor(Number(weatherData.air.now.aqi))} mr-3 font-bold`}
-            >
-              {weatherData.air.now.aqi}
-            </div>
-            <div>
-              <div className="text-sm font-medium">
-                {weatherData.air.now.category}
+        {weatherData.air && (
+          <Card bordered={false} title="空气质量" className="mb-3">
+            <div className="mb-2 flex items-center p-2">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${getAqiColor(Number(weatherData.air.now.aqi))} mr-3 font-bold`}
+              >
+                {weatherData.air.now.aqi}
               </div>
-              <div className="text-xs text-gray-500">
-                PM2.5: {weatherData.air.now.pm2p5}μg/m³
+              <div>
+                <div className="text-sm font-medium">
+                  {weatherData.air.now.category}
+                </div>
+                <div className="text-xs text-gray-500">
+                  PM2.5: {weatherData.air.now.pm25}μg/m³
+                </div>
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs"></div>
-        </Card>
+            <div className="grid grid-cols-2 gap-2 text-xs"></div>
+          </Card>
+        )}
       </div>
     </Modal>
   );

@@ -1,142 +1,28 @@
-# 待办任务总结 API
+实时天气
 
-提供AI驱动的待办任务总结生成服务，基于302.ai大模型API。
+查询参数
+location(必选)需要查询地区的LocationID或以英文逗号分隔的经度,纬度坐标（十进制，最多支持小数点后两位），LocationID可通过GeoAPI获取。例如 location=101010100 或 location=116.41,39.92
+lang多语言设置，请阅读多语言文档，了解我们的多语言是如何工作、如何设置以及数据是否支持多语言。
+unit数据单位设置，可选值包括unit=m（公制单位，默认）和unit=i（英制单位）。更多选项和说明参考度量衡单位。
 
-## 接口地址
-
-`POST /api/todo/summary`
-
-## 请求参数
-
-### Body (JSON)
-
-| 参数名         | 类型   | 必填 | 说明                                      | 示例      |
-| -------------- | ------ | ---- | ----------------------------------------- | --------- |
-| period         | string | 是   | 时间段类型：`day`、`week`、`month`、`all` | `"day"`   |
-| todos          | array  | 是   | 待办任务列表                              | `[{...}]` |
-| userName       | string | 否   | 用户名称，默认为"用户"                    | `"张三"`  |
-| completedCount | number | 否   | 已完成任务数量，默认为0                   | `5`       |
-
-### 任务对象结构
-
-```typescript
-interface Todo {
-  id: number | string;
-  title: string;
-  description?: string;
-  priority: "low" | "medium" | "high" | "urgent";
-  status: "pending" | "in_progress" | "completed";
-  dueDate?: string; // YYYY-MM-DD
-  createdAt?: string; // YYYY-MM-DD
-  updatedAt?: string; // YYYY-MM-DD
-}
-```
-
-## 响应格式
-
-### 成功响应
-
-```json
-{
-  "success": true,
-  "summary": "AI生成的总结内容...",
-  "prompt": "生成的提示词（仅开发环境）"
-}
-```
-
-### 错误响应
-
-```json
-{
-  "error": "错误描述",
-  "details": "详细错误信息（可选）"
-}
-```
-
-## 使用示例
-
-### JavaScript
-
-```javascript
-const response = await fetch("/api/todo/summary", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    period: "week",
-    todos: [
-      {
-        id: 1,
-        title: "完成项目文档",
-        priority: "high",
-        status: "completed",
-        dueDate: "2024-01-15",
-      },
-    ],
-    userName: "李四",
-    completedCount: 3,
-  }),
-});
-
-const result = await response.json();
-if (result.success) {
-  console.log("AI总结:", result.summary);
-} else {
-  console.error("错误:", result.error);
-}
-```
-
-### React组件中使用
-
-```typescript
-const generateSummary = async () => {
-  try {
-    const response = await axios.post("/api/todo/summary", {
-      period: "day",
-      todos: completedTodos,
-      userName: currentUser.name,
-      completedCount: completedTodos.length,
-    });
-
-    if (response.data.success) {
-      setAiSummary(response.data.summary);
-    }
-  } catch (error) {
-    console.error("生成总结失败:", error);
-  }
-};
-```
-
-## 错误码
-
-| 状态码 | 说明           |
-| ------ | -------------- |
-| 200    | 成功           |
-| 400    | 参数错误       |
-| 401    | AI服务认证失败 |
-| 429    | 请求频率限制   |
-| 500    | 服务器内部错误 |
-
-## 环境配置
-
-在 `.env.local` 文件中配置AI API密钥：
-
-```bash
-AI_API_KEY=your-302-ai-api-key-here
-```
-
-## 开发测试
-
-运行测试脚本验证接口：
-
-```bash
-npx tsx src/app/api/todo/summary/test.ts
-```
-
-## 注意事项
-
-1. 需要配置有效的302.ai API密钥
-2. 生产环境建议移除prompt字段返回
-3. 建议添加请求频率限制
-4. 考虑添加缓存机制减少API调用
+返回的数据格式:
+code 请参考状态码
+updateTime 当前API的最近更新时间
+fxLink 当前数据的响应式页面，便于嵌入网站或应用
+now.obsTime 数据观测时间
+now.temp 温度，默认单位：摄氏度
+now.feelsLike 体感温度，默认单位：摄氏度
+now.icon 天气状况的图标代码，另请参考天气图标项目
+now.text 天气状况的文字描述，包括阴晴雨雪等天气状态的描述
+now.wind360 风向360角度
+now.windDir 风向
+now.windScale 风力等级
+now.windSpeed 风速，公里/小时
+now.humidity 相对湿度，百分比数值
+now.precip 过去1小时降水量，默认单位：毫米
+now.pressure 大气压强，默认单位：百帕
+now.vis 能见度，默认单位：公里
+now.cloud 云量，百分比数值。可能为空
+now.dew 露点温度。可能为空
+refer.sources 原始数据来源，或数据源说明，可能为空
+refer.license 数据许可或版权声明，可能为空

@@ -1,32 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
 import { getTodoSummaryPrompt } from "@/lib/prompts/todoSummary";
 import type { TodoSummaryRequest } from "@/types";
 import { authorization } from "../../authorization";
 import { todo } from "@/lib/drizzle/schema/todo";
 import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
-import type { AISummaryResponseData } from "@/types/ai-response";
+import { requestAIWithDefaultKey } from "@/lib/ai-client";
 import { z } from "zod";
 import { createDbClient } from "@/lib/drizzle/client";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
-
 // 扩展dayjs功能以支持周数格式化
 dayjs.extend(weekOfYear);
-
-// 302.ai API配置
-const AI_API_URL = "https://api.302.ai/v1/chat/completions";
-
-// 从环境变量获取API密钥
-const getApiKey = () => {
-  const apiKey = process.env.TD_AGENT_API_KEY;
-  if (!apiKey) {
-    console.warn("TD_AGENT_API_KEY环境变量未设置，使用默认密钥（可能受限）");
-    return "";
-  }
-  return apiKey;
-};
 
 // 生成总结标题的辅助函数
 const generateSummaryTitle = (
@@ -190,30 +175,17 @@ export async function POST(request: NextRequest) {
       completedCount: completedTodos.length,
     });
 
-    // 调用302.ai API
-    const response = await axios.post<AISummaryResponseData>(
-      AI_API_URL,
-      {
-        model: "302-agent-todo-summary-gixy",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${getApiKey()}`,
-          "User-Agent": AI_API_URL,
-          "Content-Type": "application/json",
-        },
-      },
+    // 调用AI服务生成总结
+    const aiResult = await requestAIWithDefaultKey(
+      prompt,
+      "302-agent-todo-summary-gixy",
     );
 
-    const aiResponse = response.data;
-    const summaryContent = aiResponse.choices[0].message.content;
+    if (!aiResult.success) {
+      throw new Error(aiResult.error || "AI请求失败");
+    }
+
+    const summaryContent = aiResult.content!;
 
     // 更新总结记录为完成状态
     await dbClient.db
