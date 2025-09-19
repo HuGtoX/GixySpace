@@ -50,3 +50,15 @@ export async function setCache(
 export function generateNewsCacheKey(source: string): string {
   return `news:${source}`;
 }
+
+/**
+ * 生成天气AI总结的缓存键
+ * @param location 地区名称
+ * @returns 缓存键
+ */
+export function generateWeatherSummaryCacheKey(location: string): string {
+  return `weather:summary:${location}`;
+}
+
+// 天气AI总结缓存时间（2小时）
+export const WEATHER_SUMMARY_CACHE_TTL = 7200;

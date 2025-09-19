@@ -6,10 +6,11 @@ import {
   FaSun,
   FaCloud,
   FaTint,
+  FaRobot,
 } from "react-icons/fa";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import SectionCard from "@/components/SectionCard";
-import type { WeatherData } from "@gixy/types";
+import type { ApiResponse, WeatherInfoResponse } from "@/app/api/types";
 import "qweather-icons/font/qweather-icons.css"; // 引入天气图标样式
 import {
   getCachedData,
@@ -47,9 +48,15 @@ const getWeatherIconColor = (weatherText: string) => {
 };
 
 export default function Weather() {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherInfoResponse | null>(
+    null,
+  );
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制模态框显示
   const [selectedCity, setSelectedCity] = useState<(typeof cities)[0]>(
     cities[0],
@@ -65,7 +72,7 @@ export default function Weather() {
       // 检查缓存，使用城市名称作为缓存键的一部分以区分不同城市的数据
       const cacheKey = `weatherData_${selectedCity.name}`;
       const timestampKey = `weatherTimestamp_${selectedCity.name}`;
-      const cachedWeatherData = getCachedData<WeatherData>(
+      const cachedWeatherData = getCachedData<WeatherInfoResponse>(
         cacheKey,
         timestampKey,
         CACHE_EXPIRE_MINUTES,
@@ -75,26 +82,126 @@ export default function Weather() {
       if (cachedWeatherData) {
         setWeatherData(cachedWeatherData);
         setError(null);
+        setErrorCode(null);
         setIsLoading(false);
+
+        // 获取AI总结
+        if (cachedWeatherData) {
+          fetchAiSummary(cachedWeatherData);
+        }
         return;
       }
 
       // 缓存不存在或已过期，从API获取新数据
       const response = await fetch(
-        `/api/v2/hf/weather?lat=${selectedCity.lat}&lon=${selectedCity.lon}`,
+        `/api/weather?location=${selectedCity.lon},${selectedCity.lat}`,
       );
-      if (!response.ok) throw new Error("网络请求失败");
-      const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          `网络请求失败: ${response.status} ${response.statusText}`,
+        );
+
+      const apiResponse: ApiResponse<WeatherInfoResponse> =
+        await response.json();
+
+      // 检查API响应是否成功
+      if (!apiResponse.success) {
+        const errorMsg = apiResponse.error || "获取天气数据失败";
+        const errorWithCode = apiResponse.code
+          ? `${errorMsg} (${apiResponse.code})`
+          : errorMsg;
+        throw new Error(errorWithCode);
+      }
+
+      if (!apiResponse.data) {
+        throw new Error("API返回数据为空");
+      }
 
       // 更新缓存
-      updateCachedData<WeatherData>(cacheKey, timestampKey, data);
+      updateCachedData<WeatherInfoResponse>(
+        cacheKey,
+        timestampKey,
+        apiResponse.data,
+      );
 
-      setWeatherData(data);
+      setWeatherData(apiResponse.data);
       setError(null);
+      setErrorCode(null);
+
+      // 获取AI总结
+      fetchAiSummary(apiResponse.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "获取天气数据失败");
+      let errorMessage = "获取天气数据失败";
+      let code = null;
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        // 尝试解析网络错误中的状态码
+        const statusMatch = err.message.match(/(\d{3})/);
+        if (statusMatch) {
+          code = statusMatch[1];
+        }
+      }
+
+      setError(errorMessage);
+      setErrorCode(code);
+      setWeatherData(null);
+      setAiSummary(null);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchAiSummary = async (weatherData: WeatherInfoResponse) => {
+    try {
+      setIsSummaryLoading(true);
+      setSummaryError(null);
+
+      // 构建请求数据
+      const summaryRequest = {
+        location: selectedCity.name,
+        temperature: weatherData.weather.now.temp,
+        weather: weatherData.weather.now.text,
+        humidity: weatherData.weather.now.humidity,
+        windSpeed: weatherData.weather.now.windSpeed,
+        windDirection: weatherData.weather.now.windDir,
+        aqi: weatherData.air?.now.aqi,
+        aqiCategory: weatherData.air?.now.category,
+      };
+
+      const response = await fetch("/api/weather/summary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(summaryRequest),
+      });
+
+      if (!response.ok) {
+        throw new Error(`获取AI总结失败: ${response.status}`);
+      }
+
+      const apiResponse: ApiResponse<{
+        summary: { success: boolean; content?: string; error?: string };
+      }> = await response.json();
+
+      if (!apiResponse.success || !apiResponse.data) {
+        throw new Error(apiResponse.error || "获取AI总结失败");
+      }
+
+      // 检查AI响应是否成功
+      if (!apiResponse.data.summary.success) {
+        throw new Error(apiResponse.data.summary.error || "AI总结生成失败");
+      }
+
+      setAiSummary(apiResponse.data.summary.content || null);
+    } catch (err) {
+      console.error("获取AI总结失败:", err);
+      setSummaryError(err instanceof Error ? err.message : "获取AI总结失败");
+      setAiSummary(null);
+    } finally {
+      setIsSummaryLoading(false);
     }
   };
 
@@ -108,6 +215,7 @@ export default function Weather() {
     const cacheKey = `weatherData_${selectedCity.name}`;
     const timestampKey = `weatherTimestamp_${selectedCity.name}`;
     clearCachedData(cacheKey, timestampKey);
+
     fetchWeather(); // 清除缓存后立即获取新数据
   };
 
@@ -194,17 +302,57 @@ export default function Weather() {
                 <div className="mb-1 flex justify-center">
                   <FaSun
                     size={16}
-                    className={`${getAqiColor(Number(weatherData.air.now.aqi)).split(" ")[1]}`}
+                    className={`${weatherData.air ? getAqiColor(Number(weatherData.air.now.aqi)).split(" ")[1] : "text-gray-500"}`}
                   />
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   空气质量
                 </div>
                 <div className="text-sm font-medium">
-                  {weatherData.air.now.category} (AQI: {weatherData.air.now.aqi}
-                  )
+                  {weatherData.air ? (
+                    <>
+                      {weatherData.air.now.category} (AQI:{" "}
+                      {weatherData.air.now.aqi})
+                    </>
+                  ) : (
+                    "暂无数据"
+                  )}
                 </div>
               </div>
+            </div>
+
+            {/* AI总结区域 */}
+            <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+              <div className="mb-2 flex items-center">
+                <FaRobot
+                  size={16}
+                  className="mr-2 text-blue-500 dark:text-blue-400"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  AI天气总结
+                </span>
+              </div>
+
+              {isSummaryLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Spin size="small" />
+                  <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                    正在生成AI总结...
+                  </span>
+                </div>
+              ) : summaryError ? (
+                <div className="rounded bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                  {summaryError}
+                </div>
+              ) : aiSummary ? (
+                <div className="rounded bg-gray-50 p-3 text-sm text-gray-600 dark:bg-gray-700/50 dark:text-gray-200">
+                  {aiSummary}
+                </div>
+              ) : (
+                <div className="text-sm italic text-gray-500 dark:text-gray-400">
+                  暂无AI总结数据
+                </div>
+              )}
             </div>
           </div>
         ) : isLoading ? (
@@ -215,7 +363,14 @@ export default function Weather() {
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-red-500">
             <FaCloud size={32} className="mb-3" />
-            <div>{error}</div>
+            <div className="text-center">
+              <div className="mb-2">{error}</div>
+              {errorCode && (
+                <div className="text-xs text-gray-500">
+                  错误代码: {errorCode}
+                </div>
+              )}
+            </div>
             <Button
               onClick={fetchWeather}
               type="text"

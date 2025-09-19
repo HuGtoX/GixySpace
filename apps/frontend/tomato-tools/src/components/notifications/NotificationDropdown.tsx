@@ -215,7 +215,7 @@ const NotificationDropdown: React.FC = () => {
 
     const interval = setInterval(() => {
       fetchNotifications();
-    }, 30000); // 30秒刷新一次
+    }, 60000); // 30秒刷新一次
 
     return () => clearInterval(interval);
   }, [user?.id]);
@@ -256,12 +256,12 @@ const NotificationDropdown: React.FC = () => {
             dataSource={notifications}
             renderItem={(item) => (
               <List.Item
-                className={`mx-0 cursor-pointer border-b border-gray-100 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700/50 ${
+                className={`cursor-pointer border-b border-gray-100 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-50 dark:border-gray-700/50 dark:hover:bg-gray-700/50 ${
                   !item.isRead ? "bg-blue-50 dark:bg-blue-900/20" : ""
                 }`}
                 onClick={() => handleNotificationClick(item)}
               >
-                <div className="flex w-full items-start space-x-3">
+                <div className="flex w-full items-start gap-1 px-3">
                   <div className="mt-1 flex-shrink-0">
                     {item.notification.iconUrl ? (
                       <Avatar
