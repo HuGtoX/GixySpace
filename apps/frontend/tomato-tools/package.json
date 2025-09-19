@@ -35,6 +35,8 @@
     "drizzle-orm": "^0.44.2",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.2",
+    "gifenc": "^1.0.3",
+    "gifuct-js": "^2.1.2",
     "jszip": "^3.10.1",
     "next": "15.4.5",
     "next-logger": "^5.0.1",
