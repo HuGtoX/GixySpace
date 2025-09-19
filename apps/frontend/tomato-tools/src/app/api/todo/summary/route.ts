@@ -6,11 +6,15 @@ import { authorization } from "../../authorization";
 import { todo } from "@/lib/drizzle/schema/todo";
 import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
 import type { AISummaryResponseData } from "@/types/ai-response";
-import { generateDateRange, DateRangeType } from "@/lib/date";
 import { z } from "zod";
 import { createDbClient } from "@/lib/drizzle/client";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+
+// 扩展dayjs功能以支持周数格式化
+dayjs.extend(weekOfYear);
+
 // 302.ai API配置
 const AI_API_URL = "https://api.302.ai/v1/chat/completions";
 
@@ -34,7 +38,10 @@ const generateSummaryTitle = (
     case "day":
       return `${now.format("YYYY年MM月DD日")}工作总结`;
     case "week":
-      return `${now.format("YYYY年第w周")}工作总结`;
+      // 获取本月的第几周
+      const monthStart = now.startOf("month");
+      const currentWeek = Math.ceil((now.date() + monthStart.day()) / 7);
+      return `${now.format(`YYYY年MM月第${currentWeek}周`)}工作总结`;
     case "month":
       return `${now.format("YYYY年MM月")}工作总结`;
     case "all":
@@ -54,9 +61,11 @@ const generatePeriodIdentifier = (
     case "day":
       return now.format("YYYY-MM-DD");
     case "week":
-      return now.format("YYYY-[W]w");
+      const weekStart = now.startOf("week").add(1, "day"); // 周一
+      return `${weekStart.format("YYYY-MM-DD")} - ${now.format("YYYY-MM-DD")}`;
     case "month":
-      return now.format("YYYY-MM");
+      const monthStart = now.startOf("month");
+      return `${monthStart.format("YYYY-MM-DD")} - ${now.format("YYYY-MM-DD")}`;
     case "all":
       return "all-time";
     default:
@@ -85,13 +94,34 @@ export async function POST(request: NextRequest) {
     const conditions = [eq(todo.userId, user.id), eq(todo.status, "completed")];
     let dateRange: { start: string; end: string } | undefined;
 
-    // 根据时间周期添加日期范围条件
+    // 根据时间周期添加日期范围条件，使用与generatePeriodIdentifier相同的逻辑
     if (period !== "all") {
-      dateRange = generateDateRange(period as DateRangeType);
+      const now = dayjs();
+      let startDate: Date;
+      let endDate: Date;
 
-      // 使用更精确的日期范围计算
-      const startDate = dayjs(dateRange.start).startOf("day").toDate();
-      const endDate = dayjs(dateRange.end).endOf("day").toDate();
+      switch (period) {
+        case "day":
+          // 当天：从今天开始到现在
+          startDate = now.startOf("day").toDate();
+          endDate = now.toDate();
+          break;
+        case "week":
+          // 本周：从周一开始到现在
+          const weekStart = now.startOf("week").add(1, "day"); // 周一
+          startDate = weekStart.startOf("day").toDate();
+          endDate = now.toDate();
+          break;
+        case "month":
+          // 本月：从本月1号开始到现在
+          const monthStart = now.startOf("month");
+          startDate = monthStart.startOf("day").toDate();
+          endDate = now.toDate();
+          break;
+        default:
+          startDate = now.startOf("day").toDate();
+          endDate = now.toDate();
+      }
 
       // 添加时间范围过滤条件
       conditions.push(gte(todo.updatedAt, startDate));
