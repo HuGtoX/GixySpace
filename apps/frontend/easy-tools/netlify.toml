@@ -1,8 +1,0 @@
-[build]
-  command = "pnpm --filter '@gixy/bit-craft...' build"
-  publish = "apps/frontend/easy-tools/dist"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
