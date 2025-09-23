@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
 
     // 验证请求数据
     const body = await request.json();
-    console.log("-- [ body ] --", body);
     const validatedData = summaryRequestSchema.parse(body);
 
     // 检查Redis缓存
@@ -64,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // 构建天气总结提示
     const weatherSummaryPrompt = `
-基于以下天气数据，生成一个简洁的中文天气总结（50-100字），包含天气状况、温度感受、出行建议和健康提醒：
+基于以下天气数据，生成一个简洁的中文天气总结（50-120字），包含天气状况、温度感受、出行建议和健康提醒：
 
 位置：${validatedData.location}
 天气：${validatedData.weather}
@@ -78,6 +77,7 @@ export async function POST(request: NextRequest) {
 2. 提供实用的出行建议
 3. 如有需要，给出健康提醒
 4. 整体语气友好亲切
+5. 需要结合实时的互联网数据进行总结分析，如台风等恶劣天气情况需要进行补充
 `;
 
     const summary = await requestAI({
