@@ -12,13 +12,13 @@ const HomePage = () => {
     <Container>
       <Header />
       <main className="container mx-auto grid grid-cols-1 gap-6 px-4 py-6 pb-24 lg:grid-cols-12">
-        <section className="space-y-6 lg:col-span-7">
+        <section className="space-y-6 lg:col-span-7 xl:col-span-6">
           <NewsSection />
         </section>
         <section className="space-y-6 lg:col-span-5 xl:col-span-3">
           <Tools />
         </section>
-        <aside className="space-y-6 lg:col-span-12 xl:col-span-2">
+        <aside className="space-y-6 lg:col-span-12 xl:col-span-3">
           <Aside />
         </aside>
       </main>

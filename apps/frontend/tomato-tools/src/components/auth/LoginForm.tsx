@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Alert, Card } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
 interface LoginFormData {
   email: string;
   password: string;
@@ -21,7 +20,18 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [form] = Form.useForm();
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
+
+  // 检查用户是否已登录，如果已登录则跳转首页
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user, authLoading, router, onSuccess]);
 
   const handleSubmit = async (values: LoginFormData) => {
     setLoading(true);
@@ -41,6 +51,22 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       setLoading(false);
     }
   };
+
+  // 如果正在检查认证状态，显示加载状态
+  if (authLoading) {
+    return (
+      <Card title="登录" className="mx-auto w-full max-w-md">
+        <div className="py-8 text-center">
+          <div className="text-gray-500">检查登录状态...</div>
+        </div>
+      </Card>
+    );
+  }
+
+  // 如果用户已登录，不显示登录表单（会在useEffect中跳转）
+  if (user) {
+    return null;
+  }
 
   return (
     <Card title="登录" className="mx-auto w-full max-w-md">

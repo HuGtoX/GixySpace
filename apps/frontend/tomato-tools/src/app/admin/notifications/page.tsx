@@ -28,12 +28,15 @@ import {
   FaBell,
   FaUsers,
   FaCheckCircle,
+  FaHome,
 } from "react-icons/fa";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
-
+import Link from "next/link";
+import AdminProtected from "@/components/auth/AdminProtected";
+import { useAuth } from "@/contexts/AuthContext";
 // 配置 dayjs
 dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");
@@ -108,6 +111,7 @@ const NotificationManagement: React.FC = () => {
   const [editingNotification, setEditingNotification] =
     useState<NotificationItem | null>(null);
   const [form] = Form.useForm();
+  const { user } = useAuth();
 
   // 获取通知列表
   const fetchNotifications = async (page = 1, size = 10) => {
@@ -137,6 +141,12 @@ const NotificationManagement: React.FC = () => {
 
   // 创建或更新通知
   const handleSubmit = async (values: any) => {
+    // 验证管理员权限
+    if (!user || user.role !== "admin") {
+      message.error("权限不足，只有管理员才能执行此操作");
+      return;
+    }
+
     try {
       const url = editingNotification
         ? `/api/notifications/${editingNotification.id}`
@@ -149,6 +159,7 @@ const NotificationManagement: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // 包含认证信息
         body: JSON.stringify({
           ...values,
           scheduledAt: values.scheduledAt?.toISOString(),
@@ -174,9 +185,16 @@ const NotificationManagement: React.FC = () => {
 
   // 删除通知
   const handleDelete = async (id: string) => {
+    // 验证管理员权限
+    if (!user || user.role !== "admin") {
+      message.error("权限不足，只有管理员才能执行此操作");
+      return;
+    }
+
     try {
       const response = await fetch(`/api/notifications/${id}`, {
         method: "DELETE",
+        credentials: "include", // 包含认证信息
       });
 
       const result = await response.json();
@@ -339,286 +357,302 @@ const NotificationManagement: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 transition-colors duration-200 dark:bg-gray-900">
-      <div className="mb-6">
-        <Title level={2} className="text-gray-900 dark:text-white">
-          通知管理
-        </Title>
-        <Text type="secondary" className="text-gray-600 dark:text-gray-400">
-          管理系统通知，包括创建、编辑和删除通知
-        </Text>
-      </div>
-
-      {/* 统计卡片 */}
-      <Row gutter={16} className="mb-6">
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="总通知数"
-              value={total}
-              prefix={<FaBell className="text-blue-500 dark:text-blue-400" />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="已发布"
-              value={
-                notifications.filter((n) => n.status === "published").length
-              }
-              prefix={
-                <FaCheckCircle className="text-green-500 dark:text-green-400" />
-              }
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="总发送数"
-              value={notifications.reduce(
-                (sum, n) => sum + (n.stats?.totalSent || 0),
-                0,
-              )}
-              prefix={
-                <FaUsers className="text-purple-500 dark:text-purple-400" />
-              }
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="总阅读数"
-              value={notifications.reduce(
-                (sum, n) => sum + (n.stats?.totalRead || 0),
-                0,
-              )}
-              prefix={
-                <FaEye className="text-orange-500 dark:text-orange-400" />
-              }
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 操作栏 */}
-      <Card className="mb-4">
-        <div className="flex items-center justify-between">
-          <Space>
-            <Button
-              type="primary"
-              icon={<FaPlus className="text-white" />}
-              onClick={handleCreate}
-            >
-              创建通知
-            </Button>
-          </Space>
-        </div>
-      </Card>
-
-      {/* 通知列表 */}
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={notifications}
-          rowKey="id"
-          loading={loading}
-          rowClassName="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => (
-              <span className="text-gray-600 dark:text-gray-300">
-                第 {range[0]}-{range[1]} 条，共 {total} 条
-              </span>
-            ),
-            onChange: (page, size) => {
-              fetchNotifications(page, size);
-            },
-          }}
-        />
-      </Card>
-
-      {/* 创建/编辑模态框 */}
-      <Modal
-        title={
-          <span className="text-gray-900 dark:text-white">
-            {editingNotification ? "编辑通知" : "创建通知"}
-          </span>
-        }
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          setEditingNotification(null);
-          form.resetFields();
-        }}
-        footer={null}
-        width={600}
-        className="dark:bg-gray-800"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          className="dark:text-white"
-          initialValues={{
-            type: "system",
-            priority: "normal",
-            status: "published",
-            sendEmail: false,
-            sendPush: true,
-            sendToAll: true,
-          }}
-        >
-          <Form.Item
-            name="title"
-            label="标题"
-            rules={[{ required: true, message: "请输入通知标题" }]}
-          >
-            <Input placeholder="请输入通知标题" />
-          </Form.Item>
-
-          <Form.Item
-            name="content"
-            label="内容"
-            rules={[{ required: true, message: "请输入通知内容" }]}
-          >
-            <TextArea rows={4} placeholder="请输入通知内容" />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="type"
-                label="类型"
-                rules={[{ required: true, message: "请选择通知类型" }]}
+    <AdminProtected>
+      <div className="min-h-screen bg-gray-50 p-6 transition-colors duration-200 dark:bg-gray-900">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <Title level={2} className="text-gray-900 dark:text-white">
+                通知管理
+              </Title>
+              <Text
+                type="secondary"
+                className="text-gray-600 dark:text-gray-400"
               >
-                <Select placeholder="请选择通知类型">
-                  {notificationTypes.map((type) => (
-                    <Option key={type.value} value={type.value}>
-                      {type.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="priority"
-                label="优先级"
-                rules={[{ required: true, message: "请选择优先级" }]}
+                管理系统通知，包括创建、编辑和删除通知
+              </Text>
+            </div>
+            <Link href="/">
+              <Button
+                type="default"
+                icon={<FaHome className="text-blue-500 dark:text-blue-400" />}
+                size="large"
+                className="flex items-center"
               >
-                <Select placeholder="请选择优先级">
-                  {priorityOptions.map((priority) => (
-                    <Option key={priority.value} value={priority.value}>
-                      {priority.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="status"
-                label="状态"
-                rules={[{ required: true, message: "请选择状态" }]}
-              >
-                <Select placeholder="请选择状态">
-                  {statusOptions.map((status) => (
-                    <Option key={status.value} value={status.value}>
-                      {status.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item name="actionUrl" label="操作链接">
-            <Input placeholder="点击通知后跳转的链接（可选）" />
-          </Form.Item>
-
-          <Form.Item name="iconUrl" label="图标链接">
-            <Input placeholder="通知图标链接（可选）" />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="scheduledAt" label="定时发送">
-                <DatePicker
-                  showTime
-                  placeholder="选择发送时间（可选）"
-                  className="w-full"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="expiresAt" label="过期时间">
-                <DatePicker
-                  showTime
-                  placeholder="选择过期时间（可选）"
-                  className="w-full"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                name="sendEmail"
-                label="发送邮件"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="sendPush"
-                label="推送通知"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                name="sendToAll"
-                label="发送给所有用户"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <div className="flex justify-end space-x-2 border-t border-gray-200 pt-4 dark:border-gray-700">
-            <Button
-              onClick={() => {
-                setModalVisible(false);
-                setEditingNotification(null);
-                form.resetFields();
-              }}
-              className="text-gray-600 dark:text-gray-300"
-            >
-              取消
-            </Button>
-            <Button type="primary" htmlType="submit">
-              {editingNotification ? "更新" : "创建"}
-            </Button>
+                返回首页
+              </Button>
+            </Link>
           </div>
-          <Button type="primary" htmlType="submit">
-            {editingNotification ? "更新" : "创建"}
-          </Button>
-        </Form>
-      </Modal>
-    </div>
+        </div>
+
+        {/* 统计卡片 */}
+        <Row gutter={16} className="mb-6">
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="总通知数"
+                value={total}
+                prefix={<FaBell className="text-blue-500 dark:text-blue-400" />}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="已发布"
+                value={
+                  notifications.filter((n) => n.status === "published").length
+                }
+                prefix={
+                  <FaCheckCircle className="text-green-500 dark:text-green-400" />
+                }
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="总发送数"
+                value={notifications.reduce(
+                  (sum, n) => sum + (n.stats?.totalSent || 0),
+                  0,
+                )}
+                prefix={
+                  <FaUsers className="text-purple-500 dark:text-purple-400" />
+                }
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="总阅读数"
+                value={notifications.reduce(
+                  (sum, n) => sum + (n.stats?.totalRead || 0),
+                  0,
+                )}
+                prefix={
+                  <FaEye className="text-orange-500 dark:text-orange-400" />
+                }
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 操作栏 */}
+        <Card className="mb-4">
+          <div className="flex items-center justify-between">
+            <Space>
+              <Button
+                type="primary"
+                icon={<FaPlus className="text-white" />}
+                onClick={handleCreate}
+              >
+                创建通知
+              </Button>
+            </Space>
+          </div>
+        </Card>
+
+        {/* 通知列表 */}
+        <Card>
+          <Table
+            columns={columns}
+            dataSource={notifications}
+            rowKey="id"
+            loading={loading}
+            rowClassName="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => (
+                <span className="text-gray-600 dark:text-gray-300">
+                  第 {range[0]}-{range[1]} 条，共 {total} 条
+                </span>
+              ),
+              onChange: (page, size) => {
+                fetchNotifications(page, size);
+              },
+            }}
+          />
+        </Card>
+
+        {/* 创建/编辑模态框 */}
+        <Modal
+          title={
+            <span className="text-gray-900 dark:text-white">
+              {editingNotification ? "编辑通知" : "创建通知"}
+            </span>
+          }
+          open={modalVisible}
+          onCancel={() => {
+            setModalVisible(false);
+            setEditingNotification(null);
+            form.resetFields();
+          }}
+          footer={null}
+          width={600}
+          className="dark:bg-gray-800"
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            className="dark:text-white"
+            initialValues={{
+              type: "system",
+              priority: "normal",
+              status: "published",
+              sendEmail: false,
+              sendPush: true,
+              sendToAll: true,
+            }}
+          >
+            <Form.Item
+              name="title"
+              label="标题"
+              rules={[{ required: true, message: "请输入通知标题" }]}
+            >
+              <Input placeholder="请输入通知标题" />
+            </Form.Item>
+
+            <Form.Item
+              name="content"
+              label="内容"
+              rules={[{ required: true, message: "请输入通知内容" }]}
+            >
+              <TextArea rows={4} placeholder="请输入通知内容" />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="type"
+                  label="类型"
+                  rules={[{ required: true, message: "请选择通知类型" }]}
+                >
+                  <Select placeholder="请选择通知类型">
+                    {notificationTypes.map((type) => (
+                      <Option key={type.value} value={type.value}>
+                        {type.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="priority"
+                  label="优先级"
+                  rules={[{ required: true, message: "请选择优先级" }]}
+                >
+                  <Select placeholder="请选择优先级">
+                    {priorityOptions.map((priority) => (
+                      <Option key={priority.value} value={priority.value}>
+                        {priority.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="status"
+                  label="状态"
+                  rules={[{ required: true, message: "请选择状态" }]}
+                >
+                  <Select placeholder="请选择状态">
+                    {statusOptions.map((status) => (
+                      <Option key={status.value} value={status.value}>
+                        {status.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item name="actionUrl" label="操作链接">
+              <Input placeholder="点击通知后跳转的链接（可选）" />
+            </Form.Item>
+
+            <Form.Item name="iconUrl" label="图标链接">
+              <Input placeholder="通知图标链接（可选）" />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="scheduledAt" label="定时发送">
+                  <DatePicker
+                    showTime
+                    placeholder="选择发送时间（可选）"
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="expiresAt" label="过期时间">
+                  <DatePicker
+                    showTime
+                    placeholder="选择过期时间（可选）"
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  name="sendEmail"
+                  label="发送邮件"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="sendPush"
+                  label="推送通知"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  name="sendToAll"
+                  label="发送给所有用户"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <div className="flex justify-end space-x-2 border-t border-gray-200 pt-4 dark:border-gray-700">
+              <Button
+                onClick={() => {
+                  setModalVisible(false);
+                  setEditingNotification(null);
+                  form.resetFields();
+                }}
+                className="text-gray-600 dark:text-gray-300"
+              >
+                取消
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {editingNotification ? "更新" : "创建"}
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+      </div>
+    </AdminProtected>
   );
 };
 
