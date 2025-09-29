@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/lib/services/notification";
 import { createModuleLogger } from "@/lib/logger";
+import { authorization } from "@/app/api/authorization";
 import { z } from "zod";
-
 const log = createModuleLogger("notification-api");
 
 // 创建通知的验证schema
@@ -99,6 +99,18 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // 验证用户身份和管理员权限
+    const user = await authorization();
+    if (user.role !== "admin") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "权限不足，只有管理员才能创建通知",
+        },
+        { status: 403 },
+      );
+    }
+
     const body = await request.json();
     const validatedData = createNotificationSchema.parse(body);
 
@@ -122,7 +134,7 @@ export async function POST(request: NextRequest) {
       expiresAt: validatedData.expiresAt
         ? new Date(validatedData.expiresAt)
         : null,
-      createdBy: null, // TODO: 从认证中获取用户ID
+      createdBy: user.id,
     });
 
     // 发送通知给用户
