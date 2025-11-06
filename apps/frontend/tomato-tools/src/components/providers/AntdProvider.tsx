@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, theme, App as AntApp } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
 import zhCN from "antd/locale/zh_CN";
@@ -142,13 +142,13 @@ function AntdProvider({ children }: AntdProviderProps) {
       };
 
   return (
-    <AntdRegistry>
+    <StyleProvider hashPriority="high">
       <ConfigProvider locale={zhCN} theme={themeConfig}>
         <AntApp>
           <div>{children}</div>
         </AntApp>
       </ConfigProvider>
-    </AntdRegistry>
+    </StyleProvider>
   );
 }
 
