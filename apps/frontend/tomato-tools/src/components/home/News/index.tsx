@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Tabs } from "antd";
 import NewsCard from "./HotCard";
 import DailyNews from "./DailyNews";
+import CurrencyRates from "./CurrencyRates";
 // 注意：此处引用路径已更改为HotConfig，请确保该文件存在
-import { newsPlatforms, dailyNewsConfig } from "./HotConfig";
+import { newsPlatforms, dailyNewsConfig, currencyRatesConfig } from "./HotConfig";
 
 const NewsSection = () => {
   // 当前激活的tab键
@@ -43,6 +44,15 @@ const NewsSection = () => {
       ),
       children: <DailyNews />,
     },
+    {
+      key: "currency",
+      label: (
+        <div className="flex items-center">
+          <span>{currencyRatesConfig.title}</span>
+        </div>
+      ),
+      children: <CurrencyRates />,
+    },
   ];
 
   return (
@@ -50,8 +60,6 @@ const NewsSection = () => {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">热点资讯</h2>
       </div>
-
-      {/* 热点资讯Tab栏 - Ant Design 5 推荐写法 */}
       <Tabs
         activeKey={activeKey}
         onChange={handleTabChange}

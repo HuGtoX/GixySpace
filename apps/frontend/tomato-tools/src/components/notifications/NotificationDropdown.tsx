@@ -212,10 +212,12 @@ const NotificationDropdown: React.FC = () => {
   // 定期刷新通知
   useEffect(() => {
     if (!user?.id) return;
-
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 60000); // 30秒刷新一次
+    const interval = setInterval(
+      () => {
+        fetchNotifications();
+      },
+      5 * 60 * 1000,
+    ); // 每 5 分钟刷新一次
 
     return () => clearInterval(interval);
   }, [user?.id]);

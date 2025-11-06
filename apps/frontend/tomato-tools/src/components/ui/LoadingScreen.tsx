@@ -13,7 +13,6 @@ function LoadingScreen({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
       <div className="text-center">
-        {/* 番茄Logo */}
         <div className="mb-8">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-500 shadow-lg">
             <span className="text-2xl">🍅</span>

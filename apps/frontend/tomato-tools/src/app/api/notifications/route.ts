@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/lib/services/notification";
 import { createModuleLogger } from "@/lib/logger";
-import { authorization } from "@/app/api/authorization";
+import { requireAdmin } from "@/app/api/authorization";
 import { z } from "zod";
 const log = createModuleLogger("notification-api");
 
@@ -29,9 +29,6 @@ const createNotificationSchema = z.object({
   sendToAll: z.boolean().default(true),
   userIds: z.array(z.string().uuid()).optional(),
 });
-
-// 更新通知的验证schema
-const updateNotificationSchema = createNotificationSchema.partial();
 
 // 查询参数验证schema
 const querySchema = z.object({
@@ -99,17 +96,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // 验证用户身份和管理员权限
-    const user = await authorization();
-    if (user.role !== "admin") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "权限不足，只有管理员才能创建通知",
-        },
-        { status: 403 },
-      );
-    }
+    // 验证管理员权限
+    const user = await requireAdmin();
 
     const body = await request.json();
     const validatedData = createNotificationSchema.parse(body);

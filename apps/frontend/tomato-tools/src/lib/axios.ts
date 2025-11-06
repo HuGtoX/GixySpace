@@ -3,6 +3,7 @@ import type {
   InternalAxiosRequestConfig,
   AxiosInstance,
   AxiosResponse,
+  AxiosRequestConfig,
 } from "axios";
 import { message } from "antd";
 
@@ -26,15 +27,25 @@ const instance: AxiosInstance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(
   function (config: InternalAxiosRequestConfig) {
-    config.data = config.data;
-    // @ts-expect-error - Setting headers on config
-    config.headers = {
-      "Content-Type": "application/json", //配置请求头
-    };
+    // 设置默认Content-Type，如果已经设置则不覆盖
+    if (!config.headers["Content-Type"]) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
+    // 添加调试日志
+    if (process.env.NODE_ENV === "development") {
+      console.log("[Axios] 发送请求:", {
+        url: config.url,
+        method: config.method,
+        hasData: !!config.data,
+        contentType: config.headers["Content-Type"],
+      });
+    }
 
     return config;
   },
   function (error) {
+    console.error("[Axios] 请求拦截器错误:", error);
     return Promise.reject(error);
   },
 );

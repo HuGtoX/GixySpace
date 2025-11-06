@@ -1,6 +1,7 @@
 import { FaWeibo, FaZhihu } from "react-icons/fa";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
+import { DollarOutlined } from "@ant-design/icons";
 
 // 定义新闻平台配置类型
 interface NewsPlatformConfig {
@@ -74,6 +75,15 @@ export const dailyNewsConfig: NewsPlatformConfig = {
   color: "text-blue-500",
   bg: "bg-blue-50",
   icon: <FaCalendar size={20} />,
+};
+
+// 货币汇率配置
+export const currencyRatesConfig: NewsPlatformConfig = {
+  id: "currency",
+  title: "当日货币汇率",
+  color: "text-green-600",
+  bg: "bg-green-50",
+  icon: <DollarOutlined style={{ fontSize: 20 }} />,
 };
 
 // 所有平台配置列表

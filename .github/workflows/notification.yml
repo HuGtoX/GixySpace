@@ -1,0 +1,64 @@
+name: Notification on PR Label
+
+on:
+    pull_request:
+        types: [labeled, unlabeled, opened, closed]
+
+jobs:
+    notify:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Send Notification
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const webhookUrl = '${{ secrets.NOTIFICATION_WEBHOOK_URL }}';
+
+                      if (!webhookUrl) {
+                        console.log('NOTIFICATION_WEBHOOK_URL secret not set, skipping notification');
+                        return;
+                      }
+
+                      const payload = {
+                        action: context.payload.action,
+                        pull_request: context.payload.pull_request,
+                        label: context.payload.label,
+                        repository: context.payload.repository,
+                        sender: context.payload.sender
+                      };
+
+                      try {
+                        const response = await fetch(webhookUrl, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'X-GitHub-Event': 'pull_request',
+                            'User-Agent': 'GitHub-Actions'
+                          },
+                          body: JSON.stringify(payload)
+                        });
+                        
+                        if (response.ok) {
+                          const result = await response.json();
+                          console.log('Notification sent successfully:', result);
+                        } else {
+                          console.error('Failed to send notification:', response.status, response.statusText);
+                          const errorText = await response.text();
+                          console.error('Error details:', errorText);
+                        }
+                      } catch (error) {
+                        console.error('Error sending notification:', error);
+                      }
+
+            - name: Log Event Details
+              run: |
+                  echo "Event: ${{ github.event_name }}"
+                  echo "Action: ${{ github.event.action }}"
+                  echo "PR Number: ${{ github.event.pull_request.number }}"
+                  echo "PR Title: ${{ github.event.pull_request.title }}"
+                  echo "Repository: ${{ github.repository }}"
+                  echo "Sender: ${{ github.event.sender.login }}"
+                  if [ "${{ github.event.action }}" = "labeled" ] || [ "${{ github.event.action }}" = "unlabeled" ]; then
+                    echo "Label: ${{ github.event.label.name }}"
+                  fi

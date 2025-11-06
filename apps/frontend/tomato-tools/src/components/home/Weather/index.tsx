@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { Button, Spin } from "antd";
 import SectionCard from "@/components/SectionCard";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 import type { ApiResponse, WeatherInfoResponse } from "@/app/api/types";
 import "qweather-icons/font/qweather-icons.css"; // 引入天气图标样式
 import {
@@ -329,7 +330,7 @@ export default function Weather() {
                   className="mr-2 text-blue-500 dark:text-blue-400"
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                  AI天气总结
+                  天气小助手
                 </span>
               </div>
 
@@ -337,7 +338,7 @@ export default function Weather() {
                 <div className="flex items-center justify-center py-4">
                   <Spin size="small" />
                   <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                    正在生成AI总结...
+                    正在生成今日天气分析...
                   </span>
                 </div>
               ) : summaryError ? (
@@ -346,11 +347,13 @@ export default function Weather() {
                 </div>
               ) : aiSummary ? (
                 <div className="rounded bg-gray-50 p-3 text-sm text-gray-600 dark:bg-gray-700/50 dark:text-gray-200">
-                  {aiSummary}
+                  <MarkdownRenderer content={aiSummary} />
+
+                  {/* {aiSummary} */}
                 </div>
               ) : (
                 <div className="text-sm italic text-gray-500 dark:text-gray-400">
-                  暂无AI总结数据
+                  暂无数据
                 </div>
               )}
             </div>

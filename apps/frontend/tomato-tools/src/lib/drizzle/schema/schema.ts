@@ -10,6 +10,8 @@ import { relations } from "drizzle-orm";
 import { todo } from "./todo";
 import { aiSummary } from "./aiSummary";
 import { notification, userNotification } from "./notification";
+import { aiUsageLogs, aiUsageStatistics } from "./aiUsage";
+import { aiChatSession } from "./aiChat";
 // 用户角色枚举
 export const userRoleEnum = pgEnum("user_role", ["user", "admin", "anonymous"]);
 
@@ -87,6 +89,9 @@ export const userRelations = relations(user, ({ one, many }) => ({
   aiSummaries: many(aiSummary),
   notifications: many(userNotification),
   createdNotifications: many(notification),
+  aiUsageLogs: many(aiUsageLogs),
+  aiUsageStatistics: many(aiUsageStatistics),
+  aiChatSessions: many(aiChatSession),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -123,6 +128,18 @@ export {
   userNotificationRelations,
   notificationStatsRelations,
 } from "./notification";
+export {
+  aiUsageLogs,
+  aiUsageStatistics,
+  aiUsageLogsRelations,
+  aiUsageStatisticsRelations,
+} from "./aiUsage";
+export {
+  aiChatSession,
+  aiChatMessage,
+  aiChatSessionRelations,
+  aiChatMessageRelations,
+} from "./aiChat";
 
 // 类型导出
 export type User = typeof user.$inferSelect;
@@ -145,3 +162,23 @@ export type {
   NotificationWithStats,
   UserNotificationWithDetails,
 } from "./notification";
+
+// 导出AI使用记录相关类型
+export type {
+  AiUsageLog,
+  NewAiUsageLog,
+  AiUsageStatistic,
+  NewAiUsageStatistic,
+  AiUsageLogWithUser,
+  AiUsageStatisticWithUser,
+} from "./aiUsage";
+
+// 导出AI聊天相关类型
+export type {
+  AiChatSession,
+  NewAiChatSession,
+  AiChatMessage,
+  NewAiChatMessage,
+  AiChatSessionWithMessages,
+  AiChatSessionWithUser,
+} from "./aiChat";

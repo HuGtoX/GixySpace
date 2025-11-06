@@ -3,6 +3,9 @@
  * 包含项目中常用的类型接口
  */
 
+// 导出AI聊天相关类型
+export * from "./ai-chat";
+
 /**
  * 分页响应接口
  * @template T 数据类型
@@ -164,7 +167,7 @@ export interface AISummaryResponse {
  */
 export interface TodoSummaryRequest {
   /** 时间段类型 */
-  period: 'day' | 'week' | 'month' | 'all';
+  period: "day" | "week" | "month" | "all";
   /** 待办任务列表 */
   todos: any[];
   /** 用户名称 */

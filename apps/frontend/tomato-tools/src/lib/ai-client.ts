@@ -1,4 +1,10 @@
 import axios, { AxiosResponse } from "axios";
+import {
+  recordSuccessfulAiCall,
+  recordFailedAiCall,
+  type AiUsageScene,
+  type AiConversationCategory,
+} from "@/lib/services/aiUsageService";
 
 /**
  * AI消息接口
@@ -80,7 +86,7 @@ const AI_API_URL = "https://api.302.ai/v1/chat/completions";
  */
 export interface AIRequestOptions {
   /** 请求内容 - 必填 */
-  content: string;
+  content: string | string[];
   /** API密钥 - 必填 */
   apiKey: string;
   /** AI模型名称 - 可选，默认为通用模型 */
@@ -89,6 +95,36 @@ export interface AIRequestOptions {
   timeout?: number;
   /** 自定义请求头 - 可选 */
   headers?: Record<string, string>;
+  /** 是否打开联网搜索*/
+  "web-search"?: boolean;
+  /** 是否启用流式输出 - 可选，默认为false */
+  stream?: boolean;
+  /** 对话历史上下文 - 可选，用于多轮对话记忆 */
+  conversationHistory?: Array<{
+    role: "user" | "assistant" | "system";
+    content: string;
+  }>;
+  /** 最大上下文消息数量 - 可选，默认为10 */
+  maxContextMessages?: number;
+  /** 系统提示词 - 可选，用于设置AI行为 */
+  systemPrompt?: string;
+  // ===== 使用记录相关参数 =====
+  /** 用户ID - 可选，如果提供则记录使用情况 */
+  userId?: string;
+  /** 使用场景 - 可选，默认为"other" */
+  scene?: AiUsageScene;
+  /** 对话分类 - 可选 */
+  conversationCategory?: AiConversationCategory;
+  /** 对话标签 - 可选 */
+  conversationTags?: string[];
+  /** 场景描述 - 可选 */
+  sceneDescription?: string;
+  /** IP地址 - 可选 */
+  ipAddress?: string;
+  /** 用户代理 - 可选 */
+  userAgent?: string;
+  /** 是否记录使用情况 - 可选，默认为true（当提供userId时） */
+  enableUsageTracking?: boolean;
 }
 
 /**
@@ -108,6 +144,156 @@ export interface AIRequestResponse {
 }
 
 /**
+ * 流式AI请求响应接口
+ */
+export interface AIStreamResponse {
+  /** 是否成功 */
+  success: boolean;
+  /** 流式响应的ReadableStream */
+  stream?: ReadableStream<Uint8Array>;
+  /** 错误信息 */
+  error?: string;
+  /** 错误详情 */
+  details?: string;
+}
+
+/**
+ * 构建消息数组（包含上下文历史）
+ * @param content 当前消息内容
+ * @param conversationHistory 对话历史
+ * @param systemPrompt 系统提示词
+ * @param maxContextMessages 最大上下文消息数量
+ * @returns 构建好的消息数组
+ */
+function buildMessagesWithContext(
+  content: string | string[],
+  conversationHistory?: Array<{
+    role: "user" | "assistant" | "system";
+    content: string;
+  }>,
+  systemPrompt?: string,
+  maxContextMessages: number = 10,
+): Array<{ role: string; content: string }> {
+  const messages: Array<{ role: string; content: string }> = [];
+
+  // 1. 添加系统提示词（如果有）
+  if (systemPrompt) {
+    messages.push({ role: "system", content: systemPrompt });
+  }
+
+  // 2. 添加对话历史（限制数量）
+  if (conversationHistory && conversationHistory.length > 0) {
+    // 只保留最近的N条消息作为上下文
+    const recentHistory = conversationHistory.slice(-maxContextMessages);
+    messages.push(...recentHistory);
+  }
+
+  // 3. 添加当前消息
+  if (Array.isArray(content)) {
+    content.forEach((item) => messages.push({ role: "user", content: item }));
+  } else {
+    messages.push({ role: "user", content });
+  }
+
+  return messages;
+}
+
+/**
+ * 流式AI请求函数
+ * @param options 请求选项
+ * @returns Promise<AIStreamResponse>
+ */
+export async function requestAIStream(
+  options: AIRequestOptions,
+): Promise<AIStreamResponse> {
+  const {
+    content,
+    apiKey,
+    model = "302-agent-todo-summary-gixy",
+    timeout = 60000,
+    headers = {},
+    conversationHistory,
+    maxContextMessages = 10,
+    systemPrompt,
+  } = options;
+
+  // 参数验证
+  if (!content || (Array.isArray(content) && content.length === 0)) {
+    return {
+      success: false,
+      error: "请求内容不能为空",
+    };
+  }
+
+  // 构建包含上下文的消息数组
+  const messages = buildMessagesWithContext(
+    content,
+    conversationHistory,
+    systemPrompt,
+    maxContextMessages,
+  );
+
+  const realModel = !!options["web-search"] ? `${model}-web-search` : model;
+
+  try {
+    // 构建请求数据
+    const requestData = {
+      model: realModel,
+      messages,
+      stream: true, // 启用流式输出
+      "web-search": !!options["web-search"],
+    };
+
+    // 构建请求头
+    const requestHeaders = {
+      Accept: "text/event-stream",
+      Authorization: `Bearer ${apiKey}`,
+      "User-Agent": AI_API_URL,
+      "Content-Type": "application/json",
+      ...headers,
+    };
+
+    // 发送流式请求
+    const response = await fetch(AI_API_URL, {
+      method: "POST",
+      headers: requestHeaders,
+      body: JSON.stringify(requestData),
+      signal: AbortSignal.timeout(timeout),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (!response.body) {
+      throw new Error("响应体为空");
+    }
+
+    return {
+      success: true,
+      stream: response.body,
+    };
+  } catch (error: any) {
+    console.error("AI流式请求失败:", error);
+
+    // 处理不同类型的错误
+    if (error.name === "AbortError") {
+      return {
+        success: false,
+        error: "请求超时，请稍后再试",
+        details: error.message,
+      };
+    } else {
+      return {
+        success: false,
+        error: "AI请求发生错误",
+        details: error.message || "未知错误",
+      };
+    }
+  }
+}
+
+/**
  * 通用AI请求函数
  * @param options 请求选项
  * @returns Promise<AIRequestResponse>
@@ -119,35 +305,48 @@ export async function requestAI(
     content,
     apiKey,
     model = "302-agent-todo-summary-gixy",
-    timeout = 30000,
+    timeout = 60000,
     headers = {},
+    userId,
+    scene = "other",
+    conversationCategory,
+    conversationTags,
+    sceneDescription,
+    ipAddress,
+    userAgent,
+    enableUsageTracking = true,
+    conversationHistory,
+    maxContextMessages = 10,
+    systemPrompt,
   } = options;
 
   // 参数验证
-  if (!content || content.trim() === "") {
+  if (!content || (Array.isArray(content) && content.length === 0)) {
     return {
       success: false,
       error: "请求内容不能为空",
     };
   }
 
-  if (!apiKey || apiKey.trim() === "") {
-    return {
-      success: false,
-      error: "API密钥不能为空",
-    };
-  }
+  // 记录开始时间（用于计算耗时）
+  const startTime = Date.now();
+
+  // 构建包含上下文的消息数组
+  const messages = buildMessagesWithContext(
+    content,
+    conversationHistory,
+    systemPrompt,
+    maxContextMessages,
+  );
+
+  const realModel = !!options["web-search"] ? `${model}-web-search` : model;
 
   try {
     // 构建请求数据
     const requestData = {
-      model,
-      messages: [
-        {
-          role: "user" as const,
-          content: content.trim(),
-        },
-      ],
+      model: realModel,
+      messages,
+      "web-search": !!options["web-search"],
     };
 
     // 构建请求头
@@ -156,7 +355,7 @@ export async function requestAI(
       Authorization: `Bearer ${apiKey}`,
       "User-Agent": AI_API_URL,
       "Content-Type": "application/json",
-      ...headers, // 允许覆盖默认头部
+      ...headers,
     };
 
     // 发送请求
@@ -180,6 +379,24 @@ export async function requestAI(
       };
     }
 
+    // 计算请求耗时
+    const duration = Date.now() - startTime;
+
+    // 记录成功的AI调用（如果提供了userId且启用了追踪）
+    if (userId && enableUsageTracking) {
+      recordSuccessfulAiCall(userId, scene, requestData, aiResponse, {
+        conversationCategory,
+        conversationTags,
+        sceneDescription,
+        ipAddress,
+        userAgent,
+        duration,
+      }).catch((error) => {
+        // 记录失败不影响主流程，只打印错误日志
+        console.error("Failed to record AI usage:", error);
+      });
+    }
+
     return {
       success: true,
       content: aiContent,
@@ -187,6 +404,30 @@ export async function requestAI(
     };
   } catch (error: any) {
     console.error("AI请求失败:", error);
+
+    // 计算请求耗时
+    const duration = Date.now() - startTime;
+
+    // 记录失败的AI调用（如果提供了userId且启用了追踪）
+    if (userId && enableUsageTracking) {
+      recordFailedAiCall(
+        userId,
+        scene,
+        { model, messages: [{ role: "user", content }] },
+        error,
+        {
+          conversationCategory,
+          conversationTags,
+          sceneDescription,
+          ipAddress,
+          userAgent,
+          duration,
+        },
+      ).catch((err) => {
+        // 记录失败不影响主流程，只打印错误日志
+        console.error("Failed to record failed AI usage:", err);
+      });
+    }
 
     // 处理不同类型的错误
     if (error.response) {
@@ -197,7 +438,7 @@ export async function requestAI(
         case 401:
           return {
             success: false,
-            error: "AI服务认证失败，请检查API密钥配置",
+            error: "服务认证失败，请检查API密钥配置",
             details: `HTTP ${status}: ${statusText}`,
           };
         case 429:
@@ -206,25 +447,10 @@ export async function requestAI(
             error: "请求过于频繁，请稍后再试",
             details: `HTTP ${status}: ${statusText}`,
           };
-        case 400:
-          return {
-            success: false,
-            error: "请求参数错误",
-            details: `HTTP ${status}: ${statusText}`,
-          };
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return {
-            success: false,
-            error: "AI服务暂时不可用，请稍后再试",
-            details: `HTTP ${status}: ${statusText}`,
-          };
         default:
           return {
             success: false,
-            error: "AI请求失败",
+            error: "服务暂时不可用，请稍后再试",
             details: `HTTP ${status}: ${statusText}`,
           };
       }
