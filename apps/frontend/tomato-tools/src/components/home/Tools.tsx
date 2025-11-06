@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Button } from "antd";
 import { FaComment, FaImage } from "react-icons/fa";
 import SectionCard from "@/components/SectionCard";
 import Tool from "./Tool";
 import Todo from "./Todo";
+import AiChatModal from "./AiChatModal";
 const AIToolItem = ({
   icon,
   name,
@@ -10,6 +12,7 @@ const AIToolItem = ({
   buttonText,
   status,
   bgColor,
+  onClick,
 }: {
   icon: React.ReactNode;
   name: string;
@@ -21,6 +24,7 @@ const AIToolItem = ({
     date: string;
   } | null;
   bgColor: string;
+  onClick?: () => void;
 }) => {
   return (
     <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
@@ -39,7 +43,7 @@ const AIToolItem = ({
       </div>
       <div className="flex items-center space-x-2">
         {buttonText && (
-          <Button type="primary" size="small">
+          <Button type="primary" size="small" onClick={onClick}>
             {buttonText}
           </Button>
         )}
@@ -59,14 +63,22 @@ const AIToolItem = ({
 };
 
 export default function Tools() {
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+
+  const handleChatClick = () => {
+    setIsChatModalOpen(true);
+  };
+
+  const handleCloseChatModal = () => {
+    setIsChatModalOpen(false);
+  };
+
   return (
     <section className="space-y-6 lg:col-span-3">
       {/* 常用工具区块 */}
       <Tool />
-
       {/* 待办区块 */}
       <Todo />
-
       {/* AI工具区块 */}
       <SectionCard title="AI助手">
         <div className="space-y-3">
@@ -77,6 +89,7 @@ export default function Tools() {
             buttonText="打开会话"
             status={null}
             bgColor="bg-indigo-100"
+            onClick={handleChatClick}
           />
           <AIToolItem
             icon={<FaImage className="text-gray-400" />}
@@ -99,6 +112,15 @@ export default function Tools() {
           <p>暂无访问记录</p>
         </div>
       </SectionCard>
+
+      {/* AI聊天Modal */}
+      <AiChatModal
+        open={isChatModalOpen}
+        onClose={handleCloseChatModal}
+        model="deepseek-chat"
+        width={1200}
+        height={680}
+      />
     </section>
   );
 }

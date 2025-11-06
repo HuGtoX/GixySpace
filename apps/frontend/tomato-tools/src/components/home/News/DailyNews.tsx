@@ -4,7 +4,7 @@ import { Divider, List, Button } from "antd";
 import axios from "@/lib/axios";
 import { useRequest } from "ahooks";
 import { SixtySecondsData, HistoryTodayData } from "@gixy/types";
-import { SixtySecondsResponse } from "@/app/api/sixty-seconds-news/route";
+import { SixtySecondsResponse } from "@/app/api/news/60s";
 import Skeleton from "./Skeleton";
 // 默认显示的新闻条数
 const MAX_VISIBLE_ITEMS = 5;
@@ -14,16 +14,13 @@ const MAX_VISIBLE_HISTORY = 5;
 const DailyNews = () => {
   const [newsData, setNewsData] = useState<SixtySecondsData | null>(null);
   const [historyData, setHistoryData] = useState<HistoryTodayData | null>(null);
-  // 控制新闻列表展开/收起状态
   const [expanded, setExpanded] = useState(false);
-  // 控制历史事件展开/收起状态
   const [historyExpanded, setHistoryExpanded] = useState(false);
 
   const { loading, runAsync: fetchNews } = useRequest(
     async () => {
-      const response = await axios.get<SixtySecondsResponse>(
-        `/api/sixty-seconds-news`,
-      );
+      const response =
+        await axios.get<SixtySecondsResponse>(`/api/news?source=60s`);
       return response;
     },
     { manual: true },
@@ -81,7 +78,6 @@ const DailyNews = () => {
         <Skeleton />
       ) : newsData ? (
         <div className="flex flex-1 flex-col">
-          {/* 新闻头部信息 - 只保留日期和原文链接 */}
           <div className="dark:bg-gray-850 border-b border-gray-100 p-4 transition-all duration-300 dark:border-gray-700">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">

@@ -29,6 +29,7 @@ import {
   FaUsers,
   FaCheckCircle,
   FaHome,
+  FaEnvelope,
 } from "react-icons/fa";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -112,6 +113,9 @@ const NotificationManagement: React.FC = () => {
     useState<NotificationItem | null>(null);
   const [form] = Form.useForm();
   const { user } = useAuth();
+  const [testEmailModalVisible, setTestEmailModalVisible] = useState(false);
+  const [testEmailForm] = Form.useForm();
+  const [emailConfigured, setEmailConfigured] = useState(false);
 
   // 获取通知列表
   const fetchNotifications = async (page = 1, size = 10) => {
@@ -351,9 +355,49 @@ const NotificationManagement: React.FC = () => {
     },
   ];
 
+  // 检查邮件服务配置状态
+  const checkEmailConfig = async () => {
+    try {
+      const response = await fetch("/api/notifications/test-email");
+      const result = await response.json();
+      if (result.success) {
+        setEmailConfigured(result.configured);
+      }
+    } catch (error) {
+      console.error("Error checking email config:", error);
+    }
+  };
+
+  // 发送测试邮件
+  const handleTestEmail = async (values: any) => {
+    try {
+      const response = await fetch("/api/notifications/test-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        message.success("测试邮件发送成功！请检查收件箱");
+        setTestEmailModalVisible(false);
+        testEmailForm.resetFields();
+      } else {
+        message.error(result.error || "测试邮件发送失败");
+      }
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      message.error("测试邮件发送失败");
+    }
+  };
+
   // 组件挂载时获取数据
   useEffect(() => {
     fetchNotifications();
+    checkEmailConfig();
   }, []);
 
   return (
@@ -450,6 +494,13 @@ const NotificationManagement: React.FC = () => {
               >
                 创建通知
               </Button>
+              <Button
+                icon={<FaEnvelope />}
+                onClick={() => setTestEmailModalVisible(true)}
+              >
+                测试邮件
+              </Button>
+              {!emailConfigured && <Tag color="warning">邮件服务未配置</Tag>}
             </Space>
           </div>
         </Card>
@@ -647,6 +698,79 @@ const NotificationManagement: React.FC = () => {
               </Button>
               <Button type="primary" htmlType="submit">
                 {editingNotification ? "更新" : "创建"}
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+
+        {/* 测试邮件模态框 */}
+        <Modal
+          title={
+            <span className="text-gray-900 dark:text-white">测试邮件发送</span>
+          }
+          open={testEmailModalVisible}
+          onCancel={() => {
+            setTestEmailModalVisible(false);
+            testEmailForm.resetFields();
+          }}
+          footer={null}
+          width={500}
+          className="dark:bg-gray-800"
+        >
+          <Form
+            form={testEmailForm}
+            layout="vertical"
+            onFinish={handleTestEmail}
+            className="dark:text-white"
+          >
+            <Form.Item
+              name="to"
+              label="收件人邮箱"
+              rules={[
+                { required: true, message: "请输入收件人邮箱" },
+                { type: "email", message: "请输入有效的邮箱地址" },
+              ]}
+            >
+              <Input placeholder="请输入收件人邮箱" />
+            </Form.Item>
+
+            <Form.Item name="subject" label="邮件主题（可选）">
+              <Input placeholder="默认：番茄工具箱 - 邮件服务测试" />
+            </Form.Item>
+
+            <Form.Item name="title" label="邮件标题（可选）">
+              <Input placeholder="默认：邮件服务测试" />
+            </Form.Item>
+
+            <Form.Item name="content" label="邮件内容（可选）">
+              <TextArea
+                rows={4}
+                placeholder="默认：这是一封测试邮件，用于验证邮件服务配置是否正确。"
+              />
+            </Form.Item>
+
+            {!emailConfigured && (
+              <div className="mb-4 rounded bg-yellow-50 p-3 text-sm text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200">
+                ⚠️ 邮件服务未配置，请先在 .env.local 文件中配置SMTP相关环境变量
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-2 border-t border-gray-200 pt-4 dark:border-gray-700">
+              <Button
+                onClick={() => {
+                  setTestEmailModalVisible(false);
+                  testEmailForm.resetFields();
+                }}
+                className="text-gray-600 dark:text-gray-300"
+              >
+                取消
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                disabled={!emailConfigured}
+              >
+                发送测试邮件
               </Button>
             </div>
           </Form>

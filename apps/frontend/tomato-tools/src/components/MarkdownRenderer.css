@@ -1,0 +1,99 @@
+/* Markdown渲染器样式 */
+.markdown-renderer {
+  line-height: 1.6;
+  color: inherit;
+}
+
+/* 代码块样式优化 */
+.markdown-renderer pre {
+  @apply overflow-x-auto rounded-lg;
+  margin: 1rem 0;
+}
+
+.markdown-renderer code {
+  font-family: "Fira Code", "Monaco", "Cascadia Code", "Roboto Mono", monospace;
+}
+
+/* 表格样式 */
+.markdown-renderer table {
+  margin: 1rem 0;
+}
+
+/* 引用块样式 */
+.markdown-renderer blockquote {
+  margin: 1rem 0;
+}
+
+/* 列表样式 */
+.markdown-renderer ul,
+.markdown-renderer ol {
+  margin: 0.5rem 0;
+}
+
+.markdown-renderer li {
+  margin: 0.25rem 0;
+}
+
+/* 标题间距 */
+.markdown-renderer h1:first-child,
+.markdown-renderer h2:first-child,
+.markdown-renderer h3:first-child {
+  margin-top: 0;
+}
+
+/* 段落间距 */
+.markdown-renderer p:last-child {
+  margin-bottom: 0;
+}
+
+/* 水平分割线 */
+.markdown-renderer hr {
+  @apply my-6 border-gray-300 dark:border-gray-600;
+}
+
+/* 强调文本 */
+.markdown-renderer strong {
+  @apply font-semibold text-gray-900 dark:text-white;
+}
+
+.markdown-renderer em {
+  @apply italic;
+}
+
+/* 删除线 */
+.markdown-renderer del {
+  @apply line-through opacity-75;
+}
+
+/* 任务列表 */
+.markdown-renderer input[type="checkbox"] {
+  @apply mr-2;
+}
+
+/* 代码复制按钮动画 */
+.markdown-renderer .copy-button {
+  transition: all 0.2s ease;
+}
+
+.markdown-renderer .copy-button:hover {
+  transform: scale(1.05);
+}
+
+/* 滚动条样式 */
+.markdown-renderer pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.markdown-renderer pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.markdown-renderer pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.markdown-renderer pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}

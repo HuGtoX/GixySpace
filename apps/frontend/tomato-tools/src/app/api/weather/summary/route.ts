@@ -9,6 +9,11 @@ import {
   generateWeatherSummaryCacheKey,
   WEATHER_SUMMARY_CACHE_TTL,
 } from "@/lib/redis-cache";
+import type {
+  AiUsageScene,
+  AiConversationCategory,
+} from "@/lib/services/aiUsageService";
+
 // 请求数据验证schema
 const summaryRequestSchema = z.object({
   location: z.string().min(1, "位置不能为空"),
@@ -61,10 +66,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 构建天气总结提示
     const weatherSummaryPrompt = `
-基于以下天气数据，生成一个简洁的中文天气总结（50-120字），包含天气状况、温度感受、出行建议和健康提醒：
-
+你的身份是某个平台的天气助手，你的分析面向的是平台中的用户。
+基于以下天气数据和联网数据，生成一个简洁的中文天气说明，包含天气状况、温度感受、出行建议和健康提醒：
 位置：${validatedData.location}
 天气：${validatedData.weather}
 温度：${validatedData.temperature}°C
@@ -76,14 +80,31 @@ export async function POST(request: NextRequest) {
 1. 语言简洁自然，避免专业术语
 2. 提供实用的出行建议
 3. 如有需要，给出健康提醒
-4. 整体语气友好亲切
-5. 需要结合实时的互联网数据进行总结分析，如台风等恶劣天气情况需要进行补充
+4. 整体语气幽默有趣像朋友一样
+5. 120-150字左右即可
+6. 句子中不需要有引用的标注
+总结下：今天温度多少、未来两天有没有雨，再给个实用建议，不用复杂，简单说就行，不需要后续的对话。
+【注意】如有台风等其他恶劣天气请补充提醒，需要通过实时查询当地天气情况进行分析
+
 `;
+
+    const ipAddress =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+    const userAgent = request.headers.get("user-agent") || "unknown";
 
     const summary = await requestAI({
       content: weatherSummaryPrompt,
-      apiKey: process.env.TD_AGENT_WEATHAER_KEY!,
-      model: "302-agent-weather",
+      apiKey: process.env.AI_API_KEY!,
+      model: "deepseek-chat",
+      scene: "weather_report" as AiUsageScene,
+      conversationCategory: "report_generation" as AiConversationCategory,
+      sceneDescription: "天气总结生成",
+      ipAddress,
+      userAgent,
+      userId: session.user.id,
+      "web-search": true,
     });
 
     // 将AI总结结果缓存到Redis（2小时）

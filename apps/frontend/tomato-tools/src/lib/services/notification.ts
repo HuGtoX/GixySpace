@@ -4,12 +4,14 @@ import {
   notification,
   userNotification,
   notificationStats,
+  user,
   type Notification,
   type NewNotification,
   type NotificationWithStats,
   type UserNotificationWithDetails,
 } from "@/lib/drizzle/schema/schema";
 import { createModuleLogger } from "@/lib/logger";
+import { EmailService } from "@/lib/services/email";
 
 const log = createModuleLogger("notification-service");
 
@@ -302,15 +304,26 @@ export class NotificationService {
   static async sendToAllUsers(notificationId: string): Promise<void> {
     log.info("Sending notification to all users", { notificationId });
 
+    // 获取通知详情
+    const notificationData = await this.getNotificationById(notificationId);
+    if (!notificationData) {
+      log.error("Notification not found", { notificationId });
+      return;
+    }
+
     // 获取所有活跃用户
     const users = await db
-      .select({ id: sql`id` })
-      .from(sql`"user"`)
-      .where(sql`is_active = true`);
+      .select({
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+      })
+      .from(user)
+      .where(eq(user.isActive, true));
 
     // 批量创建用户通知记录
-    const userNotifications = users.map((user) => ({
-      userId: user.id as string,
+    const userNotifications = users.map((u) => ({
+      userId: u.id,
       notificationId,
     }));
 
@@ -324,6 +337,11 @@ export class NotificationService {
           totalSent: sql`${notificationStats.totalSent} + ${userNotifications.length}`,
         })
         .where(eq(notificationStats.notificationId, notificationId));
+
+      // 如果需要发送邮件
+      if (notificationData.sendEmail) {
+        await this.sendEmailsToUsers(notificationData, users);
+      }
     }
 
     log.info("Notification sent to all users", {
@@ -344,6 +362,13 @@ export class NotificationService {
       userIds,
     });
 
+    // 获取通知详情
+    const notificationData = await this.getNotificationById(notificationId);
+    if (!notificationData) {
+      log.error("Notification not found", { notificationId });
+      return;
+    }
+
     const userNotifications = userIds.map((userId) => ({
       userId,
       notificationId,
@@ -358,6 +383,21 @@ export class NotificationService {
         totalSent: sql`${notificationStats.totalSent} + ${userIds.length}`,
       })
       .where(eq(notificationStats.notificationId, notificationId));
+
+    // 如果需要发送邮件
+    if (notificationData.sendEmail) {
+      // 获取用户信息
+      const users = await db
+        .select({
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+        })
+        .from(user)
+        .where(sql`${user.id} = ANY(${userIds})`);
+
+      await this.sendEmailsToUsers(notificationData, users);
+    }
 
     log.info("Notification sent to users", {
       notificationId,
@@ -454,5 +494,67 @@ export class NotificationService {
       .limit(1);
 
     return (result[0] as NotificationWithStats) || null;
+  }
+
+  /**
+   * 发送邮件给用户列表
+   */
+  private static async sendEmailsToUsers(
+    notificationData: NotificationWithStats,
+    users: Array<{ id: string; email: string | null; fullName: string | null }>,
+  ): Promise<void> {
+    log.info("Sending notification emails", {
+      notificationId: notificationData.id,
+      userCount: users.length,
+    });
+
+    // 过滤出有邮箱的用户
+    const usersWithEmail = users.filter((u) => u.email);
+
+    if (usersWithEmail.length === 0) {
+      log.warn("No users with email found");
+      return;
+    }
+
+    // 构建邮件数据
+    const emailData = usersWithEmail.map((u) => ({
+      to: u.email!,
+      subject: `[${this.getTypeLabel(notificationData.type)}] ${notificationData.title}`,
+      title: notificationData.title,
+      content: notificationData.content,
+      actionUrl: notificationData.actionUrl || undefined,
+      actionText: "查看详情",
+      priority: notificationData.priority,
+      type: notificationData.type,
+    }));
+
+    // 批量发送邮件
+    const result = await EmailService.sendBatchNotificationEmails(emailData);
+
+    log.info("Notification emails sent", {
+      notificationId: notificationData.id,
+      total: usersWithEmail.length,
+      success: result.successCount,
+      failed: result.failCount,
+    });
+
+    if (result.errors.length > 0) {
+      log.error("Some emails failed to send", { errors: result.errors });
+    }
+  }
+
+  /**
+   * 获取通知类型标签
+   */
+  private static getTypeLabel(type: string): string {
+    const typeLabels: Record<string, string> = {
+      system: "系统通知",
+      github: "GitHub",
+      update: "更新通知",
+      security: "安全通知",
+      feature: "功能通知",
+      maintenance: "维护通知",
+    };
+    return typeLabels[type] || "通知";
   }
 }

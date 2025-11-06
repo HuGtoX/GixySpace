@@ -1,0 +1,138 @@
+/* AI聊天Modal样式 */
+.ai-chat-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 侧边栏样式 */
+.ai-chat-modal .session-sidebar {
+  transition: width 0.3s ease;
+}
+
+.ai-chat-modal .session-sidebar.collapsed {
+  width: 48px;
+}
+
+.ai-chat-modal .session-sidebar:not(.collapsed) {
+  width: 256px;
+}
+
+/* 会话列表项悬停效果 */
+.ai-chat-modal .ant-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark .ai-chat-modal .ant-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 当前会话高亮 */
+.ai-chat-modal .ant-list-item.current-session {
+  background-color: rgba(24, 144, 255, 0.1);
+  border-left: 3px solid #1890ff;
+}
+
+.dark .ai-chat-modal .ant-list-item.current-session {
+  background-color: rgba(24, 144, 255, 0.15);
+}
+
+/* 联网查询开关样式 */
+.ai-chat-modal .online-search-switch {
+  transition: all 0.3s ease;
+}
+
+.ai-chat-modal .online-search-switch .ant-switch-checked {
+  background-color: #52c41a;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ai-chat-modal .session-sidebar:not(.collapsed) {
+    width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-chat-modal .session-sidebar:not(.collapsed) {
+    width: 180px;
+  }
+}
+
+.ai-chat-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.ai-chat-modal .ant-modal-header .ant-modal-title {
+  color: white;
+  font-weight: 600;
+}
+
+.ai-chat-modal .ant-modal-close {
+  color: white;
+}
+
+.ai-chat-modal .ant-modal-close:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 深色模式适配 */
+.dark .ai-chat-modal .ant-modal-header {
+  border-bottom-color: #404040;
+}
+
+/* 消息气泡动画 */
+.message-bubble {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滚动条样式 */
+.ai-chat-modal .ant-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-chat-modal .ant-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.ai-chat-modal .ant-modal-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.ai-chat-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 输入框聚焦效果 */
+.ai-chat-modal .ant-input:focus,
+.ai-chat-modal .ant-input-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* 发送按钮样式 */
+.ai-chat-modal .ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ai-chat-modal .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}

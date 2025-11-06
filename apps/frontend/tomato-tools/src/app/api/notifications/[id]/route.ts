@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/lib/services/notification";
 import { createModuleLogger } from "@/lib/logger";
-import { authorization } from "@/app/api/authorization";
+import { requireAdmin } from "@/app/api/authorization";
 import { z } from "zod";
 const log = createModuleLogger("notification-detail-api");
 
@@ -90,17 +90,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // 验证用户身份和管理员权限
-    const user = await authorization();
-    if (user.role !== "admin") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "权限不足，只有管理员才能更新通知",
-        },
-        { status: 403 },
-      );
-    }
+    // 验证管理员权限
+    await requireAdmin();
 
     const { id } = await params;
     const body = await request.json();
@@ -205,17 +196,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    // 验证用户身份和管理员权限
-    const user = await authorization();
-    if (user.role !== "admin") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "权限不足，只有管理员才能删除通知",
-        },
-        { status: 403 },
-      );
-    }
+    // 验证管理员权限
+    await requireAdmin();
 
     const { id } = await params;
 

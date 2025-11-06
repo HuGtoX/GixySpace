@@ -25,17 +25,6 @@ interface HistoryTodoModalProps {
 
 type CategoriesDateType = DateRangeType | "all" | "ai-summary";
 
-// AI总结数据类型
-interface AISummary {
-  id: string;
-  title: string;
-  content: string;
-  period: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // 分类选项
 const categories: { id: CategoriesDateType; name: string; icon: any }[] = [
   { id: "all", name: "全部", icon: <FaCalendar size={16} /> },
