@@ -361,7 +361,8 @@ export async function getUserAiUsageLogs(
     .select()
     .from(aiUsageLogs)
     .where(and(...conditions))
-    .orderBy(desc(aiUsageLogs.createdAt));
+    .orderBy(desc(aiUsageLogs.createdAt))
+    .$dynamic();
 
   if (options?.limit) {
     query = query.limit(options.limit);
@@ -399,7 +400,8 @@ export async function getUserAiUsageStatistics(
     .select()
     .from(aiUsageStatistics)
     .where(and(...conditions))
-    .orderBy(desc(aiUsageStatistics.date));
+    .orderBy(desc(aiUsageStatistics.date))
+    .$dynamic();
 
   if (options?.limit) {
     query = query.limit(options.limit);
