@@ -6,11 +6,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "pnpm --filter @gixy/tomato-tools dev",
-		"build": "pnpm --filter '@gixy/bit-craft...' build",
-		"dev:new": "pnpm --filter @gixy/tomato-tools dev:pretty",
+		"build": "pnpm --filter @gixy/tomato-tools build",
 		"dev:standard": "pnpm --filter @gixy/tomato-tools dev:standard",
-		"build:new": "pnpm --filter '@gixy/tomato-tools...' build",
-		"build:bit-craft": "pnpm --filter @gixy/bit-craft build",
+		"build:new": "pnpm --filter @gixy/tomato-tools... build",
 		"build:utils": "pnpm --filter @gixy/utils build",
 		"build:types": "pnpm --filter @gixy/types build",
 		"s1": "pnpm --filter @gixy/fastify-learning dev",
