@@ -91,7 +91,7 @@ export default function SessionSidebar({
         collapsed ? "w-12" : "w-64"
       }`}
     >
-      <div className="flex items-center justify-between border-b p-3 dark:border-gray-600">
+      <div className="flex items-center justify-between  p-3 ">
         {!collapsed && (
           <Text className="font-medium text-gray-700 dark:text-gray-300">
             会话列表
