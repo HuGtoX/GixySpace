@@ -4,7 +4,7 @@ import NewsCard from "./HotCard";
 import DailyNews from "./DailyNews";
 import CurrencyRates from "./CurrencyRates";
 // 注意：此处引用路径已更改为HotConfig，请确保该文件存在
-import { newsPlatforms, dailyNewsConfig, currencyRatesConfig } from "./HotConfig";
+import { newsPlatforms, dailyNewsConfig, currencyRatesConfig } from "./config";
 
 const NewsSection = () => {
   // 当前激活的tab键
