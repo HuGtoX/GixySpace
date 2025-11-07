@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { List, Spin, Button, message, Divider } from "antd";
+import { List, Spin, Button, message, DatePicker } from "antd";
 import {
-  FaCalendar,
+  FaBrain,
+  FaCalendarDay,
   FaCalendarWeek,
   FaCalendarAlt,
-  FaCalendarDay,
-  FaBrain,
-  FaEnvira,
 } from "react-icons/fa";
 import GModal from "@/components/Modal";
 import { Todo } from "@/lib/drizzle/schema/todo";
@@ -16,22 +14,37 @@ import TodoItem from "./TodoItem";
 import TodoModal from "./EditModal";
 import AISummarySection from "./AISummarySection";
 import AISummaryList from "./SummaryList";
-import { generateDateRange, DateRangeType } from "@/lib/date";
+import dayjs, { Dayjs } from "dayjs";
+
+const { RangePicker } = DatePicker;
 
 interface HistoryTodoModalProps {
   visible: boolean;
   onClose: () => void;
 }
 
-type CategoriesDateType = DateRangeType | "all" | "ai-summary";
+type ViewMode = "list" | "ai-summary";
 
-// 分类选项
-const categories: { id: CategoriesDateType; name: string; icon: any }[] = [
-  { id: "all", name: "全部", icon: <FaCalendar size={16} /> },
-  { id: "day", name: "本日", icon: <FaCalendarDay size={16} /> },
-  { id: "week", name: "本周", icon: <FaCalendarWeek size={16} /> },
-  { id: "month", name: "本月", icon: <FaCalendarAlt size={16} /> },
-  { id: "ai-summary", name: "AI总结", icon: <FaBrain size={16} /> },
+// 快捷日期筛选按钮配置
+const quickDateFilters = [
+  {
+    id: "day",
+    name: "本日",
+    icon: <FaCalendarDay size={14} />,
+    getRange: () => [dayjs().startOf("day"), dayjs().endOf("day")],
+  },
+  {
+    id: "week",
+    name: "本周",
+    icon: <FaCalendarWeek size={14} />,
+    getRange: () => [dayjs().startOf("week"), dayjs().endOf("week")],
+  },
+  {
+    id: "month",
+    name: "本月",
+    icon: <FaCalendarAlt size={14} />,
+    getRange: () => [dayjs().startOf("month"), dayjs().endOf("month")],
+  },
 ];
 
 export default function HistoryTodoModal(props: HistoryTodoModalProps) {
@@ -39,11 +52,13 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoriesDateType>("all");
   const [todoModalVisible, setTodoModalVisible] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
-  // 原有的AI总结功能状态
+  // 日期筛选状态
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+
+  // AI总结功能状态
   const [aiSummary, setAiSummary] = useState<string>("");
   const [summaryLoading, setSummaryLoading] = useState(false);
 
@@ -55,10 +70,10 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
       const params = new URLSearchParams();
       params.append("status", "completed");
 
-      if (selectedCategory !== "all" && selectedCategory !== "ai-summary") {
-        const dateRange = generateDateRange(selectedCategory);
-        params.append("startDate", dateRange.start);
-        params.append("endDate", dateRange.end);
+      // 如果有日期范围筛选
+      if (dateRange) {
+        params.append("startDate", dateRange[0].format("YYYY-MM-DD"));
+        params.append("endDate", dateRange[1].format("YYYY-MM-DD"));
       }
 
       const response = await axios.get<PaginationResponse<Todo>>(
@@ -72,7 +87,7 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
     }
   };
 
-  // 生成AI总结（原有功能）
+  // 生成AI总结
   const generateSummary = async (
     period: "day" | "week" | "month" | "all" = "day",
   ) => {
@@ -98,8 +113,8 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
           message.info(`${periodLabel}暂无已完成的任务`);
         } else {
           message.success(`${periodLabel}总结生成成功`);
-          // 生成总结成功后切换到AI总结分类
-          setSelectedCategory("ai-summary");
+          // 生成总结成功后切换到AI总结视图
+          setViewMode("ai-summary");
         }
       } else {
         throw new Error(response.data.error || "生成总结失败");
@@ -112,29 +127,46 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
     }
   };
 
+  // 快捷日期筛选
+  const handleQuickDateFilter = (range: [Dayjs, Dayjs]) => {
+    setDateRange(range);
+    setViewMode("list");
+  };
+
+  // 清空日期筛选
+  const handleClearDateFilter = () => {
+    setDateRange(null);
+  };
+
   // 编辑待办事项
   const editTodo = (todo: Todo) => {
     setEditingTodo(todo);
     setTodoModalVisible(true);
   };
 
-  useEffect(() => {
-    if (visible) {
-      if (selectedCategory !== "ai-summary") {
-        fetchHistoryTodos();
-      }
+  // 切换任务完成状态
+  const toggleComplete = async (id: string, completed: boolean) => {
+    try {
+      setLoading(true);
+      await axios.put(`/api/todo?id=${id}`, {
+        status: completed ? "completed" : "pending",
+      });
+      message.success(completed ? "任务已完成" : "任务已恢复");
+      fetchHistoryTodos();
+    } catch (error) {
+      message.error("更新任务状态失败");
+      setLoading(false);
     }
-  }, [visible, selectedCategory]);
-
-  // 切换分类
-  const handleCategoryChange = (categoryId: CategoriesDateType) => {
-    setSelectedCategory(categoryId);
-    // 切换分类时清空当前总结
-    setAiSummary("");
   };
 
+  useEffect(() => {
+    if (visible && viewMode === "list") {
+      fetchHistoryTodos();
+    }
+  }, [visible, viewMode, dateRange]);
+
   return (
-    <GModal {...props} title="历史完成任务" width={900}>
+    <GModal {...props} title="历史完成任务" width={860}>
       <TodoModal
         visible={todoModalVisible}
         onClose={() => setTodoModalVisible(false)}
@@ -142,65 +174,174 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
         initialData={editingTodo}
       />
 
-      <div className="flex h-[500px] gap-4">
-        {/* 左侧分类列表 */}
-        <div className="w-48 shrink-0 border-r border-gray-200 dark:border-gray-700">
-          <div className="p-3 font-medium text-gray-700 dark:text-gray-300">
-            分类
-          </div>
-          <div className="space-y-1 px-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors ${selectedCategory === category.id ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "hover:bg-gray-100 dark:hover:bg-gray-800"}`}
-                onClick={() => handleCategoryChange(category.id)}
+      <div className="flex h-[600px] flex-col gap-4">
+        {/* 顶部筛选栏 */}
+        <div className="rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100/50 p-3 shadow-sm dark:border-gray-700 dark:from-gray-800/80 dark:to-gray-800/40">
+          <div className="flex flex-col gap-3">
+            {/* 第一行：视图切换 */}
+            <div className="flex items-center gap-2 rounded-lg bg-white p-1 shadow-sm dark:bg-gray-900/50">
+              <Button
+                type={viewMode === "list" ? "primary" : "text"}
+                onClick={() => setViewMode("list")}
+                className="flex-1 transition-all"
               >
-                {category.icon}
-                <span>{category.name}</span>
-              </button>
-            ))}
-          </div>
+                📋 任务列表
+              </Button>
+              <Button
+                type={viewMode === "ai-summary" ? "primary" : "text"}
+                onClick={() => setViewMode("ai-summary")}
+                className="flex-1 transition-all"
+              >
+                🤖 总结列表
+              </Button>
+            </div>
 
-          <Divider className="my-4" />
-          <div className="p-3 font-medium text-gray-700 dark:text-gray-300">
-            AI 总结
-          </div>
-          <div className="space-y-2 px-2">
-            <Button
-              block
-              icon={<FaBrain size={16} />}
-              onClick={() => generateSummary("day")}
-              loading={summaryLoading}
-            >
-              生成本日总结
-            </Button>
-            <Button
-              block
-              icon={<FaEnvira size={16} />}
-              onClick={() => generateSummary("week")}
-              loading={summaryLoading}
-            >
-              生成本周总结
-            </Button>
-            <Button
-              block
-              icon={<FaCalendarAlt size={16} />}
-              onClick={() => generateSummary("month")}
-              loading={summaryLoading}
-            >
-              生成本月总结
-            </Button>
+            {/* 第二行：筛选和操作按钮 */}
+            {viewMode === "list" && (
+              <div className="flex flex-wrap items-center gap-2">
+                {/* 快捷日期按钮组 */}
+                <div className="flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 shadow-sm dark:bg-gray-900/50">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    快捷:
+                  </span>
+                  {quickDateFilters.map((filter) => (
+                    <Button
+                      key={filter.id}
+                      size="small"
+                      icon={filter.icon}
+                      onClick={() => handleQuickDateFilter(filter.getRange())}
+                      className="transition-all hover:scale-105"
+                    >
+                      {filter.name}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* 自定义日期范围选择器 */}
+                <div className="flex flex-1 items-center gap-1.5 rounded-lg bg-white px-2 py-1 shadow-sm dark:bg-gray-900/50">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    自定义:
+                  </span>
+                  <RangePicker
+                    value={dateRange}
+                    onChange={(dates) => {
+                      if (dates) {
+                        setDateRange([dates[0]!, dates[1]!]);
+                      } else {
+                        handleClearDateFilter();
+                      }
+                    }}
+                    placeholder={["开始", "结束"]}
+                    format="YYYY-MM-DD"
+                    allowClear
+                    size="small"
+                    className="flex-1"
+                  />
+                </div>
+
+                {/* 生成总结按钮 */}
+                <Button
+                  type="primary"
+                  icon={<FaBrain size={14} />}
+                  size="small"
+                  onClick={() => {
+                    // 根据当前日期筛选生成对应的总结
+                    if (dateRange) {
+                      const today = dayjs();
+                      const start = dateRange[0];
+                      const end = dateRange[1];
+
+                      // 判断是否为本日
+                      if (
+                        start.isSame(today, "day") &&
+                        end.isSame(today, "day")
+                      ) {
+                        generateSummary("day");
+                      }
+                      // 判断是否为本周
+                      else if (
+                        start.isSame(today.startOf("week"), "day") &&
+                        end.isSame(today.endOf("week"), "day")
+                      ) {
+                        generateSummary("week");
+                      }
+                      // 判断是否为本月
+                      else if (
+                        start.isSame(today.startOf("month"), "day") &&
+                        end.isSame(today.endOf("month"), "day")
+                      ) {
+                        generateSummary("month");
+                      }
+                      // 其他自定义日期范围，默认生成全部总结
+                      else {
+                        generateSummary("all");
+                      }
+                    } else {
+                      // 没有日期筛选时，生成全部总结
+                      generateSummary("all");
+                    }
+                  }}
+                  loading={summaryLoading}
+                  className="shadow-sm transition-all hover:scale-105"
+                >
+                  生成总结
+                </Button>
+              </div>
+            )}
+
+            {/* AI总结生成按钮 - 仅在AI总结视图显示 */}
+            {viewMode === "ai-summary" && (
+              <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 shadow-sm dark:bg-gray-900/50">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  生成总结:
+                </span>
+                <div className="flex flex-1 gap-2">
+                  <Button
+                    size="small"
+                    icon={<FaCalendarDay size={14} />}
+                    onClick={() => generateSummary("day")}
+                    loading={summaryLoading}
+                    className="flex-1 transition-all hover:scale-105"
+                  >
+                    本日
+                  </Button>
+                  <Button
+                    size="small"
+                    icon={<FaCalendarWeek size={14} />}
+                    onClick={() => generateSummary("week")}
+                    loading={summaryLoading}
+                    className="flex-1 transition-all hover:scale-105"
+                  >
+                    本周
+                  </Button>
+                  <Button
+                    size="small"
+                    icon={<FaCalendarAlt size={14} />}
+                    onClick={() => generateSummary("month")}
+                    loading={summaryLoading}
+                    className="flex-1 transition-all hover:scale-105"
+                  >
+                    本月
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 右侧内容区域 */}
+        {/* 内容区域 */}
         <div className="flex-1 overflow-hidden">
-          {/* AI 总结区域 */}
-          <AISummarySection
-            summaryLoading={summaryLoading}
-            aiSummary={aiSummary}
-          />
-          {selectedCategory === "ai-summary" ? (
+          {/* AI 总结实时生成区域 */}
+          {summaryLoading || aiSummary ? (
+            <AISummarySection
+              summaryLoading={summaryLoading}
+              aiSummary={aiSummary}
+              onClose={() => setAiSummary("")}
+            />
+          ) : null}
+
+          {/* 根据视图模式显示不同内容 */}
+          {viewMode === "ai-summary" ? (
             <AISummaryList visible={visible} />
           ) : (
             <div className="h-full overflow-auto">
@@ -209,6 +350,12 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
                   <div className="py-12 text-center text-gray-500 dark:text-gray-400">
                     <div className="mb-2 text-4xl">📋</div>
                     <p>暂无完成任务</p>
+                    {dateRange && (
+                      <p className="mt-2 text-sm">
+                        当前筛选：{dateRange[0].format("YYYY-MM-DD")} 至{" "}
+                        {dateRange[1].format("YYYY-MM-DD")}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <List
@@ -216,6 +363,7 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
                     renderItem={(todo) => (
                       <List.Item key={todo.id} className="p-0">
                         <TodoItem
+                          onToggleComplete={toggleComplete}
                           isHistory={true}
                           todo={todo}
                           onEdit={editTodo}

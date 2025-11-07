@@ -9,6 +9,14 @@ import HistoryTodoModal from "./HistoryModal";
 import axios from "@/lib/axios";
 import TodoItem from "./TodoItem";
 
+// 优先级排序权重
+const priorityWeight = {
+  urgent: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
 const TodoList = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,7 +38,15 @@ const TodoList = () => {
     setLoading(true);
     try {
       const response = await axios.get<PaginationResponse<Todo>>("/api/todo");
-      setTodos(response.data);
+      // 按紧急程度排序：urgent > high > medium > low
+      const sortedTodos = response.data.sort((a, b) => {
+        const weightA =
+          priorityWeight[a.priority as keyof typeof priorityWeight] || 0;
+        const weightB =
+          priorityWeight[b.priority as keyof typeof priorityWeight] || 0;
+        return weightB - weightA;
+      });
+      setTodos(sortedTodos);
     } finally {
       setLoading(false);
     }

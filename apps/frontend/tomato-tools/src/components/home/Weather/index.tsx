@@ -348,8 +348,6 @@ export default function Weather() {
               ) : aiSummary ? (
                 <div className="rounded bg-gray-50 p-3 text-sm text-gray-600 dark:bg-gray-700/50 dark:text-gray-200">
                   <MarkdownRenderer content={aiSummary} />
-
-                  {/* {aiSummary} */}
                 </div>
               ) : (
                 <div className="text-sm italic text-gray-500 dark:text-gray-400">
