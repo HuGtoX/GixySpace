@@ -9,10 +9,7 @@
 		"build": "pnpm --filter @gixy/tomato-tools build",
 		"dev:standard": "pnpm --filter @gixy/tomato-tools dev:standard",
 		"build:new": "pnpm --filter @gixy/tomato-tools... build",
-		"build:utils": "pnpm --filter @gixy/utils build",
-		"build:types": "pnpm --filter @gixy/types build",
 		"s1": "pnpm --filter @gixy/fastify-learning dev",
-		"test:s1": "pnpm --filter @gixy/fastify-learning test",
 		"prepare": "husky"
 	},
 	"keywords": [],
