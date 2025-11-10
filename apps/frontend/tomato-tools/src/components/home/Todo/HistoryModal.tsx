@@ -26,7 +26,12 @@ interface HistoryTodoModalProps {
 type ViewMode = "list" | "ai-summary";
 
 // 快捷日期筛选按钮配置
-const quickDateFilters = [
+const quickDateFilters: {
+  id: string;
+  name: string;
+  icon: React.ReactElement;
+  getRange: () => [Dayjs, Dayjs];
+}[] = [
   {
     id: "day",
     name: "本日",
