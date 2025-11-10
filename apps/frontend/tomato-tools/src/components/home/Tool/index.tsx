@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { toolsMenu } from "@/config/tools";
 import { useRouter } from "next/navigation";
 import { FaEllipsisH } from "react-icons/fa";
-import IconWrapper from "@/components/IconWrapper";
+import IconWrapper from "@/components/ui/IconWrapper";
 
 interface ToolItemProps {
   name: string;

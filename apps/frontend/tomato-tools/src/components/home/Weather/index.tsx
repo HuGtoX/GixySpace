@@ -9,8 +9,8 @@ import {
   FaRobot,
 } from "react-icons/fa";
 import { Button, Spin } from "antd";
-import SectionCard from "@/components/SectionCard";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import SectionCard from "@/components/ui/SectionCard";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import type { ApiResponse, WeatherInfoResponse } from "@/app/api/types";
 import "qweather-icons/font/qweather-icons.css"; // 引入天气图标样式
 import {

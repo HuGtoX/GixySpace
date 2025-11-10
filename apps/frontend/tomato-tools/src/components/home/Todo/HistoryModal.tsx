@@ -6,7 +6,7 @@ import {
   FaCalendarWeek,
   FaCalendarAlt,
 } from "react-icons/fa";
-import GModal from "@/components/Modal";
+import GModal from "@/components/ui/Modal";
 import { Todo } from "@/lib/drizzle/schema/todo";
 import axios from "@/lib/axios";
 import type { PaginationResponse } from "@/types";

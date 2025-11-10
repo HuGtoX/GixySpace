@@ -3,13 +3,13 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { message } from "antd";
 import { useDeviceDetect } from "@/hooks/useDeviceDetect";
-import CodeEditor from "@/components/realtime-render/CodeEditor";
+import CodeEditor from "@/components/realtimeRender/CodeEditor";
 import PreviewPanel, {
   RenderStatus,
-} from "@/components/realtime-render/PreviewPanel";
-import CodeRenderer from "@/components/realtime-render/CodeRenderer";
-import FullscreenView from "@/components/realtime-render/FullscreenView";
-import { ConsoleLog } from "@/components/realtime-render/ConsolePanel";
+} from "@/components/realtimeRender/PreviewPanel";
+import CodeRenderer from "@/components/realtimeRender/CodeRenderer";
+import FullscreenView from "@/components/realtimeRender/FullscreenView";
+import { ConsoleLog } from "@/components/realtimeRender/ConsolePanel";
 
 const defaultCode = `import React, { useState, useEffect } from 'react';
 

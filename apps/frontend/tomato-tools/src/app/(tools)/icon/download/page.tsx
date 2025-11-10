@@ -17,7 +17,7 @@ import {
   SearchOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
-import Container from "@/components/layout/ToolsLayout/Container";
+import Container from "@/components/toolsLayout/ToolsLayout/Container";
 import axios from "@/lib/axios";
 import { useTheme } from "@/contexts/ThemeContext";
 import { IconInfo } from "@gixy/types";

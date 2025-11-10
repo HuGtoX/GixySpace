@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Button, message, List, Typography } from "antd";
 import { PDFDocument } from "pdf-lib";
-import { Container } from "@/components/layout/ToolsLayout";
+import { Container } from "@/components/toolsLayout/ToolsLayout";
 import DragList from "../components/DragList";
-import FileUploader from "@/components/FileUploader";
+import FileUploader from "@/components/ui/FileUploader";
 import { concatContent } from "../components/Content";
 
 type RcFileType = File & { id: string };

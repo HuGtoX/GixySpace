@@ -1,7 +1,7 @@
 import { Spin, Button } from "antd";
 import { FaBrain } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface AISummarySectionProps {
   summaryLoading: boolean;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaInfoCircle } from "react-icons/fa";
-import SectionCard from "@/components/SectionCard";
+import SectionCard from "@/components/ui/SectionCard";
 import { message } from "antd";
 import axios from "@/lib/axios";
 import { DailySentence as Reuslt, ResOrNull } from "@gixy/types";

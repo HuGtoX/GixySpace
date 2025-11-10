@@ -1,8 +1,8 @@
 "use client";
 
-import Container from "@/components/layout/Container";
-import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
+import Container from "@/components/toolsLayout/Container";
+import Footer from "@/components/toolsLayout/Footer";
+import Header from "@/components/toolsLayout/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import {

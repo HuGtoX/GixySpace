@@ -9,7 +9,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface ChatMessage {
   id: string;

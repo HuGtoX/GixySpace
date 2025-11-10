@@ -30,7 +30,6 @@ export default function RootLayout({
                     document.documentElement.classList.remove('dark');
                   }
                 } catch (e) {
-                  // 如果解析失败，保持默认的暗色主题（已经在className中设置）
                 }
               })();
             `,
