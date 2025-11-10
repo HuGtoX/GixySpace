@@ -1,11 +1,11 @@
 "use client";
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import Header from "@/components/toolsLayout/Header";
+import Footer from "@/components/toolsLayout/Footer";
 import NewsSection from "@/components/home/News";
 import Tools from "@/components/home/Tools";
 import Aside from "@/components/home/Aside";
-import Container from "@/components/layout/Container";
+import Container from "@/components/toolsLayout/Container";
 
 const HomePage = () => {
   return (

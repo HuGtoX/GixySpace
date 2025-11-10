@@ -1,5 +1,5 @@
 import { FaTools, FaChartLine, FaCalendarAlt, FaFileAlt } from "react-icons/fa";
-import SectionCard from "@/components/SectionCard";
+import SectionCard from "@/components/ui/SectionCard";
 
 interface ToolItem {
   name: string;
@@ -11,23 +11,23 @@ const moreTools: ToolItem[] = [
   {
     name: "文档转换",
     icon: <FaFileAlt className="text-blue-500" />,
-    status: "coming"
+    status: "coming",
   },
   {
     name: "数据分析",
     icon: <FaChartLine className="text-green-500" />,
-    status: "coming"
+    status: "coming",
   },
   {
     name: "日程管理",
     icon: <FaCalendarAlt className="text-purple-500" />,
-    status: "coming"
+    status: "coming",
   },
   {
     name: "更多工具",
     icon: <FaTools className="text-gray-500" />,
-    status: "coming"
-  }
+    status: "coming",
+  },
 ];
 
 export default function MoreTools() {
@@ -35,7 +35,7 @@ export default function MoreTools() {
     <SectionCard title="更多工具">
       <div className="space-y-3">
         {moreTools.map((tool) => (
-          <div 
+          <div
             key={tool.name}
             className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700"
           >

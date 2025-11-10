@@ -19,9 +19,9 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import Container from "@/components/layout/Container";
+import Header from "@/components/toolsLayout/Header";
+import Footer from "@/components/toolsLayout/Footer";
+import Container from "@/components/toolsLayout/Container";
 
 interface ProfileFormData {
   fullName: string;

@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import Container from "@/components/layout/Container";
+import Header from "@/components/toolsLayout/Header";
+import Footer from "@/components/toolsLayout/Footer";
+import Container from "@/components/toolsLayout/Container";
 import { Button } from "antd";
 import Link from "next/link";
 import { HomeOutlined, ArrowLeftOutlined } from "@ant-design/icons";

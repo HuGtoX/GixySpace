@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { message, Spin, Button, Divider } from "antd";
 import { FaPlus, FaHistory } from "react-icons/fa";
-import SectionCard from "@/components/SectionCard";
+import SectionCard from "@/components/ui/SectionCard";
 import { Todo } from "@/lib/drizzle/schema/todo";
 import type { PaginationResponse } from "@/types";
 import TodoModal from "./EditModal";

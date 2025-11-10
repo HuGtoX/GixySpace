@@ -87,8 +87,6 @@ const FileUploader = ({
         return;
       }
 
-      console.log("-- [ fileList ] --", fileList);
-
       if (maxFiles && fileList.length > maxFiles) {
         const errorMsg =
           errorMessages?.maxFiles || `最多只能上传${maxFiles}个文件`;

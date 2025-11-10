@@ -1,12 +1,12 @@
 "use client";
 
 import { ImageViewer } from "@/components/ImageViewer";
-import { Container } from "@/components/layout/ToolsLayout";
+import { Container } from "@/components/toolsLayout/ToolsLayout";
 import { convertImageToSVG, saveImage } from "@/lib/imageProcessing";
 import { Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "../transform/components/BatchActions";
-import FileUploader from "@/components/FileUploader";
+import FileUploader from "@/components/ui/FileUploader";
 import ImageItem from "../transform/components/ImageItem";
 import { ImageFile } from "../transform/types";
 import { svgInstructions } from "./instructions";

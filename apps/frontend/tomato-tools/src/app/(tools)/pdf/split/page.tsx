@@ -9,9 +9,9 @@ import {
   PlusOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
-import Container from "@/components/layout/ToolsLayout/Container";
+import Container from "@/components/toolsLayout/ToolsLayout/Container";
 import { downloadFile } from "@gixy/utils";
-import FileUploader from "@/components/FileUploader";
+import FileUploader from "@/components/ui/FileUploader";
 import { splitContent } from "../components/Content";
 import { PDFDocument } from "pdf-lib";
 

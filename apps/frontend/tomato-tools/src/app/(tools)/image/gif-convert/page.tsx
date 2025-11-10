@@ -20,8 +20,8 @@ import {
   ClearOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import FileUploader, { AcceptMap } from "@/components/FileUploader";
-import { Container } from "@/components/layout/ToolsLayout";
+import FileUploader, { AcceptMap } from "@/components/ui/FileUploader";
+import { Container } from "@/components/toolsLayout/ToolsLayout";
 import UploadList, { UploadItem } from "./components/UploadList";
 import {
   GifConvertibleFormat,

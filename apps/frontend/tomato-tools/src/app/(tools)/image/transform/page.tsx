@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageViewer, ImageViewerItem } from "@/components/ImageViewer";
-import { Container } from "@/components/layout/ToolsLayout";
+import { Container } from "@/components/toolsLayout/ToolsLayout";
 import {
   convertImage,
   getRecommendedFormat,
@@ -11,7 +11,7 @@ import { Button, Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "./components/BatchActions";
 import ConversionSettings from "./components/ConversionSettings";
-import FileUploader from "@/components/FileUploader";
+import FileUploader from "@/components/ui/FileUploader";
 import ImageItem from "./components/ImageItem";
 import { ImageFile, ConversionSettings as SettingsType } from "./types";
 

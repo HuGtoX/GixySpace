@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FaSync, FaRegStar } from "react-icons/fa";
 import { Skeleton } from "antd";
 import Image from "next/image";
-import ActionButton from "@/components/ActionButton";
+import ActionButton from "@/components/ui/ActionButton";
 import axios from "@/lib/axios";
 import CacheStorage from "@/lib/storage";
 import { useRequest } from "ahooks";

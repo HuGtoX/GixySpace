@@ -3,7 +3,7 @@ import { Tooltip, Badge, Checkbox, message } from "antd";
 import { FaTrash, FaClock, FaEdit } from "react-icons/fa";
 import { Todo } from "@/lib/drizzle/schema/todo";
 import classNames from "classnames";
-import ConfirmModal from "@/components/ConfirmModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import axios from "@/lib/axios";
 
 interface TodoItemProps {

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Modal } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
 import { otherToolsMenu } from "@/config/tools";
-import IconWrapper from "@/components/IconWrapper";
+import IconWrapper from "@/components/ui/IconWrapper";
 
 interface ToolsModalProps {
   visible: boolean;
