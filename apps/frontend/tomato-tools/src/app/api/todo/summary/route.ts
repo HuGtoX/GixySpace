@@ -4,7 +4,7 @@ import type { TodoSummaryRequest } from "@/types";
 import { authorization } from "../../authorization";
 import { todo } from "@/lib/drizzle/schema/todo";
 import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
-import { requestAIWithDefaultKey } from "@/lib/ai-client";
+import { requestAIWithDefaultKey } from "@/lib/aiClient";
 import { z } from "zod";
 import { createDbClient } from "@/lib/drizzle/client";
 import { eq, and, gte, lte, desc } from "drizzle-orm";

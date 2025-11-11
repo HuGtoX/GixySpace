@@ -2,25 +2,24 @@ import { NextResponse } from "next/server";
 
 // 60s API 返回的数据结构
 export interface SixtySecondsApiResponse {
-    code: number;
-    message: string;
-    data: CurrencyData;
+  code: number;
+  message: string;
+  data: CurrencyData;
 }
 
 export interface CurrencyData {
-    base_code: string;
-    updated: string;
-    updated_at: number;
-    next_updated: string;
-    next_updated_at: number;
-    rates: RateElement[];
+  base_code: string;
+  updated: string;
+  updated_at: number;
+  next_updated: string;
+  next_updated_at: number;
+  rates: RateElement[];
 }
 
 export interface RateElement {
-    currency: string;
-    rate: number;
+  currency: string;
+  rate: number;
 }
-
 
 // 货币汇率API接口
 export async function GET(request: Request) {
@@ -37,7 +36,7 @@ export async function GET(request: Request) {
         },
         // 缓存5分钟
         next: { revalidate: 300 },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -58,14 +57,14 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Currency API error:", error);
-    
+
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "未知错误",
         message: "获取汇率数据失败",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

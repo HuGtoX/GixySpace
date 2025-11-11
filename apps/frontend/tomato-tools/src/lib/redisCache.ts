@@ -62,3 +62,24 @@ export function generateWeatherSummaryCacheKey(location: string): string {
 
 // 天气AI总结缓存时间（2小时）
 export const WEATHER_SUMMARY_CACHE_TTL = 7200;
+
+// 获取数据并缓存
+export async function fetchNewsWithCache(
+  source: string,
+  fetchFn: () => Promise<any>,
+  cacheTTL: number = 300,
+) {
+  const cacheKey = generateNewsCacheKey(source);
+  const cached = await getCache<any>(cacheKey);
+
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch {
+      return cached;
+    }
+  }
+  const data = await fetchFn();
+  await setCache(cacheKey, JSON.stringify(data), cacheTTL);
+  return data;
+}

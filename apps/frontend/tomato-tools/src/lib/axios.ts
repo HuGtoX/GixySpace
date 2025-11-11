@@ -56,24 +56,17 @@ instance.interceptors.response.use(
     return response.data;
   },
   function (error) {
-    // 在浏览器环境中显示错误消息
+    // 只在客户端环境显示错误
     if (typeof window !== "undefined") {
-      console.warn("API Error:", error.message);
-      if (error.status === 401) {
-        message.open({
-          type: "error",
-          content: "用户未授权，请登录",
-          duration: 2,
-        });
-      } else {
-        message.open({
-          type: "error",
-          content: error.message,
-          duration: 2,
-        });
-      }
+      const errorMessage = error.response?.data?.message || error.message;
+      message.error(errorMessage);
     }
-    return Promise.reject(error);
+    // 返回标准化的错误对象
+    return Promise.reject({
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+      data: error.response?.data,
+    });
   },
 );
 

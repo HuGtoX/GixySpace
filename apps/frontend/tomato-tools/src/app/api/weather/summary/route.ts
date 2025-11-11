@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuthService } from "@/modules/auth/auth.service";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
-import { requestAI } from "@/lib/ai-client";
+import { requestAI } from "@/lib/aiClient";
 import { z } from "zod";
 import {
   getCache,
   setCache,
   generateWeatherSummaryCacheKey,
   WEATHER_SUMMARY_CACHE_TTL,
-} from "@/lib/redis-cache";
+} from "@/lib/redisCache";
 import type {
   AiUsageScene,
   AiConversationCategory,

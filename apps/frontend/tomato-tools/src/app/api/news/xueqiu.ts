@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
+import { fetchNewsWithCache } from "@/lib/redisCache";
 
 interface StockRes {
   data: {
@@ -15,62 +15,53 @@ interface StockRes {
 
 export async function GET() {
   try {
-    const cacheKey = generateNewsCacheKey('xueqiu');
-    
-    // 检查缓存
-   const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return NextResponse.json({
-        success: true,
-        data: cachedData,
-        cached: true
-      });
-    }
+    const data = await fetchNewsWithCache(
+      "xueqiu",
+      async () => {
+        const url =
+          "https://stock.xueqiu.com/v5/stock/hot_stock/list.json?size=30&_type=10&type=10";
 
-    const url = 'https://stock.xueqiu.com/v5/stock/hot_stock/list.json?size=30&_type=10&type=10';
-    
-    // 获取cookie
-    const cookieResponse = await fetch('https://xueqiu.com/hq');
-    const cookie = cookieResponse.headers.getSetCookie();
-    
-    // 请求股票数据
-    const response = await fetch(url, {
-      headers: {
-        cookie: cookie?.join('; ') || ''
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API请求失败: ${response.status}`);
-    }
-    
-    const res: StockRes = await response.json();
-    
-    // 格式化结果
-    const result = res.data.items
-      .filter((item) => !item.ad)
-      .map((item) => ({
-        id: item.code,
-        title: item.name,
-        url: `https://xueqiu.com/s/${item.code}`,
-        extra: {
-          info: `${item.percent}% ${item.exchange}`
+        // 获取cookie
+        const cookieResponse = await fetch("https://xueqiu.com/hq");
+        const cookie = cookieResponse.headers.getSetCookie();
+
+        // 请求股票数据
+        const response = await fetch(url, {
+          headers: {
+            cookie: cookie?.join("; ") || "",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`API请求失败: ${response.status}`);
         }
-      }));
-    
-    // 设置缓存
-    await setCache(cacheKey, result);
-    
+
+        const res: StockRes = await response.json();
+
+        // 格式化结果
+        return res.data.items
+          .filter((item) => !item.ad)
+          .map((item) => ({
+            id: item.code,
+            title: item.name,
+            url: `https://xueqiu.com/s/${item.code}`,
+            extra: {
+              info: `${item.percent}% ${item.exchange}`,
+            },
+          }));
+      },
+      300, // 缓存5分钟
+    );
+
     return NextResponse.json({
       success: true,
-      data: result,
-      cached: false
+      data,
     });
   } catch (error) {
-    console.error('获取雪球股票热点失败:', error);
+    console.error("获取雪球股票热点失败:", error);
     return NextResponse.json(
-      { success: false, message: '获取雪球股票热点失败' },
-      { status: 500 }
+      { success: false, message: "获取雪球股票热点失败" },
+      { status: 500 },
     );
   }
 }

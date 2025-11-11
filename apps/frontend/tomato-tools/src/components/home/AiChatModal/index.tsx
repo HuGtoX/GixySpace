@@ -5,7 +5,7 @@ import { Modal, Button, Input, message, Switch, Tooltip } from "antd";
 import { SendOutlined, RobotOutlined, GlobalOutlined } from "@ant-design/icons";
 import ChatComponent from "./ChatComponent";
 import SessionSidebar from "./SessionSidebar";
-import { createContextMemoryManager } from "@/lib/context-memory";
+import { createContextMemoryManager } from "@/lib/contextMemory";
 import "./styles.css";
 import type { ChatSession, AiChatModalProps, ChatApiRequest } from "./types";
 import {

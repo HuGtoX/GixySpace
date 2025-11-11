@@ -3,7 +3,7 @@
  * 演示如何使用ContextMemoryManager的各种功能
  */
 
-import { createContextMemoryManager } from "@/lib/context-memory";
+import { createContextMemoryManager } from "@/lib/contextMemory";
 import type { ChatMessage } from "@/types/ai-chat";
 
 // 模拟测试数据
