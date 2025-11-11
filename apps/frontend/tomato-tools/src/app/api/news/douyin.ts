@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
+import { fetchNewsWithCache } from "@/lib/redisCache";
 
 interface Res {
   data: {
@@ -14,57 +14,48 @@ interface Res {
 
 export async function GET() {
   try {
-    const cacheKey = generateNewsCacheKey('douyin');
-    
-    // 检查缓存
-    const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return NextResponse.json({
-        success: true,
-        data: cachedData,
-        cached: true
-      });
-    }
+    const data = await fetchNewsWithCache(
+      "douyin",
+      async () => {
+        const url =
+          "https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1";
 
-    const url = 'https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1';
-    
-    // 获取cookie
-    const cookieResponse = await fetch(
-      'https://www.douyin.com/passport/general/login_guiding_strategy/?aid=6383'
+        // 获取cookie
+        const cookieResponse = await fetch(
+          "https://www.douyin.com/passport/general/login_guiding_strategy/?aid=6383",
+        );
+        const cookie = cookieResponse.headers.getSetCookie();
+
+        // 请求热点数据
+        const response = await fetch(url, {
+          headers: {
+            cookie: cookie?.join("; ") || "",
+          },
+        });
+
+        const res: Res = await response.json();
+
+        // 格式化结果
+        return res.data.word_list.map((item) => ({
+          id: item.sentence_id,
+          title: item.word,
+          url: `https://www.douyin.com/hot/${item.sentence_id}`,
+          hotValue: item.hot_value,
+          eventTime: item.event_time,
+        }));
+      },
+      300, // 缓存5分钟
     );
-    const cookie = cookieResponse.headers.getSetCookie();
-    
-    // 请求热点数据
-    const response = await fetch(url, {
-      headers: {
-        cookie: cookie?.join('; ') || ''
-      }
-    });
-    
-    const res: Res = await response.json();
-    
-    // 格式化结果
-    const result = res.data.word_list.map((item) => ({
-      id: item.sentence_id,
-      title: item.word,
-      url: `https://www.douyin.com/hot/${item.sentence_id}`,
-      hotValue: item.hot_value,
-      eventTime: item.event_time
-    }));
-    
-    // 设置缓存
-    await setCache(cacheKey, result);
-    
+
     return NextResponse.json({
       success: true,
-      data: result,
-      cached: false
+      data,
     });
   } catch (error) {
-    console.error('获取抖音热点失败:', error);
+    console.error("获取抖音热点失败:", error);
     return NextResponse.json(
-      { success: false, message: '获取抖音热点失败' },
-      { status: 500 }
+      { success: false, message: "获取抖音热点失败" },
+      { status: 500 },
     );
   }
 }

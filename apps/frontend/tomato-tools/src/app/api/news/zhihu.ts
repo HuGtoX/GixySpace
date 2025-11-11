@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
+import { fetchNewsWithCache } from "@/lib/redisCache";
 
 interface ZhihuRes {
   data: {
-    type: 'hot_list_feed';
-    style_type: '1';
+    type: "hot_list_feed";
+    style_type: "1";
     feed_specific: {
       answer_count: number;
     };
@@ -25,7 +25,7 @@ interface ZhihuRes {
         weight: string;
       };
       label_area: {
-        type: 'trend';
+        type: "trend";
         trend: number;
         night_color: string;
         normal_color: string;
@@ -38,74 +38,66 @@ interface ZhihuRes {
 }
 
 // 超时控制函数
-const withTimeout = <T,>(promise: Promise<T>, timeoutMs = 5000): Promise<T> => {
+const withTimeout = <T>(promise: Promise<T>, timeoutMs = 5000): Promise<T> => {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error('请求超时')), timeoutMs)
-    )
+      setTimeout(() => reject(new Error("请求超时")), timeoutMs),
+    ),
   ]);
 };
 
 export async function GET() {
   try {
-    const cacheKey = generateNewsCacheKey('zhihu');
-    
-    // 检查缓存
-    const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return NextResponse.json({
-        success: true,
-        data: cachedData,
-        cached: true
-      });
-    }
+    const data = await fetchNewsWithCache(
+      "zhihu",
+      async () => {
+        const url =
+          "https://www.zhihu.com/api/v3/feed/topstory/hot-list-web?limit=20&desktop=true";
 
-    const url = 'https://www.zhihu.com/api/v3/feed/topstory/hot-list-web?limit=20&desktop=true';
-    
-    const response = await withTimeout(
-      fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-          Referer: 'https://www.zhihu.com/'
-        },
-        cache: 'no-store'
-      })
+        const response = await withTimeout(
+          fetch(url, {
+            headers: {
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+              Referer: "https://www.zhihu.com/",
+            },
+            cache: "no-store",
+          }),
+        );
+
+        if (!response.ok) {
+          throw new Error(`API请求失败: ${response.status}`);
+        }
+
+        const res: ZhihuRes = await response.json();
+
+        return res.data.map((item) => {
+          const idMatch = item.target.link.url.match(/(\d+)$/);
+          return {
+            id: idMatch?.[1] ?? item.target.link.url,
+            title: item.target.title_area.text,
+            url: item.target.link.url,
+            extra: {
+              info: item.target.metrics_area.text,
+              excerpt: item.target.excerpt_area.text,
+              image: item.target.image_area?.url,
+            },
+          };
+        });
+      },
+      300, // 缓存5分钟
     );
 
-    if (!response.ok) {
-      throw new Error(`API请求失败: ${response.status}`);
-    }
-
-    const data: ZhihuRes = await response.json();
-
-    const result = data.data.map((item) => {
-      const idMatch = item.target.link.url.match(/(\d+)$/);
-      return {
-        id: idMatch?.[1] ?? item.target.link.url,
-        title: item.target.title_area.text,
-        url: item.target.link.url,
-        extra: {
-          info: item.target.metrics_area.text,
-          excerpt: item.target.excerpt_area.text,
-          image: item.target.image_area?.url
-        }
-      };
-    });
-
-    // 设置缓存
-    await setCache(cacheKey, result);
-    
     return NextResponse.json({
       success: true,
-      data: result,
-      cached: false
+      data,
     });
   } catch (error) {
-    console.error('获取知乎热点失败:', error);
+    console.error("获取知乎热点失败:", error);
     return NextResponse.json(
-      { success: false, message: '获取知乎热点失败' },
-      { status: 500 }
+      { success: false, message: "获取知乎热点失败" },
+      { status: 500 },
     );
   }
 }

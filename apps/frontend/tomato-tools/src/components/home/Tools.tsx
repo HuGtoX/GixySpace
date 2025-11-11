@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import { FaComment, FaImage } from "react-icons/fa";
 import SectionCard from "@/components/ui/SectionCard";
 import Tool from "./Tool";
 import Todo from "./Todo";
-import AiChatModal from "./AiChatModal";
+import dynamic from "next/dynamic";
+
+const AiChatModal = dynamic(() => import("@/components/home/AiChatModal"), {
+  loading: () => <Spin />,
+  ssr: false,
+});
+
 const AIToolItem = ({
   icon,
   name,

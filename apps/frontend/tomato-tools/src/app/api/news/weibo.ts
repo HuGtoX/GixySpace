@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
+import { fetchNewsWithCache } from "@/lib/redisCache";
 
 interface Res {
   ok: number; // 1 is ok
@@ -29,78 +29,74 @@ interface Res {
 
 export async function GET() {
   try {
-    const cacheKey = generateNewsCacheKey('weibo');
-    
-    // 检查缓存
-    const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return NextResponse.json({
-        success: true,
-        data: cachedData,
-        cached: true
-      });
-    }
+    const data = await fetchNewsWithCache(
+      "weibo",
+      async () => {
+        const response = await fetch("https://weibo.com/ajax/side/hotSearch", {
+          headers: {
+            accept: "application/json, text/plain, */*",
+            "accept-language":
+              "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "client-version": "v2.47.96",
+            priority: "u=1, i",
+            "sec-ch-ua":
+              '"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "x-requested-with": "XMLHttpRequest",
+          },
+          referrer: "https://weibo.com/hot/search",
+          referrerPolicy: "strict-origin-when-cross-origin",
+          method: "GET",
+          mode: "cors",
+          credentials: "include",
+        });
 
-    const response = await fetch('https://weibo.com/ajax/side/hotSearch', {
-      headers: {
-        accept: 'application/json, text/plain, */*',
-        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        'client-version': 'v2.47.96',
-        priority: 'u=1, i',
-        'sec-ch-ua': '"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'x-requested-with': 'XMLHttpRequest'
+        const res: Res = await response.json();
+
+        if (res.ok !== 1) {
+          throw new Error("微博API返回错误");
+        }
+
+        return res.data.realtime
+          .filter((item) => !item.is_ad)
+          .map((item) => {
+            const keyword = item.word_scheme
+              ? item.word_scheme
+              : `#${item.word}#`;
+            return {
+              id: item.word,
+              title: item.word,
+              url: `https://s.weibo.com/weibo?q=${encodeURIComponent(keyword)}`,
+              mobileUrl: `https://m.weibo.cn/search?containerid=231522type%3D1%26q%3D${encodeURIComponent(keyword)}&_T_WM=16922097837&v_p=42`,
+              extra: {
+                icon: item.icon
+                  ? {
+                      url: item.icon,
+                      scale: 1.5,
+                    }
+                  : undefined,
+                rank: item.rank,
+                hotValue: item.num,
+              },
+            };
+          });
       },
-      referrer: 'https://weibo.com/hot/search',
-      referrerPolicy: 'strict-origin-when-cross-origin',
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include'
-    });
+      300, // 缓存5分钟
+    );
 
-    const res: Res = await response.json();
-
-    if (res.ok !== 1) {
-      throw new Error('微博API返回错误');
-    }
-
-    const result = res.data.realtime
-      .filter((item) => !item.is_ad)
-      .map((item) => {
-        const keyword = item.word_scheme ? item.word_scheme : `#${item.word}#`;
-        return {
-          id: item.word,
-          title: item.word,
-          url: `https://s.weibo.com/weibo?q=${encodeURIComponent(keyword)}`,
-          mobileUrl: `https://m.weibo.cn/search?containerid=231522type%3D1%26q%3D${encodeURIComponent(keyword)}&_T_WM=16922097837&v_p=42`,
-          extra: {
-            icon: item.icon ? {
-              url: item.icon,
-              scale: 1.5
-            } : undefined,
-            rank: item.rank,
-            hotValue: item.num
-          }
-        };
-      });
-
-    // 设置缓存
-    await setCache(cacheKey, result);
-    
     return NextResponse.json({
       success: true,
-      data: result,
-      cached: false
+      data,
     });
   } catch (error) {
-    console.error('获取微博热点失败:', error);
+    console.error("获取微博热点失败:", error);
     return NextResponse.json(
-      { success: false, message: '获取微博热点失败' },
-      { status: 500 }
+      { success: false, message: "获取微博热点失败" },
+      { status: 500 },
     );
   }
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCache, setCache, generateNewsCacheKey } from "@/lib/redis-cache";
+import { fetchNewsWithCache } from "@/lib/redisCache";
 
 export interface ImageInfo {
   uri: string;
@@ -28,74 +28,64 @@ export interface ToutiaoNewsItem {
 
 export async function GET() {
   try {
-    const cacheKey = generateNewsCacheKey('toutiao');
-    
-    // 检查缓存
-    const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return NextResponse.json({
-        success: true,
-        data: cachedData,
-        cached: true
-      });
-    }
+    const data = await fetchNewsWithCache(
+      "toutiao",
+      async () => {
+        const response = await fetch(
+          "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00f0184sOpAAAIDAkb极速版XJU36PP极速版D4AAJs3d7YHjB8DOmdGv0uwdv1c4pMCrsFdXAa-GSelGuXGuyJYrPvkql3.wfHxUPJvf2HaQaKf8VP3KlstrfLD0Oc9MGM9OaPl9极速版qDfpuwd0",
+          {
+            headers: {
+              accept: "application/json, text/plain, */*",
+              "accept-language":
+                "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+              priority: "u=1, i",
+              "sec-ch-ua":
+                '"Not;A=Brand";v="99", "Microsoft Edge";v="139", "Chromium";v="139"',
+              "sec-ch-ua-mobile": "?0",
+              "sec-ch-ua-platform": '"Windows"',
+              "sec-fetch-dest": "empty",
+              "sec-fetch-mode": "cors",
+              "sec-fetch-site": "same-origin",
+            },
+            referrer: "https://www.toutiao.com/",
+            body: null,
+            method: "GET",
+            mode: "cors",
+            credentials: "include",
+          },
+        );
 
-    const response = await fetch(
-      "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&_signature=_02B4Z6wo00f0184sOpAAAIDAkb极速版XJU36PP极速版D4AAJs3d7YHjB8DOmdGv0uwdv1c4pMCrsFdXAa-GSelGuXGuyJYrPvkql3.wfHxUPJvf2HaQaKf8VP3KlstrfLD0Oc9MGM9OaPl9极速版qDfpuwd0",
-      {
-        headers: {
-          accept: "application/json, text/plain, */*",
-          "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-          priority: "u=1, i",
-          "sec-ch-ua":
-            '"Not;A=Brand";v="99", "Microsoft Edge";v="139", "Chromium";v="139"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"Windows"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-origin",
-        },
-        referrer: "https://www.toutiao.com/",
-        body: null,
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
+        if (!response.ok) {
+          throw new Error(`API请求失败: ${response.status}`);
+        }
+        const resp: { data: ToutiaoNewsItem[] } = await response.json();
+
+        return resp.data.map((item) => ({
+          id: item.ClusterId,
+          title: item.QueryWord,
+          url: item.Url,
+          extra: {
+            icon: item.LabelUri.url
+              ? {
+                  url: item.LabelUri.url,
+                  scale: 1.2,
+                }
+              : undefined,
+            hotValue: item.HotValue,
+          },
+        }));
       },
+      300, // 缓存5分钟
     );
 
-    if (!response.ok) {
-      throw new Error(`API请求失败: ${response.status}`);
-    }
-    const resp: { data: ToutiaoNewsItem[] } = await response.json();
-    const data = resp.data;
-
-    const result = data.map((item) => ({
-      id: item.ClusterId,
-      title: item.QueryWord,
-      url: item.Url,
-      extra: {
-        icon: item.LabelUri.url
-          ? {
-              url: item.LabelUri.url,
-              scale: 1.2,
-            }
-          : undefined,
-        hotValue: item.HotValue,
-      },
-    }));
-    
-    // 设置缓存
-    await setCache(cacheKey, result);
-    
     return NextResponse.json({
       success: true,
-      data: result,
-      cached: false
+      data,
     });
   } catch (error) {
-    console.error("获取60秒新闻失败:", error);
+    console.error("获取头条热点失败:", error);
     return NextResponse.json(
-      { success: false, message: "获取60秒新闻失败" },
+      { success: false, message: "获取头条热点失败" },
       { status: 500 },
     );
   }

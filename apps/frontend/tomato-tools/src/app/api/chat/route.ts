@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requestAI, requestAIStream } from "@/lib/ai-client";
+import { requestAI, requestAIStream } from "@/lib/aiClient";
 import { authorization } from "@/app/api/authorization";
 import type {
   AiUsageScene,
