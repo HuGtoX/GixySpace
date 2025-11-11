@@ -67,7 +67,37 @@ export interface ApiResponse<T = any> {
   /** 错误信息 */
   error?: string;
   /** 错误代码 */
-  code?: number;
+  code?: string;
+  /** 详细错误信息 */
+  details?: any;
+  /** 消息 */
+  message?: string;
+  /** 时间戳 */
+  timestamp?: string;
+  /** 请求路径 */
+  path?: string;
+}
+
+/**
+ * API错误响应接口
+ */
+export interface ApiErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+  details?: any;
+  timestamp?: string;
+  path?: string;
+}
+
+/**
+ * API成功响应接口
+ */
+export interface ApiSuccessResponse<T = any> {
+  success: true;
+  data: T;
+  message?: string;
+  timestamp?: string;
 }
 
 /**

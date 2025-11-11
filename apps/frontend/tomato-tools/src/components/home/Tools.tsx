@@ -11,6 +11,41 @@ const AiChatModal = dynamic(() => import("@/components/home/AiChatModal"), {
   ssr: false,
 });
 
+/**
+ * AI工具状态信息
+ */
+interface AIToolStatus {
+  /** 状态文本 */
+  text: string;
+  /** 标签颜色类名 */
+  tagColor: string;
+  /** 日期信息 */
+  date: string;
+}
+
+/**
+ * AI工具项属性
+ */
+interface AIToolItemProps {
+  /** 图标元素 */
+  icon: React.ReactNode;
+  /** 工具名称 */
+  name: string;
+  /** 工具描述 */
+  description: string;
+  /** 按钮文本，null表示不显示按钮 */
+  buttonText?: string | null;
+  /** 状态信息，null表示不显示状态 */
+  status?: AIToolStatus | null;
+  /** 背景颜色类名 */
+  bgColor: string;
+  /** 点击事件处理函数 */
+  onClick?: () => void;
+}
+
+/**
+ * AI工具项组件
+ */
 const AIToolItem = ({
   icon,
   name,
@@ -19,19 +54,7 @@ const AIToolItem = ({
   status,
   bgColor,
   onClick,
-}: {
-  icon: React.ReactNode;
-  name: string;
-  description: string;
-  buttonText?: string | null;
-  status?: {
-    text: string;
-    tagColor: string;
-    date: string;
-  } | null;
-  bgColor: string;
-  onClick?: () => void;
-}) => {
+}: AIToolItemProps) => {
   return (
     <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
       <div className="flex items-center space-x-3">

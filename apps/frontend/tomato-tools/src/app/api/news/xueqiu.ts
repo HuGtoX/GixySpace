@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
 import { fetchNewsWithCache } from "@/lib/redisCache";
+import {
+  handleApiError,
+  createSuccessResponse,
+  InternalServerError,
+} from "@/lib/errorHandler";
 
 interface StockRes {
   data: {
@@ -33,7 +37,9 @@ export async function GET() {
         });
 
         if (!response.ok) {
-          throw new Error(`API请求失败: ${response.status}`);
+          throw new InternalServerError(
+            `Failed to fetch Xueqiu hot stocks: ${response.status}`,
+          );
         }
 
         const res: StockRes = await response.json();
@@ -53,15 +59,8 @@ export async function GET() {
       300, // 缓存5分钟
     );
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return createSuccessResponse(data);
   } catch (error) {
-    console.error("获取雪球股票热点失败:", error);
-    return NextResponse.json(
-      { success: false, message: "获取雪球股票热点失败" },
-      { status: 500 },
-    );
+    return handleApiError(error, undefined, "/api/news?source=xueqiu");
   }
 }
