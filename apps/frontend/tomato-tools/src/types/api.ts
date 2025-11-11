@@ -1,30 +1,15 @@
 /**
  * API相关类型定义
  * 统一管理所有API请求和响应的类型定义
+ *
+ * 注意：基础类型（如ApiResponse、PaginationParams等）已移至 @/types/index.ts
+ * 此文件仅包含特定API的请求和响应类型
  */
 
-// 基础API响应类型
-export interface BaseApiResponse {
-  success: boolean;
-  error?: string;
-  message?: string;
-}
+import type { ApiResponse } from "./index";
 
-// 通用API错误响应
-export interface ApiErrorResponse {
-  error: string;
-}
-
-// 分页参数
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  offset?: number;
-}
-
-// 分页响应
-export interface PaginatedResponse<T> extends BaseApiResponse {
-  data: T[];
+// 分页响应（扩展基础ApiResponse）
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   total: number;
   page: number;
   limit: number;
@@ -53,7 +38,7 @@ export interface AuthApiUserDto {
   updatedAt: string;
 }
 
-export interface AuthApiAuthResponse extends BaseApiResponse {
+export interface AuthApiAuthResponse extends ApiResponse {
   user?: AuthApiUserDto;
   token?: string;
 }
@@ -74,6 +59,6 @@ export interface FileApiFileDto {
   createdAt: string;
 }
 
-export interface FileApiUploadResponse extends BaseApiResponse {
+export interface FileApiUploadResponse extends ApiResponse {
   file?: FileApiFileDto;
 }

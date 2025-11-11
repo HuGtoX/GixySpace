@@ -98,3 +98,139 @@ export interface UserCardProps {
 2. **类型版本控制**: 数据库 schema 变更时同步更新类型
 3. **性能考虑**: 大型项目中合理拆分类型文件
 4. **文档同步**: 保持类型定义与文档的同步更新
+
+## 类型定义重复检查清单
+
+在添加新类型之前，请检查以下位置是否已存在类似定义：
+
+1. **`src/types/index.ts`** - 通用类型定义
+
+   - ApiResponse, ApiErrorResponse, ApiSuccessResponse
+   - PaginationParams, PaginationResponse
+   - BaseEntity, BaseEntityWithSoftDelete
+   - 其他通用接口
+
+2. **`src/types/api.ts`** - API特定类型
+
+   - 特定API的请求/响应类型
+   - 扩展自通用类型的API类型
+
+3. **`src/lib/drizzle/schema/`** - 数据库类型
+
+   - 数据库表结构类型
+   - 使用 `type` 导出避免重复
+
+4. **组件目录下的 `types.ts`** - 组件特定类型
+   - 组件Props接口
+   - 组件内部状态类型
+
+### 避免重复的最佳实践
+
+```typescript
+// ❌ 不好的做法 - 重复定义
+// file1.ts
+export interface ApiResponse {
+  success: boolean;
+  data?: any;
+}
+
+// file2.ts
+export interface ApiResponse {
+  success: boolean;
+  data?: any;
+}
+
+// ✅ 好的做法 - 导入复用
+// file1.ts (types/index.ts)
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+}
+
+// file2.ts
+import type { ApiResponse } from "@/types";
+
+export interface UserApiResponse extends ApiResponse<User> {
+  // 扩展特定字段
+}
+```
+
+## 组件Props类型定义规范
+
+### 1. 完整的Props接口
+
+每个组件都应该有明确的Props接口定义：
+
+```typescript
+/**
+ * 组件属性接口
+ */
+interface MyComponentProps {
+  /** 必需属性 - 添加JSDoc注释说明用途 */
+  title: string;
+
+  /** 可选属性 */
+  description?: string;
+
+  /** 回调函数 */
+  onSubmit?: (data: FormData) => void;
+
+  /** 子元素 */
+  children?: React.ReactNode;
+
+  /** 样式类名 */
+  className?: string;
+}
+
+export default function MyComponent({
+  title,
+  description,
+  onSubmit,
+  children,
+  className,
+}: MyComponentProps) {
+  // 组件实现
+}
+```
+
+### 2. 使用泛型提高复用性
+
+```typescript
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+  keyExtractor: (item: T) => string;
+}
+
+function List<T>({ items, renderItem, keyExtractor }: ListProps<T>) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={keyExtractor(item)}>{renderItem(item)}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### 3. 扩展HTML元素属性
+
+```typescript
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary";
+  loading?: boolean;
+}
+
+function Button({ variant = "primary", loading, children, ...props }: ButtonProps) {
+  return (
+    <button {...props} disabled={loading || props.disabled}>
+      {loading ? "Loading..." : children}
+    </button>
+  );
+}
+```
+
+## 相关文档
+
+- [错误处理系统使用指南](./ERROR_HANDLING_GUIDE.md)
+- [API开发规范](./api-authorization.md)

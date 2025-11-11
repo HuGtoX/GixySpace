@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
 import { fetchNewsWithCache } from "@/lib/redisCache";
+import {
+  handleApiError,
+  createSuccessResponse,
+  InternalServerError,
+} from "@/lib/errorHandler";
 
 interface Res {
   data: {
@@ -33,6 +37,10 @@ export async function GET() {
           },
         });
 
+        if (!response.ok) {
+          throw new InternalServerError("Failed to fetch Douyin hot topics");
+        }
+
         const res: Res = await response.json();
 
         // 格式化结果
@@ -47,15 +55,8 @@ export async function GET() {
       300, // 缓存5分钟
     );
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return createSuccessResponse(data);
   } catch (error) {
-    console.error("获取抖音热点失败:", error);
-    return NextResponse.json(
-      { success: false, message: "获取抖音热点失败" },
-      { status: 500 },
-    );
+    return handleApiError(error, undefined, "/api/news?source=douyin");
   }
 }

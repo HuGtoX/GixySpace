@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
 import { fetchNewsWithCache } from "@/lib/redisCache";
+import {
+  handleApiError,
+  createSuccessResponse,
+  InternalServerError,
+} from "@/lib/errorHandler";
 
 interface Res {
   ok: number; // 1 is ok
@@ -55,10 +59,14 @@ export async function GET() {
           credentials: "include",
         });
 
+        if (!response.ok) {
+          throw new InternalServerError("Failed to fetch Weibo hot topics");
+        }
+
         const res: Res = await response.json();
 
         if (res.ok !== 1) {
-          throw new Error("微博API返回错误");
+          throw new InternalServerError("微博API返回错误");
         }
 
         return res.data.realtime
@@ -88,15 +96,8 @@ export async function GET() {
       300, // 缓存5分钟
     );
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return createSuccessResponse(data);
   } catch (error) {
-    console.error("获取微博热点失败:", error);
-    return NextResponse.json(
-      { success: false, message: "获取微博热点失败" },
-      { status: 500 },
-    );
+    return handleApiError(error, undefined, "/api/news?source=weibo");
   }
 }
