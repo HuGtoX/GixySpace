@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/toolsLayout/Header";
 import Footer from "@/components/toolsLayout/Footer";
 import Container from "@/components/toolsLayout/Container";
+import AnonymousUserBanner from "@/components/auth/AnonymousUserBanner";
 
 interface ProfileFormData {
   fullName: string;
@@ -108,6 +109,9 @@ export default function ProfilePage() {
       <Header />
       <main className="container mx-auto px-4 py-8 pb-24">
         <div className="mx-auto max-w-4xl">
+          {/* 临时账号提示横幅 */}
+          <AnonymousUserBanner />
+
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               个人资料

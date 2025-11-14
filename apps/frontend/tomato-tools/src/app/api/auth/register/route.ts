@@ -3,9 +3,10 @@ import { AuthService } from "@/modules/auth/auth.service";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";
 
-// 注册请求验证schema
+// 注册请求验证schema - 支持验证码+密码注册
 const registerSchema = z.object({
-  email: z.email("Invalid email format"),
+  email: z.string().email("Invalid email format"),
+  code: z.string().min(6, "Verification code must be at least 6 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   fullName: z.string().optional(),
 });
@@ -37,15 +38,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, fullName } = validationResult.data;
+    const { email, code, password, fullName } = validationResult.data;
 
     // 创建认证服务实例
     const authService = new AuthService(correlationId);
     logger.info("authService 创建成功");
 
-    // 执行注册
-    const result = await authService.register({
+    // 执行注册（使用验证码验证+密码）
+    const result = await authService.registerWithCode({
       email,
+      code,
       password,
       fullName,
     });

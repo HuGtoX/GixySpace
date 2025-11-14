@@ -5,10 +5,10 @@
 @layer components {
   /* 基础样式 */
   .primay-text {
-    @apply text-sm text-gray-600 dark:text-gray-300;
+    @apply text-sm text-slate-600 dark:text-gray-300;
   }
   .secondary-text {
-    @apply text-xs text-gray-500 dark:text-gray-400;
+    @apply text-xs text-slate-500 dark:text-gray-400;
   }
 
   /* 预定义颜色类 */
@@ -123,7 +123,7 @@ body::-webkit-scrollbar-thumb:hover {
   }
 
   .item-hover {
-    @apply cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800;
+    @apply cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:shadow-sm dark:hover:bg-gray-800;
   }
 
   /* 通用背景样式 */
@@ -132,30 +132,46 @@ body::-webkit-scrollbar-thumb:hover {
   }
 
   .bg-surface-secondary {
-    @apply bg-gray-50 dark:bg-gray-900;
+    @apply bg-slate-50 dark:bg-gray-900;
+  }
+
+  .bg-surface-hover {
+    @apply bg-slate-50 dark:bg-gray-700;
   }
 
   /* 通用文本样式 */
   .text-primary {
-    @apply text-gray-900 dark:text-white;
+    @apply text-slate-900 dark:text-white;
   }
 
   .text-secondary {
-    @apply text-gray-600 dark:text-gray-300;
+    @apply text-slate-600 dark:text-gray-300;
   }
 
   .text-tertiary {
-    @apply text-gray-500 dark:text-gray-400;
+    @apply text-slate-500 dark:text-gray-400;
+  }
+
+  .text-quaternary {
+    @apply text-slate-400 dark:text-gray-500;
   }
 
   /* 通用边框样式 */
   .border-surface {
-    @apply border-gray-200 dark:border-gray-700;
+    @apply border-slate-200 dark:border-gray-700;
+  }
+
+  .border-surface-light {
+    @apply border-slate-100 dark:border-gray-800;
   }
 
   /* 卡片样式 */
   .card-surface {
-    @apply border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800;
+    @apply border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800;
+  }
+
+  .card-surface-elevated {
+    @apply border-0 bg-white shadow-md transition-shadow duration-200 hover:shadow-lg dark:bg-gray-800;
   }
 
   /* 自定义滚动条样式 */

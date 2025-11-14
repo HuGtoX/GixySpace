@@ -216,8 +216,8 @@ const NotificationDropdown: React.FC = () => {
       () => {
         fetchNotifications();
       },
-      5 * 60 * 1000,
-    ); // 每 5 分钟刷新一次
+      20 * 60 * 1000,
+    ); // 每 20 分钟刷新一次
 
     return () => clearInterval(interval);
   }, [user?.id]);

@@ -36,6 +36,13 @@
       "when": 1761807027137,
       "tag": "0004_worthless_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762850005723,
+      "tag": "0005_colossal_red_ghost",
+      "breakpoints": true
     }
   ]
 }

@@ -4,11 +4,22 @@ import { createModuleLogger } from "@/lib/logger";
 
 const log = createModuleLogger("middleware");
 
-// 需要认证的页面路径
+// 需要认证的页面路径（包括匿名用户）
 const protectedPaths = ["/dashboard", "/profile", "/settings"];
 
-// API接口路径中需要认证的
-const protectedApiPaths = ["/api/auth/me", "/api/auth/logout", "/api/user", "/api/todo"];
+// 仅正式用户可访问的路径
+const regularUserOnlyPaths = ["/profile", "/settings"];
+
+// API接口路径中需要认证的（包括匿名用户）
+const protectedApiPaths = [
+  "/api/auth/me",
+  "/api/auth/logout",
+  "/api/user",
+  "/api/todo",
+];
+
+// 仅正式用户可访问的API
+const regularUserOnlyApiPaths = ["/api/user"];
 
 // 公开的认证相关页面路径
 const publicAuthPaths = [
@@ -18,6 +29,8 @@ const publicAuthPaths = [
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/reset-password",
+  "/api/auth/anonymous",
+  "/api/auth/convert",
 ];
 
 export async function middleware(request: NextRequest) {

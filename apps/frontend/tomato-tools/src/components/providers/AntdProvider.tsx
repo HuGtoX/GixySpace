@@ -25,8 +25,10 @@ export const themeColors = {
   },
   light: {
     bg: "#FFFFFF",
-    bodyBg: "#F9FAFB",
-    inputBg: "#F3F4F6",
+    bodyBg: "#F8FAFC",
+    inputBg: "#FFFFFF",
+    cardBg: "#FFFFFF",
+    hoverBg: "#F1F5F9",
   },
 };
 
@@ -34,6 +36,8 @@ const componentsTheme = (isDarkMode: boolean) => ({
   Button: {
     borderRadius: 8,
     controlHeight: 40,
+    boxShadow: isDarkMode ? "none" : "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    primaryShadow: isDarkMode ? "none" : "0 1px 2px 0 rgba(255, 99, 71, 0.2)",
   },
   Input: {
     borderRadius: 8,
@@ -41,6 +45,9 @@ const componentsTheme = (isDarkMode: boolean) => ({
     colorBgContainer: isDarkMode
       ? themeColors.dark.inputBg
       : themeColors.light.inputBg,
+    colorBorder: isDarkMode ? "#374151" : "#E2E8F0",
+    activeBorderColor: isDarkMode ? "#FF6347" : "#FF6347",
+    hoverBorderColor: isDarkMode ? "#4B5563" : "#CBD5E1",
   },
   Layout: {
     bodyBg: isDarkMode ? themeColors.dark.bodyBg : themeColors.light.bodyBg, // gray-900 : gray-50
@@ -52,9 +59,11 @@ const componentsTheme = (isDarkMode: boolean) => ({
     borderRadius: 12,
     boxShadow: isDarkMode
       ? "0 4px 6px -1px rgba(0, 0, 0, 0.3)"
-      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-    colorBgContainer: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
-    colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
+      : "0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)",
+    colorBgContainer: isDarkMode
+      ? themeColors.dark.bg
+      : themeColors.light.cardBg,
+    colorBorderSecondary: isDarkMode ? "#374151" : "#E2E8F0",
   },
   Modal: {
     borderRadius: 12,
@@ -67,7 +76,9 @@ const componentsTheme = (isDarkMode: boolean) => ({
   },
   Table: {
     colorBgContainer: isDarkMode ? themeColors.dark.bg : themeColors.light.bg,
-    colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
+    colorBorderSecondary: isDarkMode ? "#374151" : "#E2E8F0",
+    headerBg: isDarkMode ? "#374151" : "#F8FAFC",
+    rowHoverBg: isDarkMode ? "rgba(255, 255, 255, 0.05)" : "#F8FAFC",
   },
   Select: {
     colorBgContainer: isDarkMode
@@ -124,11 +135,18 @@ function AntdProvider({ children }: AntdProviderProps) {
           colorBgElevated: isDarkMode
             ? themeColors.dark.bg
             : themeColors.light.bg,
-          colorBorder: isDarkMode ? "#374151" : "#D9D9D9",
-          colorBorderSecondary: isDarkMode ? "#374151" : "#E5E7EB",
-          colorText: isDarkMode ? "#F9FAFB" : "#000000",
-          colorTextSecondary: isDarkMode ? "#D1D5DB" : "#666666",
-          colorTextTertiary: isDarkMode ? "#9CA3AF" : "#999999",
+          colorBorder: isDarkMode ? "#374151" : "#E2E8F0",
+          colorBorderSecondary: isDarkMode ? "#374151" : "#E2E8F0",
+          colorText: isDarkMode ? "#F9FAFB" : "#1E293B",
+          colorTextSecondary: isDarkMode ? "#D1D5DB" : "#64748B",
+          colorTextTertiary: isDarkMode ? "#9CA3AF" : "#94A3B8",
+          colorTextQuaternary: isDarkMode ? "#6B7280" : "#CBD5E1",
+          colorFillSecondary: isDarkMode
+            ? "rgba(255, 255, 255, 0.08)"
+            : "#F1F5F9",
+          colorFillTertiary: isDarkMode
+            ? "rgba(255, 255, 255, 0.04)"
+            : "#F8FAFC",
         },
         components: componentsTheme(isDarkMode),
       }

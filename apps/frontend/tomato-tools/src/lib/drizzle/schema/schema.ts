@@ -23,6 +23,9 @@ export const user = pgTable("user", {
   avatarUrl: text("avatar_url"),
   role: userRoleEnum("role").default("user").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
+  isAnonymous: boolean("is_anonymous").default(false).notNull(), // 标识匿名用户
+  anonymousCreatedAt: timestamp("anonymous_created_at", { withTimezone: true }), // 匿名用户创建时间
+  expiresAt: timestamp("expires_at", { withTimezone: true }), // 过期时间（可选）
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -76,6 +79,18 @@ export const passwordResetToken = pgTable("password_reset_token", {
     .defaultNow()
     .notNull(),
 });
+
+// 邮箱验证码表（已废弃，改用 Supabase Email OTP）
+// 保留定义以便需要时回滚，可在确认稳定后删除
+// export const emailVerification = pgTable("email_verification", {
+//   id: uuid("id").primaryKey().defaultRandom(),
+//   email: text("email").notNull(),
+//   code: text("code").notNull(),
+//   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+//   createdAt: timestamp("created_at", { withTimezone: true })
+//     .defaultNow()
+//     .notNull(),
+// });
 
 // 关系定义
 export const userRelations = relations(user, ({ one, many }) => ({
@@ -150,6 +165,9 @@ export type UserSession = typeof userSession.$inferSelect;
 export type NewUserSession = typeof userSession.$inferInsert;
 export type PasswordResetToken = typeof passwordResetToken.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetToken.$inferInsert;
+// 已废弃：改用 Supabase Email OTP
+// export type EmailVerification = typeof emailVerification.$inferSelect;
+// export type NewEmailVerification = typeof emailVerification.$inferInsert;
 
 // 导出通知相关类型
 export type {

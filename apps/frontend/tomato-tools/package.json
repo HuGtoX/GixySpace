@@ -24,6 +24,7 @@
     "@emotion/styled": "^11.14.0",
     "@gixy/utils": "workspace:^",
     "@monaco-editor/react": "^4.7.0",
+    "@sentry/nextjs": "10",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
     "@tailwindcss/typography": "^0.5.16",

@@ -40,6 +40,16 @@ module.exports = {
           DEFAULT: "#FF6347",
           60: "#FF634799",
         },
+        light: {
+          primary: "#FF6347",
+          secondary: "#FF8C69",
+          bg: "#FFFFFF",
+          bodyBg: "#F8FAFC",
+          cardBg: "#FFFFFF",
+          border: "#E2E8F0",
+          text: "#1E293B",
+          textSecondary: "#64748B",
+        },
         dark: {
           primary: "#D17A66",
           secondary: "#EC4899",
