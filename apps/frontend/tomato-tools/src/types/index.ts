@@ -82,7 +82,7 @@ export interface ApiResponse<T = any> {
  * API错误响应接口
  */
 export interface ApiErrorResponse {
-  success: false;
+  success?: false;
   error: string;
   code?: string;
   details?: any;

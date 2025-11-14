@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createModuleLogger, generateCorrelationId } from "@/lib/logger";
 import { AiChatService } from "@/modules/ai-chat/ai-chat.service";
 import { AuthService } from "@/modules/auth/auth.service";
-import type { ApiErrorResponse } from "@/types/api";
+import type { ApiErrorResponse } from "@/types";
 
 const log = createModuleLogger("api-ai-chat-sessions");
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (error || !user) {
       logger.warn("Unauthorized access attempt");
       return NextResponse.json(
-        { error: "Unauthorized" } satisfies ApiErrorResponse,
+        { error: "Unauthorized", success: false } satisfies ApiErrorResponse,
         { status: 401 },
       );
     }
