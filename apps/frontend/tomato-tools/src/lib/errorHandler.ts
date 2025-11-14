@@ -20,60 +20,53 @@ export class ApiError extends Error {
 
 /**
  * 常见错误类型
+ * 使用工厂函数创建错误类，减少代码冗余
  */
-export class BadRequestError extends ApiError {
-  constructor(message: string = "Bad Request", details?: any) {
-    super(400, message, "BAD_REQUEST", details);
-  }
-}
+const createErrorClass = (
+  statusCode: number,
+  defaultMessage: string,
+  code: string,
+) => {
+  return class extends ApiError {
+    constructor(message: string = defaultMessage, details?: any) {
+      super(statusCode, message, code, details);
+    }
+  };
+};
 
-export class UnauthorizedError extends ApiError {
-  constructor(message: string = "Unauthorized", details?: any) {
-    super(401, message, "UNAUTHORIZED", details);
-  }
-}
-
-export class ForbiddenError extends ApiError {
-  constructor(message: string = "Forbidden", details?: any) {
-    super(403, message, "FORBIDDEN", details);
-  }
-}
-
-export class NotFoundError extends ApiError {
-  constructor(message: string = "Not Found", details?: any) {
-    super(404, message, "NOT_FOUND", details);
-  }
-}
-
-export class ConflictError extends ApiError {
-  constructor(message: string = "Conflict", details?: any) {
-    super(409, message, "CONFLICT", details);
-  }
-}
-
-export class ValidationError extends ApiError {
-  constructor(message: string = "Validation Error", details?: any) {
-    super(422, message, "VALIDATION_ERROR", details);
-  }
-}
-
-export class TooManyRequestsError extends ApiError {
-  constructor(message: string = "Too Many Requests", details?: any) {
-    super(429, message, "TOO_MANY_REQUESTS", details);
-  }
-}
-
-export class InternalServerError extends ApiError {
-  constructor(message: string = "Internal Server Error", details?: any) {
-    super(500, message, "INTERNAL_SERVER_ERROR", details);
-  }
-}
-
-export class ServiceUnavailableError extends ApiError {
-  constructor(message: string = "Service Unavailable", details?: any) {
-    super(503, message, "SERVICE_UNAVAILABLE", details);
-  }
-}
+export const BadRequestError = createErrorClass(
+  400,
+  "Bad Request",
+  "BAD_REQUEST",
+);
+export const UnauthorizedError = createErrorClass(
+  401,
+  "Unauthorized",
+  "UNAUTHORIZED",
+);
+export const ForbiddenError = createErrorClass(403, "Forbidden", "FORBIDDEN");
+export const NotFoundError = createErrorClass(404, "Not Found", "NOT_FOUND");
+export const ConflictError = createErrorClass(409, "Conflict", "CONFLICT");
+export const ValidationError = createErrorClass(
+  422,
+  "Validation Error",
+  "VALIDATION_ERROR",
+);
+export const TooManyRequestsError = createErrorClass(
+  429,
+  "Too Many Requests",
+  "TOO_MANY_REQUESTS",
+);
+export const InternalServerError = createErrorClass(
+  500,
+  "Internal Server Error",
+  "INTERNAL_SERVER_ERROR",
+);
+export const ServiceUnavailableError = createErrorClass(
+  503,
+  "Service Unavailable",
+  "SERVICE_UNAVAILABLE",
+);
 
 /**
  * 错误响应接口

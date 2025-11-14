@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { UserService } from "../user/user.service";
+import { AnonymousService } from "./anonymous.service";
 import { createModuleLogger } from "@/lib/logger";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
@@ -7,6 +8,13 @@ const log = createModuleLogger("auth-service");
 
 export interface RegisterData {
   email: string;
+  password: string;
+  fullName?: string;
+}
+
+export interface RegisterWithCodeData {
+  email: string;
+  code: string;
   password: string;
   fullName?: string;
 }
@@ -27,10 +35,12 @@ export interface UpdatePasswordData {
 
 export class AuthService {
   private userService: UserService;
+  private anonymousService: AnonymousService;
   private logger;
 
   constructor(requestId?: string) {
     this.userService = new UserService(requestId);
+    this.anonymousService = new AnonymousService(requestId);
     this.logger = requestId ? log.child({ requestId }) : log;
   }
 
@@ -149,6 +159,95 @@ export class AuthService {
       if (error instanceof Error && error.message.includes("fetch")) {
         return { user: null, error: "Network error during registration" };
       }
+      return { user: null, error: "Registration failed" };
+    }
+  }
+
+  // 使用验证码注册
+  async registerWithCode(
+    data: RegisterWithCodeData,
+  ): Promise<{ user: SupabaseUser | null; error: string | null }> {
+    this.logger.info(
+      { email: data.email },
+      "User registration with code attempt",
+    );
+
+    try {
+      const supabase = await createClient();
+
+      // 首先验证验证码
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: data.email,
+        token: data.code,
+        type: "signup",
+      });
+
+      if (verifyError) {
+        this.logger.error(
+          { error: verifyError.message, email: data.email },
+          "Code verification failed",
+        );
+        return { user: null, error: "验证码错误或已过期" };
+      }
+
+      // 验证码验证成功，使用邮箱和密码注册用户
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+          },
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        },
+      });
+
+      if (authError) {
+        this.logger.error(
+          { error: authError.message, email: data.email },
+          "Registration failed after code verification",
+        );
+        return { user: null, error: authError.message };
+      }
+
+      if (authData && authData.user) {
+        // 在本地数据库中创建用户记录
+        try {
+          await this.userService.createUser({
+            id: authData.user.id,
+            email: data.email,
+            fullName: data.fullName || null,
+            avatarUrl: authData.user.user_metadata?.avatar_url || null,
+          });
+
+          // 创建用户配置
+          await this.userService.createUserProfile({
+            userId: authData.user.id,
+          });
+
+          this.logger.info(
+            { userId: authData.user.id },
+            "User registered with code successfully",
+          );
+        } catch (dbError) {
+          this.logger.warn(
+            { error: dbError, userId: authData.user.id },
+            "Failed to create user in local database, will retry on first login",
+          );
+        }
+
+        return { user: authData.user, error: null };
+      }
+
+      return {
+        user: null,
+        error: "Registration failed: No user data returned",
+      };
+    } catch (error) {
+      this.logger.error(
+        { error, email: data.email },
+        "Unexpected registration with code error",
+      );
       return { user: null, error: "Registration failed" };
     }
   }
@@ -369,6 +468,73 @@ export class AuthService {
     } catch (error) {
       this.logger.error({ error }, "Get current user error");
       return { user: null, error: "Failed to get current user" };
+    }
+  }
+
+  // 获取当前用户，失败时自动创建匿名用户
+  async getCurrentUserOrAnonymous(): Promise<{
+    user: SupabaseUser | null;
+    session: Session | null;
+    isAnonymous: boolean;
+    error: string | null;
+  }> {
+    this.logger.info("Attempting to get current user or create anonymous user");
+
+    try {
+      // 首先尝试获取当前用户
+      const { user, error } = await this.getCurrentUser();
+
+      if (user && !error) {
+        this.logger.info({ userId: user.id }, "Current user found");
+
+        // 获取会话信息
+        const { session } = await this.getSession();
+
+        // 检查是否为匿名用户
+        const isAnonymous = await this.anonymousService.isAnonymousUser(
+          user.id,
+        );
+
+        return { user, session, isAnonymous, error: null };
+      }
+
+      // 如果获取用户失败，自动创建匿名用户
+      this.logger.info("No current user found, creating anonymous user");
+
+      const anonymousResult = await this.anonymousService.createAnonymousUser();
+
+      if (anonymousResult.error || !anonymousResult.user) {
+        this.logger.error(
+          { error: anonymousResult.error },
+          "Failed to create anonymous user",
+        );
+        return {
+          user: null,
+          session: null,
+          isAnonymous: false,
+          error: anonymousResult.error || "Failed to create anonymous user",
+        };
+      }
+
+      this.logger.info(
+        { userId: anonymousResult.user.id },
+        "Anonymous user created successfully",
+      );
+
+      return {
+        user: anonymousResult.user,
+        session: anonymousResult.session,
+        isAnonymous: true,
+        error: null,
+      };
+    } catch (error) {
+      this.logger.error({ error }, "Get current user or anonymous error");
+      return {
+        user: null,
+        session: null,
+        isAnonymous: false,
+        error: "Failed to get or create user",
+      };
     }
   }
 

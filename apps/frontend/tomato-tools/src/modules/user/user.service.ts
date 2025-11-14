@@ -262,4 +262,37 @@ export class UserService {
       throw error;
     }
   }
+
+  // 检查用户是否为匿名用户
+  async isAnonymousUser(userId: string): Promise<boolean> {
+    try {
+      const foundUser = await this.getUserById(userId);
+      return foundUser?.isAnonymous || false;
+    } catch (error) {
+      this.logger.error(
+        { error, userId },
+        "Failed to check if user is anonymous",
+      );
+      return false;
+    }
+  }
+
+  // 获取用户的完整信息（包括配置）
+  async getUserWithProfile(userId: string): Promise<{
+    user: User | null;
+    profile: UserProfile | null;
+  }> {
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        return { user: null, profile: null };
+      }
+
+      const profile = await this.getUserProfile(userId);
+      return { user, profile };
+    } catch (error) {
+      this.logger.error({ error, userId }, "Failed to get user with profile");
+      throw error;
+    }
+  }
 }

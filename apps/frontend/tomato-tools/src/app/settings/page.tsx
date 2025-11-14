@@ -5,6 +5,7 @@ import Footer from "@/components/toolsLayout/Footer";
 import Header from "@/components/toolsLayout/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import AnonymousUserBanner from "@/components/auth/AnonymousUserBanner";
 import {
   BellOutlined,
   EyeOutlined,
@@ -106,6 +107,9 @@ export default function SettingsPage() {
       <Header />
       <main className="container mx-auto px-4 py-8 pb-24">
         <div className="mx-auto max-w-4xl">
+          {/* 临时账号提示横幅 */}
+          <AnonymousUserBanner />
+
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               设置

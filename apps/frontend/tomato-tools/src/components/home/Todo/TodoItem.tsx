@@ -92,7 +92,13 @@ export default function TodoItem(props: TodoItemProps) {
               />
             )}
             <div className="min-w-0 flex-1">
-              {todo.title}
+              <span
+                className={classNames({
+                  "line-through": todo.status === "completed",
+                })}
+              >
+                {todo.title}
+              </span>
               {todo.description && (
                 <p
                   className={classNames(
