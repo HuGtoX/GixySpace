@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Affix, Input, Button, Dropdown, Avatar, MenuProps, Badge } from "antd";
 import {
   FaSun,
