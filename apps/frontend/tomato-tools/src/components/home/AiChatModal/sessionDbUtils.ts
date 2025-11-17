@@ -1,6 +1,6 @@
 import axios from "@/lib/axios";
 import type { ChatSession, ChatMessage } from "@/types/ai-chat";
-import type { BaseApiResponse } from "@/types/api";
+import type { ApiResponse } from "@/types";
 import {
   type AiChatSession,
   type AiChatMessage,
@@ -109,7 +109,7 @@ export async function updateSession(
   updates: any,
 ): Promise<boolean> {
   try {
-    const response = await axios.patch<BaseApiResponse>(
+    const response = await axios.patch<ApiResponse>(
       `/api/ai-chat/sessions/${sessionId}`,
       updates,
     );
@@ -125,7 +125,7 @@ export async function updateSession(
  */
 export async function deleteSession(sessionId: string): Promise<boolean> {
   try {
-    const response = await axios.delete<BaseApiResponse>(
+    const response = await axios.delete<ApiResponse>(
       `/api/ai-chat/sessions/${sessionId}`,
     );
     return true;
@@ -219,7 +219,7 @@ export async function deleteMessage(
       sessionId,
       messageId,
     });
-    const response = await axios.delete<BaseApiResponse>(
+    const response = await axios.delete<ApiResponse>(
       `/api/ai-chat/sessions/${sessionId}/messages/${messageId}`,
     );
     console.log("[sessionDbUtils] 删除消息响应:", {

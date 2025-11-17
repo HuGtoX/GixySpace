@@ -3,7 +3,6 @@ import type {
   InternalAxiosRequestConfig,
   AxiosInstance,
   AxiosResponse,
-  AxiosRequestConfig,
 } from "axios";
 import { message } from "antd";
 
