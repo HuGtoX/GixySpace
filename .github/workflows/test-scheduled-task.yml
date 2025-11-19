@@ -1,6 +1,13 @@
 name: Test Daily Sentence Task # 测试每日一言定时任务
 
 on:
+    push:
+        branches:
+            - main
+            - dev
+        paths:
+            - 'apps/frontend/tomato-tools/scripts/fetch-daily-sentence.ts'
+            - '.github/workflows/test-scheduled-task.yml'
     workflow_dispatch: # 仅允许手动触发，用于测试
         inputs:
             test_mode:
