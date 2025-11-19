@@ -10,7 +10,9 @@
 		"dev:standard": "pnpm --filter @gixy/tomato-tools dev:standard",
 		"build:new": "pnpm --filter @gixy/tomato-tools... build",
 		"s1": "pnpm --filter @gixy/fastify-learning dev",
-		"prepare": "husky"
+		"prepare": "husky",
+		"script:fetch-daily-sentence": "pnpm --filter @gixy/tomato-tools script:fetch-daily-sentence",
+		"test:fetch-daily-sentence": "pnpm --filter @gixy/tomato-tools test:fetch-daily-sentence"
 	},
 	"keywords": [],
 	"author": "",
