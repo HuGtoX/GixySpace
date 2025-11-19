@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { join } from "path";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 // 加载 .env.local 文件
 config({ path: join(process.cwd(), ".env.local") });

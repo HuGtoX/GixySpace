@@ -62,3 +62,25 @@ export interface FileApiFileDto {
 export interface FileApiUploadResponse extends ApiResponse {
   file?: FileApiFileDto;
 }
+
+// Supabase Storage上传相关API类型
+export interface StorageApiUploadRequest {
+  file: File;
+  bucket?: string;
+  folder?: string;
+  fileName?: string;
+}
+
+export interface StorageApiUploadResponse extends ApiResponse {
+  url?: string;
+  path?: string;
+}
+
+export interface StorageApiDeleteRequest {
+  path: string;
+  bucket?: string;
+}
+
+export interface StorageApiDeleteResponse extends ApiResponse {
+  message?: string;
+}

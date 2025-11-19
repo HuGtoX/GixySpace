@@ -16,7 +16,9 @@ import {
   EditOutlined,
   SaveOutlined,
   CloseOutlined,
+  CameraOutlined,
 } from "@ant-design/icons";
+import AvatarUploadModal from "@/components/avatar/AvatarUploadModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Header from "@/components/toolsLayout/Header";
@@ -36,6 +38,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [updatingAvatar, setUpdatingAvatar] = useState(false);
   const [form] = Form.useForm();
 
   // 如果未登录，重定向到登录页
@@ -88,6 +92,38 @@ export default function ProfilePage() {
     }
   };
 
+  // 处理头像更新
+  const handleAvatarUpdate = async (
+    avatarUrl: string,
+    isSystemAvatar: boolean,
+  ) => {
+    setUpdatingAvatar(true);
+    try {
+      const response = await fetch("/api/user/avatar", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ avatarUrl, isSystemAvatar }),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        message.success("头像更新成功");
+        await refreshUser();
+        setAvatarModalOpen(false);
+      } else {
+        const data = await response.json();
+        message.error(data.error || "头像更新失败");
+      }
+    } catch (error) {
+      console.log("头像更新失败：", error);
+      message.error("头像更新失败，请稍后重试");
+    } finally {
+      setUpdatingAvatar(false);
+    }
+  };
+
   if (loading) {
     return (
       <Container>
@@ -125,12 +161,31 @@ export default function ProfilePage() {
             {/* 头像和基本信息 */}
             <Card className="lg:col-span-1">
               <div className="flex flex-col items-center space-y-4">
-                <Avatar
-                  size={120}
-                  src={user.avatarUrl}
-                  icon={<UserOutlined />}
-                  className="border-4 border-orange-500 dark:border-dark-primary"
-                />
+                <div className="group relative">
+                  <Avatar
+                    size={120}
+                    src={user.avatarUrl}
+                    icon={<UserOutlined />}
+                    className="border-4 border-orange-500 dark:border-dark-primary"
+                  />
+                  {/* 更换头像按钮 */}
+                  <Button
+                    type="primary"
+                    shape="circle"
+                    icon={<CameraOutlined />}
+                    className="absolute bottom-0 right-0 opacity-0 transition-opacity group-hover:opacity-100"
+                    onClick={() => setAvatarModalOpen(true)}
+                    loading={updatingAvatar}
+                  />
+                </div>
+                <Button
+                  type="link"
+                  icon={<CameraOutlined />}
+                  onClick={() => setAvatarModalOpen(true)}
+                  loading={updatingAvatar}
+                >
+                  更换头像
+                </Button>
                 <div className="text-center">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                     {user.fullName || "未设置姓名"}
@@ -268,6 +323,14 @@ export default function ProfilePage() {
         </div>
       </main>
       <Footer />
+
+      {/* 头像上传模态窗口 */}
+      <AvatarUploadModal
+        open={avatarModalOpen}
+        currentAvatar={user.avatarUrl || undefined}
+        onCancel={() => setAvatarModalOpen(false)}
+        onConfirm={handleAvatarUpdate}
+      />
     </Container>
   );
 }

@@ -52,6 +52,7 @@ interface FileUploaderProps {
   onUploadSuccess?: (files: any[]) => void; // 上传成功回调
   onUploadError?: (error: string) => void; // 上传失败回调
   loadingText?: string; // 加载状态提示文本（默认"正在处理..."）
+  showPrivacyAlert?: boolean; // 是否显示隐私保护提示（默认true）
 }
 
 const FileUploader = ({
@@ -71,6 +72,7 @@ const FileUploader = ({
   onUploadError,
   acceptText,
   loadingText = "正在处理...",
+  showPrivacyAlert = true,
 }: FileUploaderProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isMobile } = useDeviceDetect();
@@ -182,6 +184,9 @@ const FileUploader = ({
       isMobile,
       isLoading,
       maxFiles,
+      maxSizeMobile,
+      maxSizeDesktop,
+      accept,
       errorMessages,
       beforeUpload,
       fileTypeValidator,
@@ -261,18 +266,21 @@ const FileUploader = ({
           <Text type="secondary">{acceptText}</Text>
           <br />
           <Text type="secondary">
-            单个文件大小限制：{isMobile ? "20MB" : "50MB"}
+            单个文件大小限制：
+            {isMobile ? `${maxSizeMobile}MB` : `${maxSizeDesktop}MB`}
           </Text>
         </Dragger>
       </div>
 
-      <Alert
-        message="隐私保护"
-        description={`所有图片处理都在您的浏览器本地进行，不会上传到服务器，确保您的隐私安全。`}
-        type="info"
-        showIcon
-        style={{ marginTop: "16px" }}
-      />
+      {showPrivacyAlert && (
+        <Alert
+          message="隐私保护"
+          description={`所有图片处理都在您的浏览器本地进行，不会上传到服务器，确保您的隐私安全。`}
+          type="info"
+          showIcon
+          style={{ marginTop: "16px" }}
+        />
+      )}
     </div>
   );
 };
