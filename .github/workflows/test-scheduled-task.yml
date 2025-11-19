@@ -18,11 +18,20 @@ on:
                 options:
                     - dry-run # 模拟运行，不实际写入数据库
                     - full # 完整运行，实际写入数据库
+            environment:
+                description: '执行环境'
+                required: false
+                default: 'development'
+                type: choice
+                options:
+                    - development # 开发环境
+                    - production # 生产环境
 
 jobs:
     test-fetch-daily-sentence:
         runs-on: ubuntu-latest
         timeout-minutes: 10 # 设置超时时间为10分钟
+        environment: ${{ github.event.inputs.environment || 'development' }} # 使用指定的环境，默认为开发环境
 
         steps:
             # 步骤1：检出仓库代码
@@ -147,6 +156,7 @@ jobs:
                   echo "测试报告"
                   echo "=========================================="
                   echo "测试时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+                  echo "执行环境: ${{ github.event.inputs.environment || 'development' }}"
                   echo "测试模式: ${{ github.event.inputs.test_mode || 'dry-run' }}"
                   echo "环境模式: ${{ env.TEST_MODE }}"
                   echo "Node版本: $(node --version)"
