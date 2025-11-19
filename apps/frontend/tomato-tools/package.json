@@ -13,7 +13,9 @@
     "generate": "drizzle-kit generate",
     "schema:push": "drizzle-kit push",
     "migrate": "tsx scripts/migrate.ts",
-    "logger:demo": "tsx src/examples/logger-demo.ts"
+    "logger:demo": "tsx src/examples/logger-demo.ts",
+    "script:fetch-daily-sentence": "tsx scripts/fetch-daily-sentence.ts",
+    "test:fetch-daily-sentence": "node scripts/test-fetch-daily-sentence.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "2.0.0-alpha.9",

@@ -1,0 +1,38 @@
+name: Daily Sentence Scheduled Task # 每日一言定时任务
+
+on:
+    schedule:
+        - cron: '0 16 * * *' # 每天UTC时间16:00运行（北京时间凌晨0:00）
+    workflow_dispatch: # 允许在GitHub网页界面手动触发此工作流
+
+jobs:
+    fetch-daily-sentence:
+        runs-on: ubuntu-latest # 指定任务运行的操作系统环境
+
+        steps:
+            # 步骤1：检出仓库代码
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # 步骤2：设置Node.js运行环境
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18' # 使用Node.js 18版本
+
+            # 步骤3：安装pnpm包管理器
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 10.6.5
+
+            # 步骤4：安装项目依赖
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            # 步骤5：运行每日一言获取任务
+            - name: Fetch Daily Sentence
+              run: pnpm run script:fetch-daily-sentence
+              env:
+                  NODE_ENV: production
+                  DATABASE_URL: ${{ secrets.DATABASE_URL }} # 从GitHub Secrets中获取数据库连接字符串

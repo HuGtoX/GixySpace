@@ -19,6 +19,7 @@ async function getDailySentence(_: Request) {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
+	// 检查今天是否已有数据
 	const existingSentence = await db.query.dailySentences.findFirst({
 		where: eq(dailySentences.fetchDate, sql`CURRENT_DATE`)
 	});
@@ -29,13 +30,49 @@ async function getDailySentence(_: Request) {
 		};
 	}
 
-	const data = await fetch('https://international.v1.hitokoto.cn?c=k');
+	// 尝试获取唯一内容，最多重试10次
+	const maxRetries = 10;
+	let result: DailySentence | null = null;
 
-	if (!data.ok) {
-		throw new Error('每日一言获取失败');
+	for (let i = 0; i < maxRetries; i++) {
+		try {
+			const data = await fetch(
+				'https://international.v1.hitokoto.cn?c=k'
+			);
+
+			if (!data.ok) {
+				throw new Error(`每日一言获取失败: HTTP ${data.status}`);
+			}
+
+			const fetchedResult: DailySentence = await data.json();
+
+			// 检查内容是否已存在于数据库中
+			const duplicateCheck = await db.query.dailySentences.findFirst({
+				where: eq(dailySentences.content, fetchedResult.hitokoto)
+			});
+
+			if (!duplicateCheck) {
+				// 找到唯一内容，跳出循环
+				result = fetchedResult;
+				break;
+			}
+
+			// 如果内容重复，继续下一次尝试
+			console.log(`第 ${i + 1} 次尝试获取到重复内容，继续重试...`);
+		} catch (error) {
+			console.error(`第 ${i + 1} 次获取失败:`, error);
+			// 如果不是最后一次尝试，继续重试
+			if (i === maxRetries - 1) {
+				throw new Error(
+					`每日一言获取失败: ${error instanceof Error ? error.message : String(error)}`
+				);
+			}
+		}
 	}
 
-	const result: DailySentence = await data.json();
+	if (!result) {
+		throw new Error('无法获取到唯一的每日一言内容，已达到最大重试次数');
+	}
 
 	// 保存到数据库
 	await db.insert(dailySentences).values({
