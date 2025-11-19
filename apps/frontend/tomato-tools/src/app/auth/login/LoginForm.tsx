@@ -338,13 +338,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                   layout="vertical"
                   size="large"
                 >
-                  <Alert
-                    message="登录后将保留您的临时数据"
-                    type="info"
-                    showIcon
-                    className="mb-4"
-                  />
-
                   <Form.Item
                     name="email"
                     label="邮箱"

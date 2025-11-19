@@ -20,7 +20,7 @@ export const user = pgTable("user", {
   id: uuid("id").primaryKey(), // 对应 auth.users.id
   email: text("email").notNull().unique(),
   fullName: text("full_name"),
-  avatarUrl: text("avatar_url"),
+  avatarUrl: text("avatar_url").default("/avatar/a5.png"),
   role: userRoleEnum("role").default("user").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   isAnonymous: boolean("is_anonymous").default(false).notNull(), // 标识匿名用户

@@ -8,7 +8,7 @@ on:
 jobs:
     fetch-daily-sentence:
         runs-on: ubuntu-latest # 指定任务运行的操作系统环境
-        environment: production # 使用生产环境
+        environment: development # 使用生产环境
 
         steps:
             # 步骤1：检出仓库代码
@@ -35,5 +35,5 @@ jobs:
             - name: Fetch Daily Sentence
               run: pnpm run script:fetch-daily-sentence
               env:
-                  NODE_ENV: production
+                  NODE_ENV: development
                   DATABASE_URL: ${{ secrets.DATABASE_URL }} # 从GitHub Secrets中获取数据库连接字符串
