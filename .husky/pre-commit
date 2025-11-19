@@ -1,15 +1,28 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
 # 获取暂存区变更文件
 changed_files=$(git diff --cached --name-only --diff-filter=ACM)
 
-# 检测子项目变更
+# 检测子项目变更并只对变更的文件执行lint
 run_task_for() {
   project_dir=$1
-  if echo "$changed_files" | grep -q "^$project_dir/"; then
-    echo "🟢 检测到 $project_dir 变更，执行任务..."
-    (cd "$project_dir" && npm run lint)  # 使用子shell避免目录影响
+  
+  # 筛选出该项目下的变更文件
+  project_files=$(echo "$changed_files" | grep "^$project_dir/" | grep -E '\.(js|jsx|ts|tsx)$')
+  
+  if [ -n "$project_files" ]; then
+    echo "🟢 检测到 $project_dir 变更，执行 lint 检查..."
+    
+    # 将文件列表转换为相对于项目目录的路径
+    relative_files=$(echo "$project_files" | sed "s|^$project_dir/||")
+    
+    # 只对变更的文件执行lint
+    (cd "$project_dir" && echo "$relative_files" | xargs npx next lint --file)
+    
+    if [ $? -ne 0 ]; then
+      echo "❌ Lint 检查失败，请修复后再提交"
+      exit 1
+    fi
   fi
 }
 
