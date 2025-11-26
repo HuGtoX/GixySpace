@@ -30,8 +30,8 @@ async function getDailySentence(_: Request) {
 		};
 	}
 
-	// 尝试获取唯一内容，最多重试10次
-	const maxRetries = 10;
+	// 尝试获取唯一内容，最多重试20次
+	const maxRetries = 20;
 	let result: DailySentence | null = null;
 
 	for (let i = 0; i < maxRetries; i++) {
