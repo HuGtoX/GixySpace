@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "@ant-design/v5-patch-for-react-19";
 import ThemeProvider from "@/contexts/ThemeContext";
 import AntdProvider from "@/components/providers/AntdProvider";
 import { AuthProvider } from "@/contexts/AuthContext";

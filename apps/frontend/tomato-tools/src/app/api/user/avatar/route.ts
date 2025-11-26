@@ -33,11 +33,11 @@ export async function PUT(request: NextRequest) {
     const validationResult = updateAvatarSchema.safeParse(body);
     if (!validationResult.success) {
       logger.warn(
-        { errors: validationResult.error.errors },
+        { errors: validationResult.error.message },
         "Validation failed",
       );
       return NextResponse.json(
-        { error: "数据验证失败", details: validationResult.error.errors },
+        { error: "数据验证失败", details: validationResult.error.message },
         { status: 400 },
       );
     }

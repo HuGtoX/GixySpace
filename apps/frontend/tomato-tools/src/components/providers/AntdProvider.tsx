@@ -106,18 +106,13 @@ function AntdProvider({ children }: AntdProviderProps) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // 确保在客户端执行
     setIsClient(true);
-
-    // 添加一个小延迟确保所有组件都准备就绪
     const timer = setTimeout(() => {
       setIsReady(true);
     }, 100);
 
     return () => clearTimeout(timer);
   }, []);
-
-  // 移除loading检查，让AppProvider统一处理
 
   // 服务端渲染时使用默认浅色主题
   const themeConfig = isClient
