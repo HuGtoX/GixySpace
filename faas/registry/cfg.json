@@ -1,8 +1,0 @@
-{
-	"serverPort": 8080,
-	"portConfig": {
-		"start": 18000,
-		"end": 19000,
-		"exclude": [18001, 18002, 18003]
-	}
-}

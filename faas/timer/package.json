@@ -1,8 +1,0 @@
-{
-    "name": "@faas/timer",
-    "version": "1.0.0",
-    "description": "",
-    "scripts": {
-        "start": "export TIMER_ADMIN=timeradmin && export TIMER_ADMIN_PASSWORD=timeradmin用户的密码 && deno run --allow-env --allow-read --allow-write  --allow-net main.ts"
-      }
-}
