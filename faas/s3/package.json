@@ -1,8 +1,0 @@
-{
-	"name": "@faas/s3",
-	"version": "1.0.0",
-	"description": "",
-	"scripts": {
-		"start": "deno run --allow-write=./log,./store --allow-read=./log,./store --allow-net ./main.ts"
-	}
-}
