@@ -143,7 +143,7 @@ const TodoList = () => {
 
       {showCompleted && (
         <div className="mt-6">
-          <Divider orientation="left">今日已完成任务</Divider>
+          <Divider orientation="horizontal">今日已完成任务</Divider>
           <div className="max-h-[200px] space-y-2 overflow-auto pr-1">
             {todos.filter(
               (todo) =>
