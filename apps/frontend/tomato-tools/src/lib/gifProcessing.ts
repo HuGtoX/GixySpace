@@ -49,7 +49,8 @@ const canvasPool: HTMLCanvasElement[] = [];
 
 function getCanvas(width: number, height: number) {
   const canvas =
-    canvasPool.pop() || (typeof document !== "undefined" ? document.createElement("canvas") : null);
+    canvasPool.pop() ||
+    (typeof document !== "undefined" ? document.createElement("canvas") : null);
   if (!canvas) {
     throw new Error("当前环境不支持 Canvas 渲染");
   }
@@ -67,7 +68,11 @@ function releaseCanvas(canvas: HTMLCanvasElement) {
 }
 
 function cloneImageData(imageData: ImageData): ImageData {
-  return new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+  return new ImageData(
+    new Uint8ClampedArray(imageData.data),
+    imageData.width,
+    imageData.height,
+  );
 }
 
 function hasTransparency(imageData: ImageData): boolean {
@@ -103,12 +108,20 @@ export async function decodeGifFile(file: File): Promise<DecodedGif> {
     const delay = frame.delay ?? DEFAULT_DELAY;
 
     if (frame.disposalType === 2) {
-      ctx.clearRect(frame.dims.left, frame.dims.top, frame.dims.width, frame.dims.height);
+      ctx.clearRect(
+        frame.dims.left,
+        frame.dims.top,
+        frame.dims.width,
+        frame.dims.height,
+      );
     } else if (frame.disposalType === 3 && previousImageData) {
       ctx.putImageData(previousImageData, 0, 0);
     }
 
-    const patchImageData = ctx.createImageData(frame.dims.width, frame.dims.height);
+    const patchImageData = ctx.createImageData(
+      frame.dims.width,
+      frame.dims.height,
+    );
     patchImageData.data.set(frame.patch);
     ctx.putImageData(patchImageData, frame.dims.left, frame.dims.top);
 
@@ -117,7 +130,12 @@ export async function decodeGifFile(file: File): Promise<DecodedGif> {
     totalDuration += delay;
 
     if (frame.disposalType === 2) {
-      ctx.clearRect(frame.dims.left, frame.dims.top, frame.dims.width, frame.dims.height);
+      ctx.clearRect(
+        frame.dims.left,
+        frame.dims.top,
+        frame.dims.width,
+        frame.dims.height,
+      );
     } else if (frame.disposalType === 3 && previousImageData) {
       ctx.putImageData(previousImageData, 0, 0);
     } else {
@@ -240,18 +258,17 @@ function collectPaletteSource(frames: ImageData[]): Uint8Array {
   return merged;
 }
 
-function buildFrameOptions(
-  params: {
-    delay: number;
-    index: number;
-    hasAlpha: boolean;
-    palette: Palette;
-    globalPalette: Palette | null;
-    loop?: boolean;
-    transparentIndex?: number;
-  },
-) {
-  const { delay, index, hasAlpha, palette, globalPalette, loop, transparentIndex } = params;
+function buildFrameOptions(params: {
+  delay: number;
+  index: number;
+  hasAlpha: boolean;
+  palette: Palette;
+  globalPalette: Palette | null;
+  loop?: boolean;
+  transparentIndex?: number;
+}) {
+  const { delay, index, palette, globalPalette, loop, transparentIndex } =
+    params;
   const effectiveTransparentIndex =
     typeof transparentIndex === "number" ? transparentIndex : undefined;
   const hasTransparent = typeof effectiveTransparentIndex === "number";
@@ -261,7 +278,11 @@ function buildFrameOptions(
     transparent: hasTransparent,
     transparentIndex: effectiveTransparentIndex,
     dispose: hasTransparent ? 1 : 0,
-    palette: globalPalette ? (index === 0 ? globalPalette : undefined) : palette,
+    palette: globalPalette
+      ? index === 0
+        ? globalPalette
+        : undefined
+      : palette,
   } as const;
 }
 
@@ -366,7 +387,10 @@ function fitImageDataToCanvas(
   }
 
   ctx.clearRect(0, 0, targetWidth, targetHeight);
-  const scale = Math.min(targetWidth / imageData.width, targetHeight / imageData.height);
+  const scale = Math.min(
+    targetWidth / imageData.width,
+    targetHeight / imageData.height,
+  );
   const drawWidth = Math.max(1, Math.round(imageData.width * scale));
   const drawHeight = Math.max(1, Math.round(imageData.height * scale));
   const offsetX = Math.floor((targetWidth - drawWidth) / 2);
@@ -455,7 +479,9 @@ export async function mergeGifFiles(
     throw new Error("请先选择需要合并的 GIF 文件");
   }
 
-  const decodedList = await Promise.all(files.map((file) => decodeGifFile(file)));
+  const decodedList = await Promise.all(
+    files.map((file) => decodeGifFile(file)),
+  );
   const scale = clamp(options.scale, 0.1, 1);
 
   const targetWidth =

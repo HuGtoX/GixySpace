@@ -52,7 +52,7 @@ function ThemeProvider({ children }: ThemeProviderProps) {
     };
 
     initializeTheme();
-  }, []);
+  }, [isDarkMode]);
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode;

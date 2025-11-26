@@ -158,7 +158,7 @@ const FileUploader = ({
               name: file.name,
               status: "idle",
             });
-          } catch (error) {
+          } catch (_) {
             invalidFiles.push(`${file.name} (处理失败)`);
           }
         }

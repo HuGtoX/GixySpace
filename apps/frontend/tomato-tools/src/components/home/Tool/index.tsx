@@ -26,7 +26,7 @@ const ToolItem = ({
   const router = useRouter();
 
   const handleClick = () => {
-    itemClick && itemClick();
+    itemClick?.();
     if (link) {
       router.push(link);
     }

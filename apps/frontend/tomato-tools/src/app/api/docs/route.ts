@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { z } from "zod";
 
 // 文档元数据接口
 interface DocMetadata {

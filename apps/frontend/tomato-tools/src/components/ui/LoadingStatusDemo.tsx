@@ -5,7 +5,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, Badge, Space, Typography } from "antd";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 function LoadingStatusDemo(): React.ReactElement {
   const { isLoading: themeLoading, isDarkMode } = useTheme();
