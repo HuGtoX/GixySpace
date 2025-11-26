@@ -101,17 +101,11 @@ const componentsTheme = (isDarkMode: boolean) => ({
 });
 
 function AntdProvider({ children }: AntdProviderProps) {
-  const { isDarkMode, isLoading: themeLoading } = useTheme();
+  const { isDarkMode } = useTheme();
   const [isClient, setIsClient] = useState(false);
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, []);
 
   // 服务端渲染时使用默认浅色主题

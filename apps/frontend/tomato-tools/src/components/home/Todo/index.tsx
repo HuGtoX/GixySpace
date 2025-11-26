@@ -77,7 +77,7 @@ const TodoList = () => {
       });
       message.success(completed ? "任务已完成" : "任务已恢复");
       await fetchTodos();
-    } catch (error) {
+    } catch (_) {
       message.error("更新任务状态失败");
       setLoading(false);
     }

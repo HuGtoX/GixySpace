@@ -1,8 +1,6 @@
 import axios from "@/lib/axios";
 import type {
-  StorageApiUploadRequest,
   StorageApiUploadResponse,
-  StorageApiDeleteRequest,
   StorageApiDeleteResponse,
 } from "@/types/api";
 

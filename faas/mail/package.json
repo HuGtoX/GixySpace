@@ -1,8 +1,0 @@
-{
-	"name": "@faas/mail",
-	"version": "1.0.0",
-	"description": "",
-	"scripts": {
-		"start": "deno run --allow-read --allow-env --allow-import --allow-net main.ts"
-	}
-}

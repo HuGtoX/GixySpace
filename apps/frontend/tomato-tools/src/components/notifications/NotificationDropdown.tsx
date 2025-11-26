@@ -209,19 +209,6 @@ const NotificationDropdown: React.FC = () => {
     }
   }, [user?.id]);
 
-  // 定期刷新通知
-  useEffect(() => {
-    if (!user?.id) return;
-    const interval = setInterval(
-      () => {
-        fetchNotifications();
-      },
-      20 * 60 * 1000,
-    ); // 每 20 分钟刷新一次
-
-    return () => clearInterval(interval);
-  }, [user?.id]);
-
   // 渲染通知列表
   const notificationList = (
     <div className="max-h-96 w-80 overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800 dark:shadow-gray-900/20">

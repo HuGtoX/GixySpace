@@ -15,9 +15,19 @@ const eslintConfig = [
     extends: ["next", "prettier"],
     plugins: ["@gixy/unused-imports"],
     rules: {
+      "no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
       "@gixy/unused-imports/no-unused-imports": "error",
-      "@gixy/unused-imports/no-unused-vars": ["warn"],
+      "@gixy/unused-imports/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
+      ],
     },
   }),
 ];
