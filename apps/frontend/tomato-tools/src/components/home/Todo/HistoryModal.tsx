@@ -171,7 +171,13 @@ export default function HistoryTodoModal(props: HistoryTodoModalProps) {
   }, [visible, viewMode, dateRange]);
 
   return (
-    <GModal {...props} title="历史完成任务" width={860}>
+    <GModal
+      isMacOSStyle
+      showFullscreen
+      title="历史完成任务"
+      width={860}
+      {...props}
+    >
       <TodoModal
         visible={todoModalVisible}
         onClose={() => setTodoModalVisible(false)}

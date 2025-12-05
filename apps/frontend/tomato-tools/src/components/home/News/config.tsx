@@ -90,8 +90,8 @@ export const currencyRatesConfig: NewsPlatformConfig = {
 export const newsPlatforms = [
   weiboConfig,
   zhihuConfig,
-  douyinConfig,
+  // douyinConfig,
   toutiaoConfig,
-  xueqiuConfig,
+  // xueqiuConfig,
   juejinConfig,
 ];

@@ -122,6 +122,46 @@ body::-webkit-scrollbar-thumb:hover {
     background-color: #27c93f;
   }
 
+  /* 全屏Modal样式优化 */
+  .fullscreen-modal .ant-modal {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+  }
+
+  .fullscreen-modal .ant-modal-content {
+    border-radius: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .fullscreen-modal .ant-modal-header {
+    flex-shrink: 0 !important;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .fullscreen-modal.dark .ant-modal-header {
+    border-bottom-color: #374151;
+  }
+
+  .fullscreen-modal .ant-modal-body {
+    flex: 1 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+  }
+
+  /* 防止全屏时body出现滚动条 */
+  body:has(.fullscreen-modal) {
+    overflow: hidden !important;
+  }
+
   .item-hover {
     @apply cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:shadow-sm dark:hover:bg-gray-800;
   }
@@ -228,5 +268,164 @@ body::-webkit-scrollbar-thumb:hover {
 
   .dark .primary-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 99, 71, 0.8);
+  }
+
+  /* 动态显示滚动条（鼠标悬停时显示） */
+  .hover-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s ease;
+  }
+
+  .hover-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .hover-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+  }
+
+  .hover-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+    transition: background 0.3s ease;
+  }
+
+  /* 悬停或激活状态显示滚动条 - 默认灰色 */
+  .hover-scrollbar.show-scrollbar,
+  .hover-scrollbar:hover {
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  }
+
+  .hover-scrollbar.show-scrollbar::-webkit-scrollbar-thumb,
+  .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4);
+  }
+
+  .hover-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:hover,
+  .hover-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+  }
+
+  /* 暗黑模式 - 默认灰色 */
+  .dark .hover-scrollbar.show-scrollbar,
+  .dark .hover-scrollbar:hover {
+    scrollbar-color: rgba(75, 85, 99, 0.6) transparent;
+  }
+
+  .dark .hover-scrollbar.show-scrollbar::-webkit-scrollbar-thumb,
+  .dark .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+  }
+
+  .dark .hover-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:hover,
+  .dark .hover-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.8);
+  }
+
+  /* 主题色动态滚动条 - 优先级更高 */
+  .hover-scrollbar.primary-scrollbar.show-scrollbar,
+  .hover-scrollbar.primary-scrollbar:hover {
+    scrollbar-color: rgba(255, 99, 71, 0.5) transparent;
+  }
+
+  .hover-scrollbar.primary-scrollbar.show-scrollbar::-webkit-scrollbar-thumb,
+  .hover-scrollbar.primary-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 99, 71, 0.4) !important;
+  }
+
+  .hover-scrollbar.primary-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:hover,
+  .hover-scrollbar.primary-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 99, 71, 0.7) !important;
+  }
+
+  /* 暗黑模式 - 主题色 */
+  .dark .hover-scrollbar.primary-scrollbar.show-scrollbar,
+  .dark .hover-scrollbar.primary-scrollbar:hover {
+    scrollbar-color: rgba(255, 99, 71, 0.6) transparent;
+  }
+
+  .dark
+    .hover-scrollbar.primary-scrollbar.show-scrollbar::-webkit-scrollbar-thumb,
+  .dark .hover-scrollbar.primary-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 99, 71, 0.5) !important;
+  }
+
+  .dark
+    .hover-scrollbar.primary-scrollbar.show-scrollbar::-webkit-scrollbar-thumb:hover,
+  .dark
+    .hover-scrollbar.primary-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 99, 71, 0.8) !important;
+  }
+
+  /* 天气组件动画效果 */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-scaleIn {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  /* 天气卡片悬停效果 */
+  .weather-card-hover {
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
+  }
+
+  /* 渐变背景动画 */
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
   }
 }

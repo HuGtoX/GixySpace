@@ -5,6 +5,7 @@ import { FaSync, FaRegStar } from "react-icons/fa";
 import { Skeleton } from "antd";
 import Image from "next/image";
 import ActionButton from "@/components/ui/ActionButton";
+import ScrollContainer from "@/components/ui/ScrollContainer";
 import axios from "@/lib/axios";
 import CacheStorage from "@/lib/storage";
 import { useRequest } from "ahooks";
@@ -30,8 +31,8 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
         data: SixtySecondsData[];
       }>(`/api/news?source=${type}`);
       if (response.success) {
-        // 缓存数据，过期时间为 300 秒
-        cacheStorage.setItem(type, response.data, 300);
+        // 缓存数据，过期时间为 600 秒
+        cacheStorage.setItem(type, response.data, 600);
         return response.data;
       }
       return [];
@@ -81,7 +82,7 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
       </div>
 
       {/* 新闻列表 */}
-      <div className="h-[350px] overflow-auto p-2">
+      <ScrollContainer className="h-[350px] p-2">
         {loading ? (
           // 加载骨架屏
           Array(5)
@@ -146,7 +147,7 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
             暂无数据
           </div>
         )}
-      </div>
+      </ScrollContainer>
     </div>
   );
 };

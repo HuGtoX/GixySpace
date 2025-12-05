@@ -70,7 +70,7 @@ export default function ChatComponent({
       {/* 消息列表 */}
       <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4 dark:bg-gray-800">
         {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full flex-1 items-center justify-center">
             <div className="text-center text-gray-500 dark:text-gray-400">
               <h3 className="mb-2 text-lg font-medium">欢迎使用番茄智能助手</h3>
               <p className="text-sm">我是基于{model}模型的番茄助手</p>
