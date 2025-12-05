@@ -12,6 +12,7 @@ import { aiSummary } from "./aiSummary";
 import { notification, userNotification } from "./notification";
 import { aiUsageLogs, aiUsageStatistics } from "./aiUsage";
 import { aiChatSession } from "./aiChat";
+import { weatherCityHistory } from "./weatherHistory";
 // 用户角色枚举
 export const userRoleEnum = pgEnum("user_role", ["user", "admin", "anonymous"]);
 
@@ -107,6 +108,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   aiUsageLogs: many(aiUsageLogs),
   aiUsageStatistics: many(aiUsageStatistics),
   aiChatSessions: many(aiChatSession),
+  weatherCityHistories: many(weatherCityHistory),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -155,6 +157,10 @@ export {
   aiChatSessionRelations,
   aiChatMessageRelations,
 } from "./aiChat";
+export {
+  weatherCityHistory,
+  weatherCityHistoryRelations,
+} from "./weatherHistory";
 
 // 类型导出
 export type User = typeof user.$inferSelect;
@@ -200,3 +206,9 @@ export type {
   AiChatSessionWithMessages,
   AiChatSessionWithUser,
 } from "./aiChat";
+
+// 导出天气历史记录相关类型
+export type {
+  WeatherCityHistory,
+  NewWeatherCityHistory,
+} from "./weatherHistory";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Affix, Input, Button, Dropdown, Avatar, MenuProps, Badge } from "antd";
+import { Affix, Button, Dropdown, Avatar, MenuProps, Badge } from "antd";
 import {
   FaSun,
   FaMoon,
@@ -15,8 +15,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
-
-const { Search } = Input;
 
 // 顶部导航栏组件
 const Header = () => {
@@ -97,9 +95,9 @@ const Header = () => {
               </div>
             </div>
 
-            <div className="mx-8 hidden max-w-xl flex-1 items-center md:flex">
+            {/* <div className="mx-8 hidden max-w-xl flex-1 items-center md:flex">
               <Search className="w-full" placeholder="搜索工具或资讯..." />
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center space-x-6">
             <Button

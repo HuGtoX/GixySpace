@@ -5,6 +5,7 @@ import SectionCard from "@/components/ui/SectionCard";
 import { Todo } from "@/lib/drizzle/schema/todo";
 import type { PaginationResponse } from "@/types";
 import TodoModal from "./EditModal";
+import ScrollContainer from "@/components/ui/ScrollContainer";
 import HistoryTodoModal from "./HistoryModal";
 import axios from "@/lib/axios";
 import TodoItem from "./TodoItem";
@@ -108,7 +109,7 @@ const TodoList = () => {
         onClose={closeHistoryModal}
       />
 
-      <div className="max-h-[300px] space-y-2 overflow-auto pr-1">
+      <ScrollContainer className="max-h-[300px] space-y-2 pr-1">
         <Spin spinning={loading} tip="加载中...">
           {todos.filter((todo) => todo.status !== "completed").length === 0 ? (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
@@ -130,7 +131,7 @@ const TodoList = () => {
               ))
           )}
         </Spin>
-      </div>
+      </ScrollContainer>
 
       <div className="mt-4 flex gap-2">
         <Button onClick={addTodo} block type="primary">

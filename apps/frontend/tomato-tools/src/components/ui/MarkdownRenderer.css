@@ -5,9 +5,37 @@
 }
 
 /* 代码块样式优化 */
+.markdown-renderer .code-block-wrapper {
+  @apply overflow-hidden rounded-lg shadow-lg;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #1e293b; /* 深色背景 */
+}
+
+.dark .markdown-renderer .code-block-wrapper {
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  background: #0f172a;
+}
+
 .markdown-renderer pre {
-  @apply overflow-x-auto rounded-lg;
-  margin: 1rem 0;
+  @apply overflow-x-auto rounded-b-lg;
+  margin: 0;
+  padding: 1rem;
+  background: transparent !important;
+}
+
+.markdown-renderer pre code {
+  @apply text-sm leading-relaxed;
+  display: block;
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* 语法高亮样式覆盖 */
+.markdown-renderer pre code.hljs {
+  background: transparent !important;
+  padding: 0 !important;
 }
 
 .markdown-renderer code {
@@ -16,12 +44,78 @@
 
 /* 表格样式 */
 .markdown-renderer table {
-  margin: 1rem 0;
+  @apply w-full border-collapse overflow-hidden rounded-lg shadow-md;
+  margin: 1.5rem 0;
+  border: 1px solid #e2e8f0;
+  background: white;
+}
+
+.markdown-renderer table thead {
+  @apply bg-gradient-to-r from-slate-700 to-slate-800 text-white;
+}
+
+.markdown-renderer table thead th {
+  @apply px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.markdown-renderer table tbody tr {
+  @apply border-b transition-colors duration-200;
+  border-color: #e2e8f0;
+}
+
+.markdown-renderer table tbody tr:nth-child(even) {
+  @apply bg-slate-50;
+}
+
+.markdown-renderer table tbody tr:hover {
+  @apply bg-slate-100;
+}
+
+.markdown-renderer table tbody td {
+  @apply px-4 py-3 text-sm;
+  color: #475569;
+}
+
+.markdown-renderer table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* 深色模式表格优化 */
+.dark .markdown-renderer table {
+  border: 1px solid #374151;
+  background: #1f2937;
+}
+
+.dark .markdown-renderer table thead {
+  @apply bg-gradient-to-r from-slate-800 to-slate-900;
+}
+
+.dark .markdown-renderer table tbody tr {
+  border-color: #374151;
+}
+
+.dark .markdown-renderer table tbody tr:nth-child(even) {
+  @apply bg-gray-800;
+}
+
+.dark .markdown-renderer table tbody tr:hover {
+  @apply bg-gray-700;
+}
+
+.dark .markdown-renderer table tbody td {
+  color: #d1d5db;
 }
 
 /* 引用块样式 */
 .markdown-renderer blockquote {
+  @apply border-l-4 border-slate-300 bg-slate-50 px-4 py-3 text-slate-700;
   margin: 1rem 0;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.dark .markdown-renderer blockquote {
+  @apply border-slate-600 bg-gray-800 text-gray-300;
 }
 
 /* 列表样式 */
@@ -48,12 +142,20 @@
 
 /* 水平分割线 */
 .markdown-renderer hr {
-  @apply my-6 border-gray-300 dark:border-gray-600;
+  @apply my-6 border-slate-200;
+}
+
+.dark .markdown-renderer hr {
+  @apply border-gray-700;
 }
 
 /* 强调文本 */
 .markdown-renderer strong {
-  @apply font-semibold text-gray-900 dark:text-white;
+  @apply font-semibold text-slate-900;
+}
+
+.dark .markdown-renderer strong {
+  @apply text-white;
 }
 
 .markdown-renderer em {
@@ -85,15 +187,24 @@
 }
 
 .markdown-renderer pre::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(148, 163, 184, 0.1);
   border-radius: 4px;
 }
 
 .markdown-renderer pre::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
 .markdown-renderer pre::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.dark .markdown-renderer pre::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.4);
+}
+
+.dark .markdown-renderer pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.6);
 }

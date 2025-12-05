@@ -379,3 +379,19 @@ export interface WeatherForecastInfoResponse {
   /** 数据更新时间 */
   updateTime: string;
 }
+
+/**
+ * 每日天气预报信息响应（包含实时天气、空气质量和预报数据）
+ */
+export interface WeatherDailyInfoResponse {
+  /** 位置信息 */
+  location: LocationInfo;
+  /** 实时天气 */
+  weather: WeatherNowResponse;
+  /** 天气预报 */
+  forecast: WeatherForecastResponse;
+  /** 空气质量 */
+  air?: AirNowResponse;
+  /** 数据更新时间 */
+  updateTime: string;
+}

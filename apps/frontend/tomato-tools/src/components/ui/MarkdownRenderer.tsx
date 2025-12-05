@@ -6,6 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import { Button, message } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import "highlight.js/styles/atom-one-dark.css"; // 深色主题
 import "./MarkdownRenderer.css";
 
 interface MarkdownRendererProps {
@@ -38,23 +39,30 @@ export default function MarkdownRenderer({
             const codeString = String(children).replace(/\n$/, "");
 
             return !inline && match ? (
-              <div className="relative">
-                <div className="flex items-center justify-between rounded-t-md bg-gray-800 px-4 py-2">
-                  <span className="text-sm text-gray-300">{language}</span>
+              <div className="code-block-wrapper my-4">
+                <div className="flex items-center justify-between rounded-t-lg border-b border-slate-700/50 bg-slate-800/50 px-3 py-2 backdrop-blur-sm dark:border-slate-600/50 dark:bg-slate-900/50">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 dark:text-slate-400">
+                    {language}
+                  </span>
                   <Button
                     type="text"
                     size="small"
                     icon={<CopyOutlined />}
                     onClick={() => handleCopyCode(codeString)}
-                    className="text-gray-300 hover:text-white"
+                    className="copy-button text-slate-400 transition-colors hover:text-slate-100 dark:text-slate-500 dark:hover:text-slate-200"
                   >
                     复制
                   </Button>
                 </div>
+                <pre className="!mt-0 !rounded-t-none">
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                </pre>
               </div>
             ) : (
               <code
-                className="rounded bg-gray-100 px-1 py-0.5 text-sm dark:bg-gray-700"
+                className="rounded bg-slate-100 px-1.5 py-0.5 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 {...props}
               >
                 {children}

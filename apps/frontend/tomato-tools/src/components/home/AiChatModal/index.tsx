@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Modal, Button, Input, message, Switch, Tooltip } from "antd";
+import { Button, Input, message, Switch, Tooltip } from "antd";
 import { SendOutlined, RobotOutlined, GlobalOutlined } from "@ant-design/icons";
 import ChatComponent from "./ChatComponent";
 import SessionSidebar from "./SessionSidebar";
+import GModal from "@/components/ui/Modal";
 import { createContextMemoryManager } from "@/lib/contextMemory";
 import "./styles.css";
 import type { ChatSession, AiChatModalProps, ChatApiRequest } from "./types";
@@ -414,7 +415,7 @@ export default function AiChatModal({
   };
 
   return (
-    <Modal
+    <GModal
       title={
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -433,11 +434,10 @@ export default function AiChatModal({
           </div>
         </div>
       }
-      open={open}
-      onCancel={handleClose}
-      footer={null}
+      visible={open}
+      onClose={handleClose}
       width={width}
-      style={{ top: 20 }}
+      showFullscreen={true}
       styles={{
         body: {
           padding: 0,
@@ -450,86 +450,85 @@ export default function AiChatModal({
       maskClosable={false}
       className="ai-chat-modal"
     >
-      {/* 侧边栏 */}
-      <SessionSidebar
-        sessions={sessions}
-        currentSessionId={currentSessionId}
-        collapsed={sidebarCollapsed}
-        onSessionSelect={handleSessionSelect}
-        onSessionCreate={handleSessionCreate}
-        onSessionDelete={handleSessionDelete}
-        onSessionRename={handleSessionRename}
-        onToggleCollapse={handleToggleSidebar}
-      />
-
-      {/* 主聊天区域 */}
-      <div className="flex flex-1 flex-col">
-        <ChatComponent
-          model={currentSession?.model || model}
-          messages={messages}
-          loading={isLoading}
-          streamingMessage={streamingMessage}
-          isStreaming={isStreaming}
-          onMessageDelete={handleMessageDelete}
+      <div className="flex h-[100%] overflow-hidden">
+        <SessionSidebar
+          sessions={sessions}
+          currentSessionId={currentSessionId}
+          collapsed={sidebarCollapsed}
+          onSessionSelect={handleSessionSelect}
+          onSessionCreate={handleSessionCreate}
+          onSessionDelete={handleSessionDelete}
+          onSessionRename={handleSessionRename}
+          onToggleCollapse={handleToggleSidebar}
         />
 
-        {/* 输入区域 */}
-        <div className="border-t bg-white p-4 dark:border-gray-600 dark:bg-gray-900">
-          <div className="flex space-x-3">
-            <Input.TextArea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="输入你的问题... (Enter发送，Shift+Enter换行)"
-              autoSize={{ minRows: 1, maxRows: 3 }}
-              disabled={isLoading || isStreaming}
-              className="flex-1"
-              style={{ resize: "none" }}
-            />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              onClick={handleSendMessage}
-              disabled={
-                !inputValue.trim() ||
-                isLoading ||
-                isStreaming ||
-                !currentSessionId
-              }
-              size="large"
-              className="flex-shrink-0"
-            >
-              {isStreaming ? "输出中..." : "发送"}
-            </Button>
-          </div>
+        <div className="flex flex-1 flex-col">
+          <ChatComponent
+            model={currentSession?.model || model}
+            messages={messages}
+            loading={isLoading}
+            streamingMessage={streamingMessage}
+            isStreaming={isStreaming}
+            onMessageDelete={handleMessageDelete}
+          />
 
-          {/* 底部控制栏 */}
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Tooltip title="开启后AI将能够搜索最新信息">
-                <div className="flex items-center space-x-2">
-                  <GlobalOutlined className="text-gray-500 dark:text-gray-400" />
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    联网查询
-                  </span>
-                  <Switch
-                    size="small"
-                    checked={isOnlineSearch}
-                    onChange={setIsOnlineSearch}
-                    disabled={isLoading || isStreaming}
-                  />
-                </div>
-              </Tooltip>
+          {/* 输入区域 */}
+          <div className="border-t bg-white p-4 dark:border-gray-600 dark:bg-gray-900">
+            <div className="flex space-x-3">
+              <Input.TextArea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="输入你的问题... (Enter发送，Shift+Enter换行)"
+                autoSize={{ minRows: 1, maxRows: 3 }}
+                disabled={isLoading || isStreaming}
+                className="flex-1"
+                style={{ resize: "none" }}
+              />
+              <Button
+                icon={<SendOutlined />}
+                onClick={handleSendMessage}
+                disabled={
+                  !inputValue.trim() ||
+                  isLoading ||
+                  isStreaming ||
+                  !currentSessionId
+                }
+                size="large"
+                className="flex-shrink-0"
+              >
+                {isStreaming ? "输出中..." : "发送"}
+              </Button>
+            </div>
+
+            {/* 底部控制栏 */}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Tooltip title="开启后AI将能够搜索最新信息">
+                  <div className="flex items-center space-x-2">
+                    <GlobalOutlined className="text-gray-500 dark:text-gray-400" />
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      联网查询
+                    </span>
+                    <Switch
+                      size="small"
+                      checked={isOnlineSearch}
+                      onChange={setIsOnlineSearch}
+                      disabled={isLoading || isStreaming}
+                    />
+                  </div>
+                </Tooltip>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  基于 {currentSession?.model || model} 模型提供服务
+                </span>
+              </div>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                基于 {currentSession?.model || model} 模型提供服务
+                按 Enter 发送，Shift + Enter 换行
               </span>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              按 Enter 发送，Shift + Enter 换行
-            </span>
           </div>
         </div>
       </div>
-    </Modal>
+    </GModal>
   );
 }
