@@ -33,7 +33,7 @@ interface CollapsiblePanelProps {
   expandedTitle?: string;
 }
 
-const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
+function CollapsiblePanel({
   collapsed,
   onToggleCollapse,
   children,
@@ -46,7 +46,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
   buttonClassName = "",
   collapsedTitle = "展开",
   expandedTitle = "收起",
-}) => {
+}: CollapsiblePanelProps) {
   // 默认按钮位置
   const defaultButtonPosition =
     position === "left"
@@ -111,6 +111,6 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default CollapsiblePanel;

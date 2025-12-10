@@ -102,7 +102,7 @@ interface NotificationResponse {
   pageSize: number;
 }
 
-const NotificationManagement: React.FC = () => {
+export default function NotificationManagement() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -778,6 +778,4 @@ const NotificationManagement: React.FC = () => {
       </div>
     </AdminProtected>
   );
-};
-
-export default NotificationManagement;
+}

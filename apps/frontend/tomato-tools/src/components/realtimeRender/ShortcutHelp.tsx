@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React from "react";
 import { Modal, Typography, Space, Divider } from "antd";
@@ -11,7 +11,7 @@ interface ShortcutHelpProps {
   onClose: () => void;
 }
 
-const ShortcutHelp: React.FC<ShortcutHelpProps> = ({ visible, onClose }) => {
+const ShortcutHelp = ({ visible, onClose }: ShortcutHelpProps) => {
   const { isMobile } = useDeviceDetect();
 
   const shortcuts = [
@@ -67,16 +67,16 @@ const ShortcutHelp: React.FC<ShortcutHelpProps> = ({ visible, onClose }) => {
             <Title level={5} className="mb-3 text-primary">
               {category.category}
             </Title>
-            <Space direction="vertical" size="small" className="w-full mb-4">
+            <Space direction="vertical" size="small" className="mb-4 w-full">
               {category.items.map((item, itemIndex) => (
                 <div
                   key={itemIndex}
-                  className="flex justify-between items-center py-1"
+                  className="flex items-center justify-between py-1"
                 >
                   <Text className="flex-1">{item.description}</Text>
                   <Text
                     code
-                    className="ml-4 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+                    className="ml-4 rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-700"
                   >
                     {item.key}
                   </Text>
@@ -87,9 +87,9 @@ const ShortcutHelp: React.FC<ShortcutHelpProps> = ({ visible, onClose }) => {
           </div>
         ))}
       </div>
-      
+
       <Divider className="my-4" />
-      
+
       <div className="text-center">
         <Text type="secondary" className="text-sm">
           💡 提示：在编辑器中按 F1 可查看更多快捷键

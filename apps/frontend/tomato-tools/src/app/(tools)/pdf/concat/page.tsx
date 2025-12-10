@@ -13,7 +13,7 @@ export interface CustomUploadFile extends RcFileType {
   file: RcFileType;
 }
 
-const ConcatPage: React.FC = () => {
+export default function ConcatPage() {
   const [fileList, setFileList] = useState<CustomUploadFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -134,6 +134,4 @@ const ConcatPage: React.FC = () => {
       )}
     </Container>
   );
-};
-
-export default ConcatPage;
+}

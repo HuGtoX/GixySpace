@@ -33,7 +33,7 @@ interface WeatherChartProps {
   forecast: WeatherForecastResponse;
 }
 
-const WeatherChart: React.FC<WeatherChartProps> = ({ forecast }) => {
+const WeatherChart = ({ forecast }: WeatherChartProps) => {
   const chartRef = useRef<ChartJS<"line">>(null);
   const [isDark, setIsDark] = useState(false);
 

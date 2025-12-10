@@ -49,7 +49,7 @@ interface CurrencyRatesResponse {
   error?: string;
 }
 
-const CurrencyRates: React.FC = () => {
+const CurrencyRates = () => {
   const [loading, setLoading] = useState(false);
   const [rates, setRates] = useState<CurrencyRate[]>([]);
   const [selectedBase, setSelectedBase] = useState("CNY");

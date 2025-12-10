@@ -11,7 +11,7 @@ type DraggableListProps = {
   handleDelete: (uid: string) => void;
 };
 
-const DraggableList: React.FC<DraggableListProps> = (props) => {
+const DraggableList = (props: DraggableListProps) => {
   const { items, onChange, handleDelete } = props;
 
   const [draggingIndex, setDraggingIndex] = useState(-1);

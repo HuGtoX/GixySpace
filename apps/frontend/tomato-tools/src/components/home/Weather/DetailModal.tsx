@@ -21,14 +21,14 @@ interface IWeatherDetailModalProps {
   historyRefreshTrigger?: number; // 用于触发历史列表刷新
 }
 
-const DetailModal: React.FC<IWeatherDetailModalProps> = ({
+function DetailModal({
   isModalVisible,
   setIsModalVisible,
   weatherData,
   selectedCity,
   onCityChange,
   historyRefreshTrigger,
-}) => {
+}: IWeatherDetailModalProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   if (!weatherData) return null;
@@ -189,6 +189,6 @@ const DetailModal: React.FC<IWeatherDetailModalProps> = ({
       </div>
     </GModal>
   );
-};
+}
 
 export default DetailModal;

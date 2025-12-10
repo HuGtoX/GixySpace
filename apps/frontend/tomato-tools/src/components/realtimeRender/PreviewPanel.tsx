@@ -21,13 +21,13 @@ interface PreviewPanelProps {
   onIframeLoad: () => void;
 }
 
-const PreviewPanel: React.FC<PreviewPanelProps> = ({
+function PreviewPanel({
   iframeRef,
   status,
   logs,
   onClearLogs,
   onIframeLoad,
-}) => {
+}: PreviewPanelProps) {
   const { isMobile } = useDeviceDetect();
   const { isDarkMode } = useTheme();
 
@@ -151,6 +151,6 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
       </Splitter.Panel>
     </Splitter>
   );
-};
+}
 
 export default PreviewPanel;

@@ -11,7 +11,7 @@ interface AdminProtectedProps {
   children: React.ReactNode;
 }
 
-const AdminProtected: React.FC<AdminProtectedProps> = ({ children }) => {
+const AdminProtected = ({ children }: AdminProtectedProps) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
