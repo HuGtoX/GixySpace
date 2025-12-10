@@ -36,11 +36,11 @@ interface CityWeatherData {
   error: boolean;
 }
 
-const HistoryCityList: React.FC<HistoryCityListProps> = ({
+const HistoryCityList = ({
   selectedCity,
   onCitySelect,
   refreshTrigger,
-}) => {
+}: HistoryCityListProps) => {
   const [historyCities, setHistoryCities] = useState<HistoryCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [weatherDataMap, setWeatherDataMap] = useState<

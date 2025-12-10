@@ -58,7 +58,7 @@ const categoryColors: Record<string, string> = {
   其他: "default",
 };
 
-const DocDetailPage: React.FC = () => {
+export default function DocDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
@@ -292,6 +292,4 @@ const DocDetailPage: React.FC = () => {
       </div>
     </AdminProtected>
   );
-};
-
-export default DocDetailPage;
+}

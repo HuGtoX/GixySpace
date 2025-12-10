@@ -20,7 +20,7 @@ interface CodeEditorProps {
   showShortcutHelp: boolean;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({
+function CodeEditor({
   code,
   onChange,
   onRun,
@@ -30,7 +30,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   onToggleShortcutHelp,
   isFullscreen,
   showShortcutHelp,
-}) => {
+}: CodeEditorProps) {
   const { isMobile } = useDeviceDetect();
   const { isDarkMode } = useTheme();
   const editorRef = useRef<unknown>(null);
@@ -137,16 +137,34 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     );
 
     // 添加快捷键
-    (editor as { addCommand: (keyMod: number, callback: () => void) => void }).addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
-    (editor as { addCommand: (keyMod: number, callback: (e: { preventDefault: () => void }) => void) => void }).addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, (e: { preventDefault: () => void }) => {
-      e.preventDefault();
-      onRun();
-    });
+    (
+      editor as { addCommand: (keyMod: number, callback: () => void) => void }
+    ).addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun);
+    (
+      editor as {
+        addCommand: (
+          keyMod: number,
+          callback: (e: { preventDefault: () => void }) => void,
+        ) => void;
+      }
+    ).addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+      (e: { preventDefault: () => void }) => {
+        e.preventDefault();
+        onRun();
+      },
+    );
   };
 
   const handleFormat = () => {
     if (editorRef.current) {
-      (editorRef.current as { getAction: (action: string) => { run: () => void } }).getAction("editor.action.formatDocument").run();
+      (
+        editorRef.current as {
+          getAction: (action: string) => { run: () => void };
+        }
+      )
+        .getAction("editor.action.formatDocument")
+        .run();
     }
   };
 
@@ -214,6 +232,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       )}
     </>
   );
-};
+}
 
 export default CodeEditor;

@@ -1,7 +1,15 @@
-import React from 'react';
-import { Card } from 'antd';
-import { AppstoreOutlined, BarcodeOutlined, LinkOutlined, LockOutlined, QrcodeOutlined, PictureOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import Link from 'next/link';
+import React from "react";
+import { Card } from "antd";
+import {
+  AppstoreOutlined,
+  BarcodeOutlined,
+  LinkOutlined,
+  LockOutlined,
+  QrcodeOutlined,
+  PictureOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
+import Link from "next/link";
 
 interface ToolItemProps {
   icon: React.ReactNode;
@@ -9,12 +17,17 @@ interface ToolItemProps {
   href: string;
 }
 
-const ToolItem: React.FC<ToolItemProps> = ({ icon, title, href }) => {
+const ToolItem = ({ icon, title, href }: ToolItemProps) => {
   return (
-    <Link href={href} className="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+    <Link
+      href={href}
+      className="block rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+    >
       <div className="flex items-center space-x-3">
-        <div className="text-blue-500 text-lg">{icon}</div>
-        <span className="text-sm text-gray-700 dark:text-gray-300">{title}</span>
+        <div className="text-lg text-blue-500">{icon}</div>
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {title}
+        </span>
       </div>
     </Link>
   );
@@ -23,34 +36,34 @@ const ToolItem: React.FC<ToolItemProps> = ({ icon, title, href }) => {
 const relatedTools = [
   {
     icon: <BarcodeOutlined />,
-    title: '条形码生成器',
-    href: '/barcode/generate'
+    title: "条形码生成器",
+    href: "/barcode/generate",
   },
   {
     icon: <LinkOutlined />,
-    title: '短链接生成器',
-    href: '/url/shorten'
+    title: "短链接生成器",
+    href: "/url/shorten",
   },
   {
     icon: <LockOutlined />,
-    title: '文本加密工具',
-    href: '/text/encrypt'
+    title: "文本加密工具",
+    href: "/text/encrypt",
   },
   {
     icon: <QrcodeOutlined />,
-    title: '二维码解码工具',
-    href: '/qrcode/decode'
+    title: "二维码解码工具",
+    href: "/qrcode/decode",
   },
   {
     icon: <PictureOutlined />,
-    title: '图片转二维码',
-    href: '/image/to-qrcode'
+    title: "图片转二维码",
+    href: "/image/to-qrcode",
   },
   {
     icon: <ThunderboltOutlined />,
-    title: '批量生成器',
-    href: '/batch/generator'
-  }
+    title: "批量生成器",
+    href: "/batch/generator",
+  },
 ];
 
 function RelateTools() {

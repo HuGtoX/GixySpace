@@ -23,7 +23,7 @@ interface ToolbarButtonsProps {
   isFullscreen: boolean;
 }
 
-const ToolbarButtons: React.FC<ToolbarButtonsProps> = ({
+function ToolbarButtons({
   onRun,
   onCopy,
   onRefresh,
@@ -31,7 +31,7 @@ const ToolbarButtons: React.FC<ToolbarButtonsProps> = ({
   onToggleShortcutHelp,
   onFormat,
   isFullscreen,
-}) => {
+}: ToolbarButtonsProps) {
   const { isMobile } = useDeviceDetect();
 
   return (
@@ -96,6 +96,6 @@ const ToolbarButtons: React.FC<ToolbarButtonsProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default ToolbarButtons;

@@ -11,12 +11,12 @@ interface CodeRendererProps {
   onConsoleLog?: (log: ConsoleLog) => void;
 }
 
-const CodeRenderer: React.FC<CodeRendererProps> = ({
+function CodeRenderer({
   code,
   iframeRef,
   renderKey,
   onConsoleLog,
-}) => {
+}: CodeRendererProps) {
   const { isDarkMode } = useTheme();
 
   useEffect(() => {
@@ -297,6 +297,6 @@ const CodeRenderer: React.FC<CodeRendererProps> = ({
   }, [code, renderKey, isDarkMode, onConsoleLog, iframeRef]);
 
   return null; // 这是一个逻辑组件，不渲染任何UI
-};
+}
 
 export default CodeRenderer;

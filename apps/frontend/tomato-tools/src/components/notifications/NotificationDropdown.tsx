@@ -86,7 +86,7 @@ interface NotificationResponse {
   pageSize: number;
 }
 
-const NotificationDropdown: React.FC = () => {
+const NotificationDropdown = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);

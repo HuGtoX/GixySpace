@@ -34,7 +34,7 @@ export interface FullscreenButtonProps extends Omit<ButtonProps, "onClick"> {
  * />
  * ```
  */
-export const FullscreenButton: React.FC<FullscreenButtonProps> = ({
+export function FullscreenButton({
   isFullscreen,
   onClick,
   fullscreenTooltip = "全屏显示",
@@ -42,7 +42,7 @@ export const FullscreenButton: React.FC<FullscreenButtonProps> = ({
   showTooltip = true,
   fullscreenIcon,
   exitFullscreenIcon,
-}) => {
+}: FullscreenButtonProps) {
   // 渲染图标
   const renderIcon = () => {
     if (isFullscreen) {
@@ -71,6 +71,6 @@ export const FullscreenButton: React.FC<FullscreenButtonProps> = ({
   }
 
   return button;
-};
+}
 
 export default FullscreenButton;

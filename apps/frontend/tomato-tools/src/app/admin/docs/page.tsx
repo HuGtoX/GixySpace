@@ -74,7 +74,7 @@ const categoryColors: Record<string, string> = {
   其他: "default",
 };
 
-const DocsManagement: React.FC = () => {
+export default function DocsManagement() {
   const [docs, setDocs] = useState<DocInfo[]>([]);
   const [filteredDocs, setFilteredDocs] = useState<DocInfo[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -472,6 +472,4 @@ const DocsManagement: React.FC = () => {
       </div>
     </AdminProtected>
   );
-};
-
-export default DocsManagement;
+}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useRef } from "react";
 import { Button, Tooltip } from "antd";
@@ -18,7 +18,7 @@ interface ConsolePanelProps {
   onClear: () => void;
 }
 
-const ConsolePanel: React.FC<ConsolePanelProps> = ({ logs, onClear }) => {
+const ConsolePanel = ({ logs, onClear }: ConsolePanelProps) => {
   const { isDarkMode } = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +115,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({ logs, onClear }) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* 固定头部 */}
       <div
         style={{

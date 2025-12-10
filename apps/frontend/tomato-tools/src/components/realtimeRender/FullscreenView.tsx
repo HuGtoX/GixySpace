@@ -26,7 +26,7 @@ interface FullscreenViewProps {
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
 }
 
-const FullscreenView: React.FC<FullscreenViewProps> = ({
+function FullscreenView({
   code,
   onChange,
   onRun,
@@ -42,7 +42,7 @@ const FullscreenView: React.FC<FullscreenViewProps> = ({
   onIframeLoad,
   onConsoleLog,
   iframeRef,
-}) => {
+}: FullscreenViewProps) {
   const { isMobile } = useDeviceDetect();
 
   if (isMobile) {
@@ -117,6 +117,6 @@ const FullscreenView: React.FC<FullscreenViewProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default FullscreenView;
