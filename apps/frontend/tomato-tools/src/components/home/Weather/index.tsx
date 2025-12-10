@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaSync,
   FaMapPin,
@@ -23,28 +23,7 @@ import DetailModal from "./DetailModal";
 import type { CityData } from "./CitySearch";
 
 // 城市数据 - 扩展更多城市
-const cities: CityData[] = [
-  { name: "深圳", lat: 22.56, lon: 113.91, province: "广东省" },
-  { name: "北京", lat: 39.9, lon: 116.4, province: "北京市" },
-  { name: "上海", lat: 31.23, lon: 121.47, province: "上海市" },
-  { name: "广州", lat: 23.13, lon: 113.26, province: "广东省" },
-  { name: "成都", lat: 30.57, lon: 104.06, province: "四川省" },
-  { name: "杭州", lat: 30.25, lon: 120.17, province: "浙江省" },
-  { name: "重庆", lat: 29.56, lon: 106.55, province: "重庆市" },
-  { name: "西安", lat: 34.27, lon: 108.93, province: "陕西省" },
-  { name: "天津", lat: 39.13, lon: 117.2, province: "天津市" },
-  { name: "南京", lat: 32.05, lon: 118.78, province: "江苏省" },
-  { name: "武汉", lat: 30.59, lon: 114.31, province: "湖北省" },
-  { name: "长沙", lat: 28.23, lon: 112.94, province: "湖南省" },
-  { name: "郑州", lat: 34.75, lon: 113.65, province: "河南省" },
-  { name: "济南", lat: 36.65, lon: 117.12, province: "山东省" },
-  { name: "青岛", lat: 36.07, lon: 120.38, province: "山东省" },
-  { name: "大连", lat: 38.91, lon: 121.62, province: "辽宁省" },
-  { name: "沈阳", lat: 41.8, lon: 123.43, province: "辽宁省" },
-  { name: "哈尔滨", lat: 45.75, lon: 126.65, province: "黑龙江省" },
-  { name: "长春", lat: 43.88, lon: 125.32, province: "吉林省" },
-  { name: "福州", lat: 26.08, lon: 119.3, province: "福建省" },
-];
+const cities: CityData[] = [{ name: "广东省-深圳", locationID: 101280601 }];
 
 // 根据AQI值获取对应的颜色
 const getAqiColor = (aqi: number) => {
@@ -65,6 +44,47 @@ const getWeatherIconColor = (weatherText: string) => {
   return "text-gray-600";
 };
 
+// 本地存储键名
+const LAST_CITY_KEY = "weather_last_city";
+
+// 从本地存储获取上次查询的城市
+const getLastCity = (): CityData | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(LAST_CITY_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // 验证数据结构是否完整
+      if (parsed && parsed.name && parsed.locationID) {
+        return {
+          name: parsed.name,
+          locationID: parsed.locationID,
+        };
+      }
+    }
+  } catch (error) {
+    console.error("获取上次查询城市失败:", error);
+    // 清除无效的缓存数据
+    localStorage.removeItem(LAST_CITY_KEY);
+  }
+  return null;
+};
+
+// 保存城市到本地存储
+const saveLastCity = (city: CityData) => {
+  if (typeof window === "undefined") return;
+  try {
+    // 确保只保存必要的字段
+    const cityToSave: CityData = {
+      name: city.name,
+      locationID: city.locationID,
+    };
+    localStorage.setItem(LAST_CITY_KEY, JSON.stringify(cityToSave));
+  } catch (error) {
+    console.error("保存城市到本地存储失败:", error);
+  }
+};
+
 export default function Weather() {
   const [weatherData, setWeatherData] =
     useState<WeatherDailyInfoResponse | null>(null);
@@ -76,7 +96,12 @@ export default function Weather() {
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制模态框显示
-  const [selectedCity, setSelectedCity] = useState<CityData>(cities[0]);
+  // 初始化时从本地存储读取上次查询的城市，如果没有则使用默认城市
+  const [selectedCity, setSelectedCity] = useState<CityData>(
+    getLastCity() || cities[0],
+  );
+  // 用于触发历史列表刷新的时间戳
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState<number>(0);
 
   // 缓存过期时间（分钟）
   const CACHE_EXPIRE_MINUTES = 15;
@@ -105,7 +130,7 @@ export default function Weather() {
 
       // 缓存不存在或已过期，从API获取新数据
       const response = await fetch(
-        `/api/weather/daily?location=${selectedCity.lon},${selectedCity.lat}&days=7`,
+        `/api/weather/daily?location=${selectedCity.locationID}&days=7`,
       );
       if (!response.ok)
         throw new Error(
@@ -215,33 +240,35 @@ export default function Weather() {
     }
   };
 
-  // 记录城市访问
-  const recordCityVisit = async (city: CityData) => {
-    try {
-      await fetch("/api/weather/history", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cityName: city.name,
-          cityNameEn: city.name, // 可以后续添加英文名
-          latitude: city.lat,
-          longitude: city.lon,
-          province: city.province,
-          locationId: city.locationId,
-        }),
-      });
-    } catch (error) {
-      console.error("记录城市访问失败:", error);
-      // 静默失败，不影响主流程
-    }
-  };
-
   // 城市切换时获取天气数据
   useEffect(() => {
+    // 记录城市访问
+    const recordCityVisit = async (city: CityData) => {
+      try {
+        await fetch("/api/weather/history", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cityName: city.name,
+            cityNameEn: city.name,
+            locationId: city.locationID,
+          }),
+        });
+      } catch (error) {
+        console.error("记录城市访问失败:", error);
+        // 静默失败，不影响主流程
+      }
+    };
+
     fetchWeather();
-    recordCityVisit(selectedCity); // 记录访问
+    recordCityVisit(selectedCity).then(() => {
+      // 记录成功后，触发历史列表刷新
+      setHistoryRefreshTrigger(Date.now());
+    }); // 记录访问
+    saveLastCity(selectedCity); // 保存到本地存储
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCity]);
 
   // 添加清除缓存的辅助方法
@@ -300,7 +327,6 @@ export default function Weather() {
       >
         {weatherData ? (
           <div className="animate-fadeIn mx-auto w-full max-w-sm">
-            {/* 核心天气信息 */}
             <div className="flex items-center justify-between">
               {/* 左侧：天气图标和状态 */}
               <div className="flex items-center space-x-2.5">
@@ -314,7 +340,7 @@ export default function Weather() {
                       className="text-gray-500 dark:text-gray-400"
                     />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {selectedCity.name}
+                      {selectedCity.name.split("-").slice(1).join("-")}
                     </span>
                   </div>
                   <div className="mt-0.5 text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -486,6 +512,7 @@ export default function Weather() {
         weatherData={weatherData}
         selectedCity={selectedCity}
         onCityChange={setSelectedCity}
+        historyRefreshTrigger={historyRefreshTrigger}
       />
     </SectionCard>
   );

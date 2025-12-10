@@ -35,6 +35,7 @@
     "antd": "^6.0.0",
     "axios": "^1.10.0",
     "chart.js": "^4.5.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "dayjs": "^1.11.13",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.2",

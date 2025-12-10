@@ -11,8 +11,8 @@ const recordCityVisitSchema = z.object({
   cityName: z.string().min(1, "城市名称不能为空"),
   cityNameEn: z.string().optional(),
   locationId: z.string().optional(),
-  latitude: z.number(),
-  longitude: z.number(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   province: z.string().optional(),
 });
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     const correlationId = generateCorrelationId();
     const authService = new AuthService(correlationId);
-    const user = await authService.getCurrentUser();
+    const { user } = await authService.getCurrentUser();
     if (!user) {
       return NextResponse.json(
         { success: false, error: "未登录" },
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const histories = await db
       .select()
       .from(weatherCityHistory)
-      .where(eq(weatherCityHistory.userId, user.user?.id!))
+      .where(eq(weatherCityHistory.userId, user.id))
       .orderBy(desc(weatherCityHistory.lastVisitAt))
       .limit(Math.min(limit, 50)); // 最多返回50条
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     // 获取当前用户
     const correlationId = generateCorrelationId();
     const authService = new AuthService(correlationId);
-    const user = await authService.getCurrentUser();
+    const { user } = await authService.getCurrentUser();
     if (!user) {
       return NextResponse.json(
         { success: false, error: "未登录" },
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       .from(weatherCityHistory)
       .where(
         and(
-          eq(weatherCityHistory.userId, user.user?.id!),
+          eq(weatherCityHistory.userId, user.id),
           eq(weatherCityHistory.cityName, validatedData.cityName),
         ),
       )
@@ -114,12 +114,10 @@ export async function POST(request: NextRequest) {
       const newRecord = await db
         .insert(weatherCityHistory)
         .values({
-          userId: user.user?.id!,
+          userId: user.id!,
           cityName: validatedData.cityName,
           cityNameEn: validatedData.cityNameEn,
           locationId: validatedData.locationId,
-          latitude: validatedData.latitude.toString(),
-          longitude: validatedData.longitude.toString(),
           province: validatedData.province,
           visitCount: 1,
         })
@@ -164,7 +162,7 @@ export async function DELETE(request: NextRequest) {
     // 获取当前用户
     const correlationId = generateCorrelationId();
     const authService = new AuthService(correlationId);
-    const user = await authService.getCurrentUser();
+    const { user } = await authService.getCurrentUser();
     if (!user) {
       return NextResponse.json(
         { success: false, error: "未登录" },
@@ -189,7 +187,7 @@ export async function DELETE(request: NextRequest) {
       .where(
         and(
           eq(weatherCityHistory.id, id),
-          eq(weatherCityHistory.userId, user.user?.id!),
+          eq(weatherCityHistory.userId, user.id!),
         ),
       )
       .returning();

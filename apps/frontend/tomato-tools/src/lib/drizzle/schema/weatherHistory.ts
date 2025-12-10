@@ -21,8 +21,8 @@ export const weatherCityHistory = pgTable(
     cityName: text("city_name").notNull(), // 城市名称（中文）
     cityNameEn: text("city_name_en"), // 城市名称（英文）
     locationId: text("location_id"), // 和风天气的Location ID
-    latitude: decimal("latitude", { precision: 10, scale: 6 }).notNull(), // 纬度
-    longitude: decimal("longitude", { precision: 10, scale: 6 }).notNull(), // 经度
+    latitude: decimal("latitude", { precision: 10, scale: 6 }), // 纬度
+    longitude: decimal("longitude", { precision: 10, scale: 6 }), // 经度
     province: text("province"), // 省份/直辖市
     visitCount: integer("visit_count").default(1).notNull(), // 访问次数
     lastVisitAt: timestamp("last_visit_at", { withTimezone: true })

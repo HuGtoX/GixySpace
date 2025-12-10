@@ -13,7 +13,7 @@ interface CityHistoryItem {
   id: string;
   cityName: string;
   cityNameEn?: string;
-  locationId?: string;
+  locationId: string;
   latitude: string;
   longitude: string;
   province?: string;
@@ -85,10 +85,7 @@ export default function CityHistorySidebar({
   const handleSelectCity = (history: CityHistoryItem) => {
     const city: CityData = {
       name: history.cityName,
-      lat: parseFloat(history.latitude),
-      lon: parseFloat(history.longitude),
-      province: history.province,
-      locationId: history.locationId,
+      locationID: history.locationId,
     };
     onSelectCity(city);
   };
