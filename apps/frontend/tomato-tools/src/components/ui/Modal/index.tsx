@@ -32,6 +32,7 @@ function GModal(props: GModalProps) {
     defaultFullscreen = false,
     onFullscreenChange,
     width = 500,
+    height,
     style,
     styles,
     destroyOnHidden = false,
@@ -64,6 +65,11 @@ function GModal(props: GModalProps) {
   };
 
   const modalStyles = {
+    body: {
+      display: "flex",
+      flexDirection: "column",
+      height: height ? height : "auto",
+    },
     ...styles,
     container: {
       ...(isFullscreen
@@ -138,7 +144,7 @@ function GModal(props: GModalProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          style={{ width: "100%" }}
+          style={{ width: "100%", height: "100%" }}
         >
           <>
             {isMacOSStyle && renderMacOSHeader()}
