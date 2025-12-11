@@ -32,7 +32,7 @@ export function OptimizedImage({
     <div className={`relative ${className || ""}`}>
       {/* 加载占位符 */}
       {loading && showPlaceholder && (
-        <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-gray-700" />
+        <div className="absolute inset-0 animate-pulse bg-slate-200 dark:bg-gray-700" />
       )}
 
       <Image

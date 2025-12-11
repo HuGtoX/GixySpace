@@ -21,7 +21,7 @@ const NewsSection = () => {
   const items = [
     {
       key: "hot",
-      label: "热搜榜",
+      label: "实时热搜",
       children: (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {newsPlatforms.slice(0, 6).map((platform) => (
@@ -66,6 +66,7 @@ const NewsSection = () => {
         activeKey={activeKey}
         onChange={handleTabChange}
         items={items}
+        tabPlacement={"start"}
         tabBarStyle={{ marginBottom: "16px" }}
       />
     </div>

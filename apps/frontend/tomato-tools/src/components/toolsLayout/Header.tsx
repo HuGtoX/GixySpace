@@ -12,7 +12,6 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 // 顶部导航栏组件
@@ -73,7 +72,7 @@ const Header = () => {
 
   return (
     <Affix>
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 shadow-sm backdrop-blur-md dark:border-gray-700 dark:bg-gray-800/80">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 shadow-sm backdrop-blur-md dark:border-gray-700 dark:bg-gray-800/80">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center space-x-4">
             <div
@@ -81,7 +80,7 @@ const Header = () => {
               onClick={() => router.push("/")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg">
-                <OptimizedImage
+                <img
                   src="/tomato.svg"
                   alt="tomato logo"
                   width={40}
@@ -115,7 +114,7 @@ const Header = () => {
             {user ? (
               <div className="group flex items-center space-x-3">
                 <div className="items-en hidden md:flex">
-                  <span className="max-w-[80px] cursor-pointer truncate text-sm font-semibold text-gray-800 transition-colors group-hover:text-primary dark:text-gray-200 dark:group-hover:text-dark-primary">
+                  <span className="max-w-[80px] cursor-pointer truncate text-sm font-semibold text-slate-800 transition-colors group-hover:text-primary dark:text-gray-200 dark:group-hover:text-dark-primary">
                     {user.isAnonymous ? user.id : user.fullName || user.email}
                   </span>
                 </div>
@@ -158,7 +157,7 @@ const Header = () => {
             ) : (
               <div className="group flex items-center space-x-3">
                 <div className="hidden flex-col items-end md:flex">
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <span className="text-xs font-medium text-slate-600 dark:text-gray-400">
                     未登录
                   </span>
                 </div>
@@ -169,7 +168,7 @@ const Header = () => {
                   <Avatar
                     size={42}
                     icon={<FaUser />}
-                    className="border-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-primary hover:bg-primary/10 dark:border-gray-600 dark:hover:border-dark-primary dark:hover:bg-dark-primary/10"
+                    className="border-2 border-dashed border-slate-200 transition-all duration-200 hover:scale-105 hover:border-primary hover:bg-primary/10 dark:border-gray-600 dark:hover:border-dark-primary dark:hover:bg-dark-primary/10"
                   />
                 </div>
               </div>
