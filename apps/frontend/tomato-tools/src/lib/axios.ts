@@ -4,13 +4,14 @@ import type {
   AxiosInstance,
   AxiosResponse,
 } from "axios";
+import { ApiResponse } from "@/types";
 import { message } from "antd";
 
 declare module "axios" {
   interface AxiosInstance {
     request<T = unknown>(config: AxiosRequestConfig): Promise<T>;
     get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>;
-    post<T = unknown>(
+    post<T = ApiResponse<any>>(
       url: string,
       data?: unknown,
       config?: AxiosRequestConfig,

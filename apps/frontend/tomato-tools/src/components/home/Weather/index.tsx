@@ -5,10 +5,11 @@ import {
   FaSync,
   FaMapPin,
   FaCloud,
-  FaRobot,
+  FaLightbulb,
   FaInfoCircle,
   FaWind,
   FaTint,
+  FaImage,
 } from "react-icons/fa";
 import { Button, Spin } from "antd";
 import SectionCard from "@/components/ui/SectionCard";
@@ -22,6 +23,7 @@ import {
   clearCachedData,
 } from "@/lib/sessionCache";
 import DetailModal from "./DetailModal";
+import PosterModal from "./PosterModal";
 import type { CityData } from "./CitySearch";
 
 // 城市数据 - 扩展更多城市
@@ -98,6 +100,7 @@ export default function Weather() {
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // 控制模态框显示
+  const [isPosterModalVisible, setIsPosterModalVisible] = useState(false); // 控制画报模态框显示
   // 初始化时从本地存储读取上次查询的城市，如果没有则使用默认城市
   const [selectedCity, setSelectedCity] = useState<CityData>(
     getLastCity() || cities[0],
@@ -304,11 +307,20 @@ export default function Weather() {
           <Button
             type="text"
             size="small"
-            icon={<FaRobot />}
+            icon={<FaImage />}
+            onClick={() => setIsPosterModalVisible(true)}
+            disabled={!weatherData || isLoading}
+            className="text-gray-500 transition-colors hover:text-green-500 dark:text-gray-400 dark:hover:text-green-400"
+            title="天气画报"
+          />
+          <Button
+            type="text"
+            size="small"
+            icon={<FaLightbulb />}
             onClick={handleAiAssistant}
             disabled={!weatherData || isLoading}
             className="text-gray-500 transition-colors hover:text-purple-500 dark:text-gray-400 dark:hover:text-purple-400"
-            title="AI天气助手"
+            title="天气小贴士"
           />
           <Button
             type="text"
@@ -431,12 +443,12 @@ export default function Weather() {
               <div className="animate-fadeIn mt-2 rounded-md border border-gray-200 bg-gray-50 p-2.5 dark:border-gray-700 dark:bg-gray-800/50">
                 <div className="mb-1.5 flex items-center justify-between">
                   <div className="flex items-center space-x-1.5">
-                    <FaRobot
+                    <FaLightbulb
                       size={12}
                       className="text-purple-500 dark:text-purple-400"
                     />
                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                      AI天气助手
+                      天气小贴士
                     </span>
                   </div>
                   <button
@@ -515,6 +527,13 @@ export default function Weather() {
         selectedCity={selectedCity}
         onCityChange={setSelectedCity}
         historyRefreshTrigger={historyRefreshTrigger}
+      />
+
+      {/* 画报模态框 */}
+      <PosterModal
+        visible={isPosterModalVisible}
+        onClose={() => setIsPosterModalVisible(false)}
+        cityName={selectedCity.name.split("-").slice(1).join("-")}
       />
     </SectionCard>
   );

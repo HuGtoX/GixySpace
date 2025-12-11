@@ -395,3 +395,43 @@ export interface WeatherDailyInfoResponse {
   /** 数据更新时间 */
   updateTime: string;
 }
+
+// ==================== 天气画报相关类型 ====================
+
+/**
+ * 天气画报数据（来自第三方API）
+ */
+export interface WeatherPosterData {
+  /** 城市名称 */
+  city: string;
+  /** 天气状况 */
+  condition: string;
+  /** 日期 */
+  date: string;
+  /** AI生成的图片URL */
+  img: string;
+  /** 诗词描述 */
+  poetry: string;
+  /** 最高温度 */
+  temp_high: number;
+  /** 最低温度 */
+  temp_low: number;
+}
+
+/**
+ * 天气画报生成请求参数
+ */
+export interface WeatherPosterGenerateRequest {
+  /** 城市名称 */
+  city: string;
+}
+
+/**
+ * 天气画报生成响应
+ */
+export interface WeatherPosterGenerateResponse {
+  /** 画报数据 */
+  poster: WeatherPosterData;
+  /** 是否为今日首次生成 */
+  isFirstToday: boolean;
+}
