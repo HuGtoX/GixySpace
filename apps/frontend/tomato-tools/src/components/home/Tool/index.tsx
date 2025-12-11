@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "antd";
 import ToolsModal from "./ToolsModal";
 import React, { useState } from "react";

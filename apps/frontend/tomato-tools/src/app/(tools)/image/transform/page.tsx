@@ -1,6 +1,7 @@
 "use client";
 
-import { ImageViewer, ImageViewerItem } from "@/components/ImageViewer";
+import dynamic from "next/dynamic";
+import { Spin } from "antd";
 import { Container } from "@/components/toolsLayout/ToolsLayout";
 import {
   convertImage,
@@ -14,6 +15,19 @@ import ConversionSettings from "./components/ConversionSettings";
 import FileUploader from "@/components/ui/FileUploader";
 import ImageItem from "./components/ImageItem";
 import { ImageFile, ConversionSettings as SettingsType } from "./types";
+
+// 懒加载 ImageViewer 组件
+const ImageViewer = dynamic<any>(
+  () => import("@/components/ImageViewer").then((mod) => mod.ImageViewer),
+  {
+    loading: () => (
+      <div className="flex h-64 items-center justify-center">
+        <Spin size="large" />
+      </div>
+    ),
+    ssr: false,
+  },
+);
 
 // 使用说明内容
 const instructionsContent = [
@@ -370,7 +384,7 @@ export default function ImageTransformPage() {
   }, []);
 
   // 转换图片数据为预览格式
-  const previewImages: ImageViewerItem[] = imageFiles.map((file) => ({
+  const previewImages: any[] = imageFiles.map((file) => ({
     id: file.id,
     src: file.result?.preview || file.preview,
     alt: file.name,

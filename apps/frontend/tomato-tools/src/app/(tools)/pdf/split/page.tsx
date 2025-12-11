@@ -61,8 +61,9 @@ const PdfSplitPage = () => {
     if (typeof window !== "undefined") {
       import("pdfjs-dist").then((pdfjsObject) => {
         pdfjsLib = pdfjsObject;
-        // Set the worker source...
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+        // 使用 CDN 加载 Worker，减少本地打包体积（1.53MB → 0MB）
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.1.91/build/pdf.worker.min.mjs";
       });
     }
   }, []);

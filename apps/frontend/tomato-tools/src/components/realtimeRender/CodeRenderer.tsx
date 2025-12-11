@@ -120,16 +120,24 @@ function CodeRenderer({
                   window.parent.postMessage({
                     type: 'console-log',
                     data: {
-                      id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                      id: generateLogId(),
                       type: type,
                       message: message,
-                      timestamp: Date.now(),
+                      timestamp: getCurrentTimestamp(),
                       args: args
                     }
                   }, '*');
                 } catch (error) {
                   // 静默处理错误，避免无限循环
                 }
+              }
+              
+              function getCurrentTimestamp() {
+                return new Date().getTime();
+              }
+              
+              function generateLogId() {
+                return getCurrentTimestamp() + '-' + Math.random().toString(36).substr(2, 9);
               }
               
               // 重写console方法

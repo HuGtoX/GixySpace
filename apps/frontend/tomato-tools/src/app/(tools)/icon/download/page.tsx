@@ -22,9 +22,6 @@ import axios from "@/lib/axios";
 import { useTheme } from "@/contexts/ThemeContext";
 import { IconInfo } from "@gixy/types";
 
-// 禁用静态预渲染
-export const dynamic = "force-dynamic";
-
 const IconDownloader = () => {
   const [url, setUrl] = useState("");
   const [icons, setIcons] = useState<IconInfo[]>([]);

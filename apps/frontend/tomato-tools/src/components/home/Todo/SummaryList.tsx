@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Spin, Button, message } from "antd";
 import { FaEye, FaTrash } from "react-icons/fa";
