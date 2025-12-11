@@ -1,5 +1,5 @@
 import { FaWeibo, FaZhihu } from "react-icons/fa";
-import Image from "next/image";
+import { NewsIcon } from "@/components/ui/OptimizedImage";
 import { FaCalendar } from "react-icons/fa";
 import { DollarOutlined } from "@ant-design/icons";
 
@@ -36,7 +36,7 @@ export const juejinConfig: NewsPlatformConfig = {
   title: "掘金热搜榜",
   color: "text-juejin",
   bg: "bg-juejin-60",
-  icon: <Image src="/news-icon/juejin.svg" alt="掘金" width={20} height={20} />,
+  icon: <NewsIcon src="/news-icon/juejin.svg" alt="掘金" size={20} />,
 };
 
 // 抖音配置

@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 
 // 顶部导航栏组件
@@ -81,7 +81,7 @@ const Header = () => {
               onClick={() => router.push("/")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg">
-                <Image
+                <OptimizedImage
                   src="/tomato.svg"
                   alt="tomato logo"
                   width={40}
