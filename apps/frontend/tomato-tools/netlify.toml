@@ -2,3 +2,18 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+from = "/_next/image*"
+query = {url = ":url", w = ":width", q = ":quality"}
+to = "/_ipx/w_:width,q_:quality/:url"
+status = 301
+
+[[redirects]]
+from = "/_ipx/*"
+to = "/.netlify/builders/_ipx"
+status = 200
