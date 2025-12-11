@@ -66,7 +66,6 @@ const NewsSection = () => {
         activeKey={activeKey}
         onChange={handleTabChange}
         items={items}
-        tabPlacement={"start"}
         tabBarStyle={{ marginBottom: "16px" }}
       />
     </div>

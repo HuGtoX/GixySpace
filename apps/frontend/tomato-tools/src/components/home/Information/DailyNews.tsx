@@ -7,6 +7,7 @@ import axios from "@/lib/axios";
 import { useRequest } from "ahooks";
 import { SixtySecondsData, HistoryTodayData } from "@gixy/types";
 import { SixtySecondsResponse } from "@/app/api/news/60s";
+import SectionCard from "@/components/ui/SectionCard";
 import Skeleton from "./Skeleton";
 // 默认显示的新闻条数
 const MAX_VISIBLE_ITEMS = 5;
@@ -75,7 +76,7 @@ const DailyNews = () => {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-lg dark:bg-gray-800">
+    <SectionCard className="flex h-full flex-col overflow-hidden rounded-xl">
       {loading ? (
         <Skeleton />
       ) : newsData ? (
@@ -194,7 +195,7 @@ const DailyNews = () => {
           暂无数据
         </div>
       )}
-    </div>
+    </SectionCard>
   );
 };
 

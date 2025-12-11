@@ -1,20 +1,18 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { Skeleton } from "antd";
 
 interface ScrollContainerProps {
   children?: React.ReactNode;
   className?: string;
-  /** 滚动条类型：default(灰色) | primary(主题色) */
   scrollbarType?: "default" | "primary";
   /** 是否始终显示滚动条 */
   alwaysShow?: boolean;
-  /** 滚动条宽度 */
-  scrollbarWidth?: number;
-  /** 自定义样式 */
   style?: React.CSSProperties;
-  /** 滚动事件回调 */
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
+  skeleton?: boolean;
+  loading?: boolean;
 }
 
 /**
@@ -31,7 +29,8 @@ function ScrollContainer({
   className,
   scrollbarType = "default",
   alwaysShow = false,
-  scrollbarWidth = 6,
+  skeleton,
+  loading,
   style,
   onScroll,
 }: ScrollContainerProps) {
@@ -76,9 +75,21 @@ function ScrollContainer({
       onTouchEnd={handleTouchEnd}
       onScroll={onScroll}
     >
-      {children}
+      {skeleton && loading ? ScrollContainerSkeleton() : children}
     </div>
   );
+}
+
+function ScrollContainerSkeleton() {
+  return Array(5)
+    .fill(0)
+    .map((_, index) => (
+      <div key={index} className="flex items-center gap-3 p-2">
+        <Skeleton.Button shape="circle" size="small" className="h-6 w-6" />
+        <Skeleton.Button shape="circle" size="small" className="h-4 w-4" />
+        <Skeleton.Input style={{ flex: 1 }} active />
+      </div>
+    ));
 }
 
 export default ScrollContainer;

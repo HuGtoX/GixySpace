@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import Header from "@/components/toolsLayout/Header";
 import Footer from "@/components/toolsLayout/Footer";
-import NewsSection from "@/components/home/News";
+import NewsSection from "@/components/home/Information";
 import Tools from "@/components/home/Tools";
 import Aside from "@/components/home/Aside";
 import Container from "@/components/toolsLayout/Container";
-import NewsSkeleton from "@/components/home/News/Skeleton";
+import NewsSkeleton from "@/components/home/Information/Skeleton";
 
 // 骨架屏组件
 function ToolsSkeleton() {
