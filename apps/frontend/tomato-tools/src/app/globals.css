@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+  }
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+}
+
 @layer components {
   /* 基础样式 */
   .primay-text {
-    @apply text-sm text-slate-600 dark:text-gray-300;
+    @apply text-sm text-slate-900 dark:text-gray-300;
   }
   .secondary-text {
-    @apply text-xs text-slate-500 dark:text-gray-400;
+    @apply text-xs text-slate-600 dark:text-gray-400;
   }
 
   /* 预定义颜色类 */
@@ -185,7 +194,7 @@ body::-webkit-scrollbar-thumb:hover {
   }
 
   .text-secondary {
-    @apply text-slate-600 dark:text-gray-300;
+    @apply text-slate-700 dark:text-gray-300;
   }
 
   .text-tertiary {
@@ -207,7 +216,7 @@ body::-webkit-scrollbar-thumb:hover {
 
   /* 卡片样式 */
   .card-surface {
-    @apply border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800;
+    @apply border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800;
   }
 
   .card-surface-elevated {

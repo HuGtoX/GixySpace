@@ -1,5 +1,4 @@
 import { FaWeibo, FaZhihu } from "react-icons/fa";
-import { NewsIcon } from "@/components/ui/OptimizedImage";
 import { FaCalendar } from "react-icons/fa";
 import { DollarOutlined } from "@ant-design/icons";
 
@@ -36,7 +35,7 @@ export const juejinConfig: NewsPlatformConfig = {
   title: "掘金热搜榜",
   color: "text-juejin",
   bg: "bg-juejin-60",
-  icon: <NewsIcon src="/news-icon/juejin.svg" alt="掘金" size={20} />,
+  icon: <img src="/news-icon/juejin.svg" alt="掘金" width={20} height={20} />,
 };
 
 // 抖音配置
@@ -71,7 +70,7 @@ export const toutiaoConfig: NewsPlatformConfig = {
 // 每日新闻配置
 export const dailyNewsConfig: NewsPlatformConfig = {
   id: "daily",
-  title: "每日世界简报",
+  title: "每日简报",
   color: "text-blue-500",
   bg: "bg-blue-50",
   icon: <FaCalendar size={20} />,
@@ -80,7 +79,7 @@ export const dailyNewsConfig: NewsPlatformConfig = {
 // 货币汇率配置
 export const currencyRatesConfig: NewsPlatformConfig = {
   id: "currency",
-  title: "当日货币汇率",
+  title: "货币汇率",
   color: "text-green-600",
   bg: "bg-green-50",
   icon: <DollarOutlined style={{ fontSize: 20 }} />,

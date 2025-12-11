@@ -47,8 +47,9 @@ module.exports = {
           bodyBg: "#F8FAFC",
           cardBg: "#FFFFFF",
           border: "#E2E8F0",
-          text: "#1E293B",
-          textSecondary: "#64748B",
+          text: "#0F172A",
+          textSecondary: "#334155",
+          textTertiary: "#64748B",
         },
         dark: {
           primary: "#D17A66",
