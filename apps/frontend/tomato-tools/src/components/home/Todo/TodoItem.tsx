@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Tooltip, Badge, Checkbox, message } from "antd";
 import { FaTrash, FaClock, FaEdit } from "react-icons/fa";

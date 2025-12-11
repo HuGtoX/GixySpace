@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
     "sonic-boom",
     "atomic-sleep",
   ],
+  // 图片优化配置
+  images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
   experimental: {
     optimizePackageImports: ["antd"],
     // 当 Next.js 服务器启动时,它会将每个页面的 JavaScript 模块预加载到内存中，而不是在请求时加载。

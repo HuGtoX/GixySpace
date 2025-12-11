@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 import SectionCard from "@/components/ui/SectionCard";
