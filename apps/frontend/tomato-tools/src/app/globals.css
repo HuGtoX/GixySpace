@@ -438,3 +438,56 @@ body::-webkit-scrollbar-thumb:hover {
     animation: gradientShift 3s ease infinite;
   }
 }
+
+/* 液态玻璃样式 */
+/* .glass-bg {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+} */
+
+.glass-bg {
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 1rem; /* p-4 */
+  background-color: rgba(255, 255, 255, 0.7); /* bg-white/70 */
+  backdrop-filter: blur(12px); /* backdrop-blur-md */
+  -webkit-backdrop-filter: blur(12px); /* 兼容Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* border border-white/20 */
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
+.glass-bg:hover {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+}
+
+/* 深色模式样式 */
+@media (prefers-color-scheme: dark) {
+  .glass-bg {
+    background-color: rgba(31, 41, 55, 0.7); /* dark:bg-gray-800/70 */
+    border-color: rgba(55, 65, 81, 0.3); /* dark:border-gray-700/30 */
+  }
+}
+
+/* 或者如果使用类切换深色模式 */
+.dark .glass-bg {
+  background-color: rgba(31, 41, 55, 0.7);
+  border-color: rgba(55, 65, 81, 0.3);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.3); /* 深色模式下的shadow-md */
+}
+
+.dark .glass-bg:hover {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.3),
+    0 4px 6px -4px rgb(0 0 0 / 0.3); /* 深色模式下的shadow-lg */
+}

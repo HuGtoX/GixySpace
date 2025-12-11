@@ -7,6 +7,7 @@ import { toolsMenu } from "@/config/tools";
 import { useRouter } from "next/navigation";
 import { FaEllipsisH } from "react-icons/fa";
 import IconWrapper from "@/components/ui/IconWrapper";
+import SectionCard from "@/components/ui/SectionCard";
 
 interface ToolItemProps {
   name: string;
@@ -36,7 +37,7 @@ const ToolItem = ({
 
   return (
     <div
-      className="tool-icon ripple pixel-grow cursor-pointer rounded-xl bg-white p-4 text-center shadow-md hover:shadow-lg dark:bg-gray-800"
+      className="glass-bg tool-icon ripple pixel-grow cursor-pointer rounded-xl p-4 text-center shadow-md hover:shadow-lg"
       draggable="true"
       onClick={handleClick}
     >
@@ -53,17 +54,22 @@ export default function Tool() {
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">常用工具</h2>
-        <Button
-          type="text"
-          className="text-sm text-primary hover:underline dark:text-dark-primary"
-        >
-          编辑
-        </Button>
-      </div>
-      <div id="tool-grid" className="grid grid-cols-2 gap-4">
+    <SectionCard
+      title={
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">常用工具</h2>
+          <Button
+            type="text"
+            className="text-sm text-primary hover:underline dark:text-dark-primary"
+          >
+            编辑
+          </Button>
+        </div>
+      }
+      styles={{ padding: 0 }}
+      plain
+    >
+      <div id="tool-grid" className="mt-2 grid grid-cols-2 gap-4">
         {toolsMenu
           .filter((item) => item.id !== 7) // 过滤掉"其他"工具
           .map((item) => (
@@ -93,6 +99,6 @@ export default function Tool() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-    </>
+    </SectionCard>
   );
 }
