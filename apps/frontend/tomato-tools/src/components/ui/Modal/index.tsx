@@ -42,13 +42,31 @@ function GModal(props: GModalProps) {
   } = props;
   const { isDarkMode } = useTheme();
 
-  // 使用全屏Hook
   const { isFullscreen, toggleFullscreen } = useFullscreen({
     defaultFullscreen,
     onFullscreenChange,
   });
 
+  React.useEffect(() => {
+    if (!visible) {
+      const timer = setTimeout(() => {
+        document.body.style.removeProperty("overflow");
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    if (visible) {
+      document.body.style.setProperty("overflow", "hidden", "important");
+    }
+  }, [visible, isFullscreen]);
+
+  const _height = height ? height : "auto";
   const modalWidth = isFullscreen ? "100%" : width;
+  const baseBodyStyle = {
+    display: "flex",
+    flexDirection: "column",
+    height: _height,
+  };
+
   const modalStyle = {
     top: isFullscreen ? 0 : 20,
     maxWidth: isFullscreen ? "100%" : undefined,
@@ -65,13 +83,14 @@ function GModal(props: GModalProps) {
   };
 
   const modalStyles = {
-    body: {
-      display: "flex",
-      flexDirection: "column",
-      height: height ? height : "auto",
-    },
     ...styles,
+    body: {
+      ...baseBodyStyle,
+      ...styles?.body,
+      height: isFullscreen ? "100%" : _height,
+    },
     container: {
+      ...styles?.container,
       ...(isFullscreen
         ? {
             display: "flex",
@@ -131,7 +150,7 @@ function GModal(props: GModalProps) {
         footer={null}
         width={modalWidth}
         closable={false}
-        className={`${isMacOSStyle ? "macos-modal" : ""} ${isDarkMode ? "dark" : ""} ${className} ${isFullscreen ? "fullscreen-modal" : ""}`}
+        className={`${isMacOSStyle ? "macos-modal" : ""} ${isDarkMode ? "dark" : ""} ${className}`}
         style={modalStyle}
         styles={modalStyles}
         destroyOnHidden={destroyOnHidden}

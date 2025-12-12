@@ -338,7 +338,7 @@ const NotificationDropdown = () => {
 
   return (
     <Dropdown
-      dropdownRender={() => notificationList}
+      popupRender={() => notificationList}
       trigger={["click"]}
       open={open}
       onOpenChange={setOpen}

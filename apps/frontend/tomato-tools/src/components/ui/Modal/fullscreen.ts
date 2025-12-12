@@ -8,7 +8,6 @@
 // Hooks
 export {
   useFullscreen,
-  useNativeFullscreen,
   type FullscreenOptions,
   type FullscreenControls,
 } from "@/hooks/useFullscreen";
