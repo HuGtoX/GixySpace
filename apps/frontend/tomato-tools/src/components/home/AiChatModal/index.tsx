@@ -437,11 +437,11 @@ export default function AiChatModal({
       visible={open}
       onClose={handleClose}
       width={width}
+      height={height}
       showFullscreen={true}
       styles={{
         body: {
           padding: 0,
-          height: height,
           display: "flex",
           flexDirection: "row",
         },

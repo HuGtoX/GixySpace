@@ -131,46 +131,6 @@ body::-webkit-scrollbar-thumb:hover {
     background-color: #27c93f;
   }
 
-  /* 全屏Modal样式优化 */
-  .fullscreen-modal .ant-modal {
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    top: 0 !important;
-    height: 100vh !important;
-  }
-
-  .fullscreen-modal .ant-modal-content {
-    border-radius: 0 !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-  }
-
-  .fullscreen-modal .ant-modal-header {
-    flex-shrink: 0 !important;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .fullscreen-modal.dark .ant-modal-header {
-    border-bottom-color: #374151;
-  }
-
-  .fullscreen-modal .ant-modal-body {
-    flex: 1 !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    display: flex !important;
-  }
-
-  /* 防止全屏时body出现滚动条 */
-  body:has(.fullscreen-modal) {
-    overflow: hidden !important;
-  }
-
   .item-hover {
     @apply cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:shadow-sm dark:hover:bg-gray-800;
   }
@@ -440,14 +400,6 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 /* 液态玻璃样式 */
-/* .glass-bg {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
-} */
-
 .glass-bg {
   border-radius: 0.75rem; /* rounded-xl */
   padding: 1rem; /* p-4 */
