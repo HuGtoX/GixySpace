@@ -1,0 +1,59 @@
+# 番茄工具箱 Docker Compose 配置 (Monorepo 版本)
+version: '3.8'
+
+services:
+    # Next.js 应用服务
+    tomato-tools:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            # 构建时参数（用于 NEXT_PUBLIC_* 环境变量）
+            args:
+                - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+                - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+                - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        container_name: tomato-tools
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        # 从根目录的 .env 文件读取环境变量
+        env_file:
+            - .env
+        environment:
+            # Next.js 配置
+            - NODE_ENV=production
+            - NEXT_TELEMETRY_DISABLED=1
+            - PORT=3000
+            - HOSTNAME=0.0.0.0
+
+        # 健康检查
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'node',
+                    '-e',
+                    "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+        # 资源限制
+        deploy:
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 2G
+                reservations:
+                    cpus: '0.5'
+                    memory: 512M
+
+        # 网络配置
+        networks:
+            - tomato-network
+
+networks:
+    tomato-network:
+        driver: bridge

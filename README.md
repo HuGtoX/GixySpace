@@ -20,6 +20,8 @@
 pnpm install
 ```
 
+## 开发指南
+
 ### easy-tools 项目
 
 - `dev`: 启动开发服务器
@@ -35,6 +37,81 @@ pnpm run dev
 cd apps/frontend/easy-tools
 pnpm run build
 ```
+
+### tomato-tools 项目
+
+- `dev`: 启动开发服务器
+
+```bash
+pnpm dev
+# 或
+cd apps/frontend/tomato-tools
+pnpm run dev
+```
+
+- `build`: 构建项目
+
+```bash
+pnpm build
+# 或
+cd apps/frontend/tomato-tools
+pnpm run build
+```
+
+## 🐳 Docker 部署
+
+本项目支持使用 Docker 部署番茄工具箱应用。
+
+### 快速开始
+
+#### 使用快速启动脚本（推荐）
+
+**Linux/Mac:**
+
+```bash
+chmod +x docker-start.sh
+./docker-start.sh
+```
+
+**Windows:**
+
+```bash
+docker-start.bat
+```
+
+#### 手动部署
+
+1. **配置环境变量**
+
+```bash
+cp apps/frontend/tomato-tools/.env.example apps/frontend/tomato-tools/.env
+# 编辑 .env 文件，填入实际配置
+```
+
+2. **使用 Docker Compose**
+
+```bash
+# 在 monorepo 根目录执行
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+### 访问应用
+
+部署完成后访问：http://localhost:3000
+
+### 详细文档
+
+查看完整的 Docker 部署指南：[docs/DOCKER_DEPLOYMENT.md](./docs/DOCKER_DEPLOYMENT.md)
+
+### 注意事项
+
+⚠️ **重要**：所有 Docker 命令必须在 monorepo 根目录执行，因为项目使用 pnpm workspace 管理依赖。
 
 ## 贡献指南
 

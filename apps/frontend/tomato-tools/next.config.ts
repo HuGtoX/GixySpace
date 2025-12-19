@@ -8,6 +8,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
+  // Docker 部署配置：生成独立的输出目录
+  output: "standalone",
   // 将 pino 相关包标记为外部包，避免打包问题（Next.js 16 要求放在顶层）
   serverExternalPackages: [
     "pino",
