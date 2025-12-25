@@ -167,12 +167,14 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     return (
       <Card
         title={
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-orange-500 px-2 py-1 text-xs text-white">
-              临时账号
-            </span>
-            <span>升级为正式用户</span>
-          </div>
+          activeTab === "bind" && (
+            <div className="flex items-center gap-2">
+              <span className="rounded bg-orange-500 px-2 py-1 text-xs text-white">
+                临时账号
+              </span>
+              <span>升级为正式用户</span>
+            </div>
+          )
         }
         className="mx-auto w-full max-w-md"
       >
@@ -187,20 +189,21 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           />
         )}
 
-        <Alert
-          message="升级优势"
-          description={
-            <ul className="mt-2 list-inside list-disc space-y-1">
-              <li>数据永久保存，不会过期</li>
-              <li>解锁更多高级功能</li>
-              <li>多设备同步使用</li>
-              <li>优先技术支持</li>
-            </ul>
-          }
-          type="info"
-          showIcon
-          className="mb-4"
-        />
+        {activeTab === "bind" && (
+          <Alert
+            title="升级优势"
+            description={
+              <ul className="mt-2 list-inside list-disc space-y-1">
+                <li>数据永久保存，不会过期</li>
+                <li>解锁更多高级功能</li>
+                <li>多设备同步使用</li>
+              </ul>
+            }
+            type="info"
+            showIcon
+            className="mb-4"
+          />
+        )}
 
         <Tabs
           activeKey={activeTab}
