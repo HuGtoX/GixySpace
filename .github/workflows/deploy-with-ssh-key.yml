@@ -32,7 +32,7 @@ jobs:
             - name: 设置 pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: latest
+                  version: 10.0.65
 
             - name: 设置 Node.js
               uses: actions/setup-node@v4
@@ -95,8 +95,6 @@ jobs:
                   UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
                   AI_API_KEY=${{ secrets.AI_API_KEY }}
                   TD_AGENT_API_KEY=${{ secrets.TD_AGENT_API_KEY }}
-                  TD_AGENT_WEATHAER_KEY=${{ secrets.TD_AGENT_WEATHAER_KEY }}
-                  TD_AGENT_TODO_KEY=${{ secrets.TD_AGENT_TODO_KEY }}
                   HF_BASEURL=${{ secrets.HF_BASEURL }}
                   QWEATHER_KEY=${{ secrets.QWEATHER_KEY }}
                   COZE_API_KEY=${{ secrets.COZE_API_KEY }}

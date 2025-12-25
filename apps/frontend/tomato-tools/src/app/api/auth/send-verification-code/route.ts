@@ -33,25 +33,14 @@ export async function POST(request: NextRequest) {
         error: error.message,
         email,
       });
-
       let errorMessage = "发送验证码失败";
-
       if (error.message.includes("rate limit")) {
         errorMessage = "验证码发送过于频繁，请稍后再试";
       }
-
       if (error.message.includes("already been registered")) {
         errorMessage = "邮箱已存在";
       }
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: errorMessage,
-          details: error.message,
-        },
-        { status: 200 },
-      );
+      throw new Error(errorMessage);
     }
 
     log.info("Supabase Email OTP sent successfully", { email });

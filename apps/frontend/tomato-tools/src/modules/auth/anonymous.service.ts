@@ -111,9 +111,6 @@ export class AnonymousService {
 
     try {
       const supabase = await createClient();
-
-      // 更新 Supabase Auth 用户信息
-      // 由于已经通过 OTP 验证，这里主要是设置密码和更新元数据
       const { error: updateError } = await supabase.auth.updateUser({
         email,
         password,
