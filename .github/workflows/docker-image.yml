@@ -1,0 +1,244 @@
+name: 构建和部署 Tomato Tools
+
+on:
+    workflow_dispatch:
+
+env:
+    DOCKER_IMAGE_NAME: tomato-tools
+    DOCKER_IMAGE_TAG: latest
+    APP_DIR: /opt/tomato-tools
+
+jobs:
+    build-and-deploy:
+        name: 构建并部署到腾讯云
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 检出代码
+              uses: actions/checkout@v4
+
+            - name: 设置 pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: 设置 Node.js
+              uses: actions/setup-node@v4
+
+            - name: 安装依赖
+              run: pnpm install --frozen-lockfile
+
+            - name: 代码检查
+              run: pnpm --filter @gixy/tomato-tools lint
+              continue-on-error: true
+
+            - name: 设置 Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: 构建 Docker 镜像
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  file: ./Dockerfile
+                  push: false
+                  load: true
+                  tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+                  build-args: |
+                      NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                      NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+                      NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+            - name: 保存 Docker 镜像
+              run: docker save ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} | gzip > tomato-tools-image.tar.gz
+
+            - name: 上传镜像到服务器
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USERNAME }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  port: ${{ secrets.SERVER_PORT || 22 }}
+                  source: 'tomato-tools-image.tar.gz'
+                  target: '/tmp/'
+                  timeout: 10m
+
+            - name: 创建环境变量文件
+              run: |
+                  cat > .env.production << EOF
+                  NODE_ENV=production
+                  NEXT_TELEMETRY_DISABLED=1
+                  PORT=3000
+                  HOSTNAME=0.0.0.0
+                  NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+                  NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+                  DATABASE_URL=${{ secrets.DATABASE_URL }}
+                  SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+                  UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }}
+                  UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+                  AI_API_KEY=${{ secrets.AI_API_KEY }}
+                  TD_AGENT_API_KEY=${{ secrets.TD_AGENT_API_KEY }}
+                  HF_BASEURL=${{ secrets.HF_BASEURL }}
+                  QWEATHER_KEY=${{ secrets.QWEATHER_KEY }}
+                  COZE_API_KEY=${{ secrets.COZE_API_KEY }}
+                  PINO_LOG_LEVEL=${{ secrets.PINO_LOG_LEVEL || 'info' }}
+                  SMTP_HOST=${{ secrets.SMTP_HOST }}
+                  SMTP_PORT=${{ secrets.SMTP_PORT }}
+                  SMTP_USER=${{ secrets.SMTP_USER }}
+                  SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+                  SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}
+                  SMTP_FROM_NAME=${{ secrets.SMTP_FROM_NAME }}
+                  EOF
+
+            - name: 上传环境变量文件
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USERNAME }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  port: ${{ secrets.SERVER_PORT || 22 }}
+                  source: '.env.production'
+                  target: '/tmp/'
+
+            - name: 部署到服务器
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USERNAME }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  port: ${{ secrets.SERVER_PORT || 22 }}
+                  timeout: 10m
+                  script: |
+                      set -e
+
+                      echo "=========================================="
+                      echo "开始部署 Tomato Tools"
+                      echo "部署时间: $(date '+%Y-%m-%d %H:%M:%S')"
+                      echo "=========================================="
+
+                      # 定义变量
+                      APP_DIR="${{ env.APP_DIR }}"
+                      IMAGE_NAME="${{ env.DOCKER_IMAGE_NAME }}"
+                      IMAGE_TAG="${{ env.DOCKER_IMAGE_TAG }}"
+                      CONTAINER_NAME="tomato-tools"
+
+                      # 创建应用目录
+                      echo "📁 创建应用目录..."
+                      mkdir -p $APP_DIR
+                      cd $APP_DIR
+
+                      # 备份旧的环境文件
+                      if [ -f ".env" ]; then
+                          echo "💾 备份旧的环境文件..."
+                          cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+                      fi
+
+                      # 移动新的环境文件
+                      echo "📝 更新环境变量文件..."
+                      mv /tmp/.env.production $APP_DIR/.env
+
+                      # 加载 Docker 镜像
+                      echo "📦 加载 Docker 镜像..."
+                      docker load < /tmp/tomato-tools-image.tar.gz
+
+                      # 清理临时文件
+                      echo "🧹 清理临时文件..."
+                      rm -f /tmp/tomato-tools-image.tar.gz
+
+                      # 备份当前运行的容器（如果存在）
+                      if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+                          echo "💾 备份当前容器..."
+                          BACKUP_IMAGE="${IMAGE_NAME}:backup-$(date +%Y%m%d_%H%M%S)"
+                          docker commit $CONTAINER_NAME $BACKUP_IMAGE
+                          echo "✅ 备份镜像: $BACKUP_IMAGE"
+                      fi
+
+                      # 停止并删除旧容器
+                      echo "🛑 停止并删除旧容器..."
+                      if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
+                          docker stop $CONTAINER_NAME || true
+                          docker rm $CONTAINER_NAME || true
+                      fi
+
+                      # 启动新容器
+                      echo "🚀 启动新容器..."
+                      docker run -d \
+                        --name $CONTAINER_NAME \
+                        --restart unless-stopped \
+                        -p 3000:3000 \
+                        --env-file $APP_DIR/.env \
+                        $IMAGE_NAME:$IMAGE_TAG
+
+                      # 等待容器启动
+                      echo "⏳ 等待容器启动..."
+                      sleep 10
+
+                      # 检查容器状态
+                      echo "🔍 检查容器状态..."
+                      if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+                          echo "✅ 容器启动成功！"
+                          echo ""
+                          echo "容器信息:"
+                          docker ps -f name=$CONTAINER_NAME --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+                          echo ""
+                          echo "最近日志:"
+                          docker logs --tail 20 $CONTAINER_NAME
+                      else
+                          echo "❌ 容器启动失败！"
+                          echo ""
+                          echo "错误日志:"
+                          docker logs $CONTAINER_NAME
+                          exit 1
+                      fi
+
+                      # 清理旧镜像（保留最近3个）
+                      echo "🧹 清理旧镜像..."
+                      docker images $IMAGE_NAME --format "{{.ID}} {{.CreatedAt}}" | \
+                        tail -n +4 | \
+                        awk '{print $1}' | \
+                        xargs -r docker rmi -f || true
+
+                      echo ""
+                      echo "=========================================="
+                      echo "✅ 部署完成！"
+                      echo "访问地址: ${{ secrets.NEXT_PUBLIC_SITE_URL }}"
+                      echo "=========================================="
+
+            - name: 健康检查
+              run: |
+                  echo "🏥 开始健康检查..."
+                  sleep 15
+
+                  MAX_RETRIES=5
+                  RETRY_COUNT=0
+
+                  while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                    if curl -f -s -o /dev/null "${{ secrets.NEXT_PUBLIC_SITE_URL }}/api/health"; then
+                      echo "✅ 健康检查通过！"
+                      echo "🎉 应用已成功部署并正常运行"
+                      exit 0
+                    fi
+                    
+                    RETRY_COUNT=$((RETRY_COUNT + 1))
+                    echo "⚠️  健康检查失败，重试 $RETRY_COUNT/$MAX_RETRIES..."
+                    sleep 10
+                  done
+
+                  echo "❌ 健康检查失败！请检查应用日志"
+                  exit 1
+
+            - name: 部署结果通知
+              if: always()
+              run: |
+                  if [ "${{ job.status }}" == "success" ]; then
+                    echo "🎉 =================================="
+                    echo "✅ 部署成功！"
+                    echo "🌐 访问地址: ${{ secrets.NEXT_PUBLIC_SITE_URL }}"
+                    echo "⏰ 部署时间: $(date '+%Y-%m-%d %H:%M:%S')"
+                    echo "=================================="
+                  else
+                    echo "❌ =================================="
+                    echo "部署失败！"
+                    echo "请查看上方日志了解详细错误信息"
+                    echo "=================================="
+                  fi
