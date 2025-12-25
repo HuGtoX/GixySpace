@@ -1,18 +1,6 @@
 name: 构建和部署 Tomato Tools (SSH Key 版本)
 
 on:
-    push:
-        branches:
-            - main
-            - dev
-        paths:
-            - 'apps/frontend/tomato-tools/**'
-            - 'packages/**'
-            - 'Dockerfile'
-            - 'docker-compose.yml'
-            - 'pnpm-workspace.yaml'
-            - 'package.json'
-            - 'pnpm-lock.yaml'
     workflow_dispatch:
 
 env:
