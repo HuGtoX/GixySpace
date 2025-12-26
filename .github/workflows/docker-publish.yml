@@ -1,0 +1,63 @@
+name: Test SSH Connection and File Transfer
+
+on:
+  workflow_dispatch:  # 允许手动触发此工作流
+
+jobs:
+  test-ssh-transfer:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup SSH key and known_hosts
+      run: |
+        # 创建.ssh目录
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        
+        # 将SSH私钥写入文件
+        echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        
+        # 将服务器公钥指纹添加到known_hosts（避免首次连接提示）
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Create test file
+      run: |
+        # 创建一个带时间戳的测试文件
+        echo "This is a test file from GitHub Actions" > test-transfer.txt
+        echo "Generated at: $(date)" >> test-transfer.txt
+        echo "Commit SHA: ${{ github.sha }}" >> test-transfer.txt
+        echo "Repository: ${{ github.repository }}" >> test-transfer.txt
+        
+        # 显示文件内容以供验证
+        cat test-transfer.txt
+
+    - name: Transfer file via SCP
+      run: |
+        # 使用SCP传输文件到服务器
+        scp -i ~/.ssh/id_ed25519 \
+            test-transfer.txt \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}
+        
+        echo "✅ File transfer completed via SCP"
+
+    - name: Verify file on server
+      run: |
+        # SSH连接到服务器验证文件是否存在
+        ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "ls -la ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt && echo '--- File content ---' && cat ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt"
+        
+        echo "✅ File verification successful"
+
+    - name: Cleanup test file (optional)
+      run: |
+        # 可选：清理服务器上的测试文件
+        ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "rm -f ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt"
+        
+        echo "🧹 Test file cleaned up from server"
