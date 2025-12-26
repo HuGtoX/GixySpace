@@ -1,63 +1,137 @@
-name: Test SSH Connection and File Transfer
+name: Test SSH SCP Transfer
 
 on:
-  workflow_dispatch:  # 允许手动触发此工作流
+  push:
+  workflow_dispatch:  # 允许手动触发
+
+
+env:
+  # 设置默认环境变量，可在Secrets中覆盖
+  UPLOAD_PATH: "/tmp/github-actions-test/"
 
 jobs:
-  test-ssh-transfer:
+  transfer-test:
+    name: SCP File Transfer Test
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
 
-    - name: Setup SSH key and known_hosts
+    - name: Create test artifacts
       run: |
-        # 创建.ssh目录
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
+        # 创建测试目录结构
+        mkdir -p test-artifacts
         
-        # 将SSH私钥写入文件
-        echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
+        # 创建带详细信息的测试文件
+        cat > test-artifacts/deployment-info.txt << EOF
+        ===== GitHub Actions Deployment Test =====
+        Repository: ${{ github.repository }}
+        Branch: ${{ github.ref_name }}
+        Commit SHA: ${{ github.sha }}
+        Commit Message: ${{ github.event.head_commit.message }}
+        Workflow: ${{ github.workflow }}
+        Run ID: ${{ github.run_id }}
+        Triggered by: ${{ github.actor }}
+        Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
-        # 将服务器公钥指纹添加到known_hosts（避免首次连接提示）
-        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        This file confirms successful SSH key configuration
+        and SCP file transfer capabilities.
+        EOF
+        
+        # 创建第二个测试文件
+        echo "Simple test content for verification" > test-artifacts/simple-test.txt
+        
+        # 创建JSON格式的状态文件
+        cat > test-artifacts/deployment-status.json << EOF
+        {
+          "status": "test",
+          "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+          "repository": "${{ github.repository }}",
+          "commit": "${{ github.sha }}",
+          "workflow": "${{ github.workflow }}"
+        }
+        EOF
+        
+        # 显示创建的测试文件
+        echo "📁 Created test artifacts:"
+        find test-artifacts -type f -exec echo "  {}" \;
+        echo ""
+        echo "📄 Contents of deployment-info.txt:"
+        cat test-artifacts/deployment-info.txt
 
-    - name: Create test file
-      run: |
-        # 创建一个带时间戳的测试文件
-        echo "This is a test file from GitHub Actions" > test-transfer.txt
-        echo "Generated at: $(date)" >> test-transfer.txt
-        echo "Commit SHA: ${{ github.sha }}" >> test-transfer.txt
-        echo "Repository: ${{ github.repository }}" >> test-transfer.txt
-        
-        # 显示文件内容以供验证
-        cat test-transfer.txt
+    - name: SCP Transfer using appleboy/scp-action
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SSH_PORT || '22' }}
+        source: "test-artifacts/*"
+        target: ${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}
+        strip_components: 0
+        overwrite: true
+        debug: true  # 启用详细日志输出
 
-    - name: Transfer file via SCP
-      run: |
-        # 使用SCP传输文件到服务器
-        scp -i ~/.ssh/id_ed25519 \
-            test-transfer.txt \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}
-        
-        echo "✅ File transfer completed via SCP"
+    - name: Verify transfer on server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SSH_PORT || '22' }}
+        script: |
+          echo "🔍 Verifying transferred files on server..."
+          echo "Target directory: ${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"
+          echo ""
+          
+          # 检查目录是否存在
+          if [ -d "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}" ]; then
+            echo "📁 Directory contents:"
+            ls -la "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"
+            echo ""
+            
+            # 检查具体文件
+            echo "📄 Checking test files:"
+            for file in "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"deployment-info.txt \
+                        "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"simple-test.txt \
+                        "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"deployment-status.json; do
+              if [ -f "$file" ]; then
+                echo "✅ $(basename "$file") exists"
+                echo "   Size: $(wc -c < "$file") bytes"
+                echo "   Permissions: $(stat -c "%A %U:%G" "$file")"
+              else
+                echo "❌ $(basename "$file") not found"
+              fi
+            done
+            
+            echo ""
+            echo "📋 Sample content from deployment-info.txt:"
+            head -10 "${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"deployment-info.txt
+            
+            echo ""
+            echo "🎯 SCP transfer verification completed successfully!"
+          else
+            echo "❌ Target directory not found!"
+            exit 1
+          fi
 
-    - name: Verify file on server
+    - name: Cleanup local test files
+      if: always()  # 即使失败也执行清理
       run: |
-        # SSH连接到服务器验证文件是否存在
-        ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "ls -la ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt && echo '--- File content ---' && cat ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt"
-        
-        echo "✅ File verification successful"
+        echo "🧹 Cleaning up local test artifacts..."
+        rm -rf test-artifacts
+        echo "Local cleanup completed"
 
-    - name: Cleanup test file (optional)
+    - name: Success notification
+      if: success()
       run: |
-        # 可选：清理服务器上的测试文件
-        ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "rm -f ${{ secrets.SERVER_UPLOAD_PATH || '/tmp/' }}test-transfer.txt"
-        
-        echo "🧹 Test file cleaned up from server"
+        echo "🎉 SCP file transfer test completed successfully!"
+        echo "All files were transferred and verified on the server."
+        echo ""
+        echo "Summary:"
+        echo "  - Server: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
+        echo "  - Target: ${{ secrets.SERVER_UPLOAD_PATH || env.UPLOAD_PATH }}"
+        echo "  - Files: deployment-info.txt, simple-test.txt, deployment-status.json"
