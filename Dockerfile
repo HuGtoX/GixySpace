@@ -51,9 +51,19 @@ COPY packages/eslint ./packages/eslint
 # 复制 tomato-tools 应用源代码
 COPY apps/frontend/tomato-tools ./apps/frontend/tomato-tools
 
+# 声明构建参数
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SITE_URL
+ARG DATABASE_URL
+
 # 设置环境变量（构建时）
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV DATABASE_URL=$DATABASE_URL
 
 # 在根目录执行构建（pnpm workspace 会自动处理依赖）
 RUN pnpm build:new
