@@ -1,7 +1,6 @@
 name: Test SSH SCP Transfer
 
 on:
-  push:
   workflow_dispatch:  # 允许手动触发
 
 
