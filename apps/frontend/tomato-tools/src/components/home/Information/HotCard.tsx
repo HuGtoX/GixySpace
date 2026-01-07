@@ -90,7 +90,7 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
           items.map((item, index) => (
             <div
               key={item.id}
-              className="flex items-center rounded-lg px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center rounded-lg px-3 py-2 transition-colors hover:bg-slate-100/80 dark:hover:bg-gray-700/50"
             >
               <div
                 className={`${bg} mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs text-white`}

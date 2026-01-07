@@ -25,7 +25,7 @@ export default function DailySentence() {
     }
     try {
       setLoading(true);
-      const data = await axios.get<Reuslt>("/api/v2/yiyan/get");
+      const data = await axios.get<Reuslt>("/api/yiyan/get");
       setYiyan(data);
       const date = dayjs().format("YYYY-MM-DD");
       localStorage.setItem("yiyan", JSON.stringify({ ...data, date }));

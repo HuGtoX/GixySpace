@@ -70,6 +70,8 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      // yiyan API已迁移到Next.js内部路由 /api/yiyan/get
+      // 保留v2路径的rewrite以兼容其他可能的FAAS API
       {
         source: "/api/v2/:path*",
         destination: "https://tomato-tools.netlify.app/api/:path*",

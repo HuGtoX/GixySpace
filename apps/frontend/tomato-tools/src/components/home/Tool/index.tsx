@@ -37,7 +37,7 @@ const ToolItem = ({
 
   return (
     <div
-      className="glass-bg tool-icon ripple pixel-grow cursor-pointer rounded-xl p-4 text-center shadow-md hover:shadow-lg"
+      className="glass-bg tool-icon ripple pixel-grow cursor-pointer rounded-xl p-4 text-center shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
       draggable="true"
       onClick={handleClick}
     >
