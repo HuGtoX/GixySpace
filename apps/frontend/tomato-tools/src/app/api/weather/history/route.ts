@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/drizzle/client";
+import { db } from "@/lib/database/drizzle/client";
 import { generateCorrelationId } from "@/lib/logger";
-import { weatherCityHistory } from "@/lib/drizzle/schema/weatherHistory";
+import { weatherCityHistory } from "@/lib/database/drizzle/schema/weatherHistory";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { AuthService } from "@/modules/auth/auth.service";
 

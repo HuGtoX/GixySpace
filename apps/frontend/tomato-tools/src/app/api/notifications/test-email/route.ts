@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EmailService } from "@/lib/services/email";
 import { createModuleLogger } from "@/lib/logger";
-import { authorization } from "@/app/api/authorization";
+import { authorization } from "@/lib/api/authorization";
 import { z } from "zod";
 
 const log = createModuleLogger("email-test-api");

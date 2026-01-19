@@ -7,8 +7,8 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import GModal from "@/components/ui/Modal";
-import { Todo } from "@/lib/drizzle/schema/todo";
-import axios from "@/lib/axios";
+import { Todo } from "@/lib/database/drizzle/schema/todo";
+import axios from "@/lib/clients/http";
 import type { PaginationResponse } from "@/types";
 import TodoItem from "./TodoItem";
 import TodoModal from "./EditModal";

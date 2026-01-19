@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Spin, Button, message } from "antd";
 import { FaEye, FaTrash } from "react-icons/fa";
 import AISummarySection from "./AISummarySection";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 // AI总结数据类型
 interface AISummary {

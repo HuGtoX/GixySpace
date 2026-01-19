@@ -1,5 +1,5 @@
 import { createModuleLogger } from "@/lib/logger";
-import { createDbClient } from "@/lib/drizzle/client";
+import { createDbClient } from "@/lib/database/drizzle/client";
 import {
   aiChatSession,
   aiChatMessage,
@@ -8,7 +8,7 @@ import {
   type AiChatSession,
   type AiChatMessage,
   type AiChatSessionWithMessages,
-} from "@/lib/drizzle/schema/schema";
+} from "@/lib/database/drizzle/schema/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 const log = createModuleLogger("ai-chat-service");

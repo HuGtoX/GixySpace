@@ -1,11 +1,11 @@
 import { eq, and, isNull } from "drizzle-orm";
-import { createDbClient } from "@/lib/drizzle/client";
+import { createDbClient } from "@/lib/database/drizzle/client";
 import {
   user,
   userProfile,
   userSession,
   passwordResetToken,
-} from "@/lib/drizzle/schema/schema";
+} from "@/lib/database/drizzle/schema/schema";
 import type {
   User,
   NewUser,
@@ -13,7 +13,7 @@ import type {
   NewUserProfile,
   UserSession,
   NewUserSession,
-} from "@/lib/drizzle/schema/schema";
+} from "@/lib/database/drizzle/schema/schema";
 import { createModuleLogger } from "@/lib/logger";
 import crypto from "crypto";
 

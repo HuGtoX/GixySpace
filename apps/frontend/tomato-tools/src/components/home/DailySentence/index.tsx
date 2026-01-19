@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 import SectionCard from "@/components/ui/SectionCard";
 import { message } from "antd";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 import { DailySentence as Reuslt, ResOrNull } from "@gixy/types";
 import dayjs from "dayjs";
 

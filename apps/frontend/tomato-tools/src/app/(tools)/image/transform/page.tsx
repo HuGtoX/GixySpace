@@ -7,7 +7,7 @@ import {
   convertImage,
   getRecommendedFormat,
   saveImage,
-} from "@/lib/imageProcessing";
+} from "@/lib/processing/image";
 import { Button, Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "./components/BatchActions";

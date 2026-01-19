@@ -20,7 +20,7 @@ import {
 } from "@ant-design/icons";
 import { useDeviceDetect } from "@/hooks/useDeviceDetect";
 import { ImageFile } from "../types";
-import { formatFileSize } from "@/lib/imageProcessing";
+import { formatFileSize } from "@/lib/processing/image";
 
 const { Text } = Typography;
 

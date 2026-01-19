@@ -20,7 +20,7 @@ import {
   DownOutlined,
   UpOutlined,
 } from "@ant-design/icons";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 const { Option } = Select;
 const { Title, Text } = Typography;

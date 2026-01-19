@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { Tooltip, Badge, Checkbox, message } from "antd";
 import { FaTrash, FaClock, FaEdit } from "react-icons/fa";
-import { Todo } from "@/lib/drizzle/schema/todo";
+import { Todo } from "@/lib/database/drizzle/schema/todo";
 import classNames from "classnames";
 import ConfirmModal from "@/components/ui/ConfirmModal";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 interface TodoItemProps {
   todo: Todo;

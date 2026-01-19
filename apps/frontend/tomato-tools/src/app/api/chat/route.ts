@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requestAI, requestAIStream } from "@/lib/aiClient";
-import { authorization } from "@/app/api/authorization";
+import { requestAI, requestAIStream } from "@/lib/clients/ai";
+import { authorization } from "@/lib/api/authorization";
 import type {
   AiUsageScene,
   AiConversationCategory,
@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
     let body;
     try {
       const text = await request.text();
-      console.log("[Chat API] 收到请求体:", text.substring(0, 200));
+      console.log("[Chat API] 收到请求�?", text.substring(0, 200));
 
       if (!text || text.trim().length === 0) {
-        console.error("[Chat API] 请求体为空");
+        console.error("[Chat API] 请求体为�?);
         return NextResponse.json(
           {
             success: false,
-            error: "请求体不能为空",
+            error: "请求体不能为�?,
           },
           { status: 400 },
         );
@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
       category = "general_chat" as AiConversationCategory,
       tags = [] as string[],
       description,
-      conversationHistory = [], // 对话历史上下文
+      conversationHistory = [], // 对话历史上下�?
       maxContextMessages = 10, // 最大上下文消息数量
-      systemPrompt, // 系统提示词
+      systemPrompt, // 系统提示�?
     } = body;
 
     console.log(
@@ -84,24 +84,24 @@ export async function POST(request: NextRequest) {
     // 获取API密钥
     const apiKey = process.env.TD_AGENT_API_KEY;
     if (!apiKey) {
-      console.error("[Chat API] API密钥未配置");
+      console.error("[Chat API] API密钥未配�?);
       return NextResponse.json(
         {
           success: false,
-          error: "AI服务配置错误，请联系管理员",
+          error: "AI服务配置错误，请联系管理�?,
         },
         { status: 500 },
       );
     }
 
-    // 获取请求元数据
+    // 获取请求元数�?
     const ipAddress =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("x-real-ip") ||
       "unknown";
     const userAgent = request.headers.get("user-agent") || "unknown";
 
-    // 如果是流式请求
+    // 如果是流式请�?
     if (stream) {
       const streamResponse = await requestAIStream({
         content: message.trim(),
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         timeout: 60000,
         "web-search": isOnlineSearch,
         stream: true,
-        // 上下文记忆参数
+        // 上下文记忆参�?
         conversationHistory,
         maxContextMessages,
         systemPrompt,
@@ -186,19 +186,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 非流式请求（保持原有逻辑）
+    // 非流式请求（保持原有逻辑�?
     const response = await requestAI({
       content: message.trim(),
       apiKey,
       model,
       timeout: 60000,
       "web-search": isOnlineSearch, // 联网查询参数
-      // 上下文记忆参数
+      // 上下文记忆参�?
       conversationHistory,
       maxContextMessages,
       systemPrompt,
       // 使用记录参数
-      userId, // 如果有userId则自动记录
+      userId, // 如果有userId则自动记�?
       scene,
       conversationCategory: category,
       conversationTags: tags,
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
         usage: response.data?.usage,
         model,
         duration,
-        tracked: !!userId, // 是否记录了使用情况
+        tracked: !!userId, // 是否记录了使用情�?
       });
     } else {
       console.error(`[Chat API] AI服务响应失败: ${response.error}`);
@@ -236,12 +236,12 @@ export async function POST(request: NextRequest) {
     }
   } catch (error: any) {
     const duration = Date.now() - startTime;
-    console.error(`[Chat API] 服务器错误 (${duration}ms):`, error);
+    console.error(`[Chat API] 服务器错�?(${duration}ms):`, error);
 
     return NextResponse.json(
       {
         success: false,
-        error: "服务器内部错误，请稍后重试",
+        error: "服务器内部错误，请稍后重�?,
         details:
           process.env.NODE_ENV === "development" ? error.message : undefined,
       },
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 支持OPTIONS请求（CORS预检）
+// 支持OPTIONS请求（CORS预检�?
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,

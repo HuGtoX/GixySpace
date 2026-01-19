@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authorization } from "@/app/api/authorization";
-import { createClient } from "@/lib/supabase/server";
+import { authorization } from "@/lib/api/authorization";
+import { createClient } from "@/lib/clients/supabase/server";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";
 
 // 定义上传文件的schema
 const uploadFileSchema = z.object({
-  bucket: z.string().default("avatars"), // 默认存储桶
-  folder: z.string().optional(), // 可选的文件夹路径
+  bucket: z.string().default("avatars"), // 默认存储�?
+  folder: z.string().optional(), // 可选的文件夹路�?
   fileName: z.string().optional(), // 可选的自定义文件名
 });
 
-// 支持的文件类型
+// 支持的文件类�?
 const ALLOWED_MIME_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -21,7 +21,7 @@ const ALLOWED_MIME_TYPES = [
   "image/svg+xml",
 ];
 
-// 最大文件大小 (5MB)
+// 最大文件大�?(5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 /**
@@ -30,11 +30,11 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
  *
  * 请求体：FormData
  * - file: File (必需)
- * - bucket: string (可选，默认为 "avatars")
- * - folder: string (可选，文件夹路径)
+ * - bucket: string (可选，默认�?"avatars")
+ * - folder: string (可选，文件夹路�?
  * - fileName: string (可选，自定义文件名)
  *
- * 响应：
+ * 响应�?
  * - success: { url: string, path: string, message: string }
  * - error: { error: string, details?: any }
  */
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       logger.warn("Unauthorized access attempt");
-      return NextResponse.json({ error: "未授权访问" }, { status: 401 });
+      return NextResponse.json({ error: "未授权访�? }, { status: 401 });
     }
 
     // 解析 FormData
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     if (!file) {
       logger.warn("No file provided");
       return NextResponse.json(
-        { error: "请提供要上传的文件" },
+        { error: "请提供要上传的文�? },
         { status: 400 },
       );
     }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "不支持的文件类型",
-          details: `仅支持: ${ALLOWED_MIME_TYPES.join(", ")}`,
+          details: `仅支�? ${ALLOWED_MIME_TYPES.join(", ")}`,
         },
         { status: 400 },
       );
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 生成文件名
+    // 生成文件�?
     const fileExt = file.name.split(".").pop();
     const fileName = customFileName || `${user.id}_${Date.now()}.${fileExt}`;
 
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       "Uploading file to Supabase Storage",
     );
 
-    // 创建 Supabase 客户端
+    // 创建 Supabase 客户�?
     const supabase = await createClient();
 
     // 将文件转换为 ArrayBuffer
@@ -123,12 +123,12 @@ export async function POST(request: NextRequest) {
     console.log("-- [ customFileName ] --", customFileName);
     console.log("-- [ filePath ] --", filePath);
 
-    // 上传文件到 Supabase Storage
+    // 上传文件�?Supabase Storage
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(filePath, buffer, {
         contentType: file.type,
-        upsert: false, // 不覆盖已存在的文件
+        upsert: false, // 不覆盖已存在的文�?
       });
 
     if (error) {
@@ -188,10 +188,10 @@ export async function POST(request: NextRequest) {
  * 从Supabase Storage删除文件
  *
  * 请求体：JSON
- * - path: string (必需，文件路径)
- * - bucket: string (可选，默认为 "avatars")
+ * - path: string (必需，文件路�?
+ * - bucket: string (可选，默认�?"avatars")
  *
- * 响应：
+ * 响应�?
  * - success: { message: string }
  * - error: { error: string, details?: any }
  */
@@ -208,10 +208,10 @@ export async function DELETE(request: NextRequest) {
 
     if (!user) {
       logger.warn("Unauthorized access attempt");
-      return NextResponse.json({ error: "未授权访问" }, { status: 401 });
+      return NextResponse.json({ error: "未授权访�? }, { status: 401 });
     }
 
-    // 解析请求体
+    // 解析请求�?
     const body = await request.json();
     const { path, bucket = "avatars" } = body;
 
@@ -219,7 +219,7 @@ export async function DELETE(request: NextRequest) {
     if (!path) {
       logger.warn("No file path provided");
       return NextResponse.json(
-        { error: "请提供要删除的文件路径" },
+        { error: "请提供要删除的文件路�? },
         { status: 400 },
       );
     }
@@ -233,10 +233,10 @@ export async function DELETE(request: NextRequest) {
       "Deleting file from Supabase Storage",
     );
 
-    // 创建 Supabase 客户端
+    // 创建 Supabase 客户�?
     const supabase = await createClient();
 
-    // 从 Supabase Storage 删除文件
+    // �?Supabase Storage 删除文件
     const { error } = await supabase.storage.from(bucket).remove([path]);
 
     if (error) {

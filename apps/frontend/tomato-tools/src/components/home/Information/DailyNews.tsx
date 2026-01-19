@@ -3,15 +3,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { FaCalendar, FaLink, FaHistory, FaClock } from "react-icons/fa";
 import { Divider, List, Button } from "antd";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 import { useRequest } from "ahooks";
 import { SixtySecondsData, HistoryTodayData } from "@gixy/types";
-import { SixtySecondsResponse } from "@/app/api/news/60s";
+import { SixtySecondsResponse } from "@/lib/api/news/sources/60s";
 import SectionCard from "@/components/ui/SectionCard";
 import Skeleton from "./Skeleton";
-// 默认显示的新闻条数
+
 const MAX_VISIBLE_ITEMS = 5;
-// 默认显示的历史事件条数
 const MAX_VISIBLE_HISTORY = 5;
 
 const DailyNews = () => {
@@ -59,7 +58,6 @@ const DailyNews = () => {
     loadData();
   }, [loadData]);
 
-  // 格式化日期
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("zh-CN", {
@@ -69,7 +67,6 @@ const DailyNews = () => {
     });
   };
 
-  // 获取月份和日期用于历史上的今天
   const getCurrentMonthDay = () => {
     const date = new Date();
     return date.toLocaleDateString("zh-CN", { month: "long", day: "numeric" });
@@ -168,7 +165,7 @@ const DailyNews = () => {
                       >
                         <p className="leading-relaxed">
                           <span className="mr-1 font-semibold text-orange-500 dark:text-orange-400">
-                            {item.year}年
+                            {item.year}�?
                           </span>
                           {item.title}
                         </p>

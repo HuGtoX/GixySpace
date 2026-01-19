@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createModuleLogger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/clients/supabase/server";
 
 const log = createModuleLogger("api-auth-send-verification-code");
 
@@ -24,10 +24,12 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     // 使用 Supabase 发送 Email OTP
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
+      options: {
+        shouldCreateUser: false, // 不自动创建用户，仅用于验证
+      },
     });
-
     if (error) {
       log.error("Failed to send Supabase Email OTP", {
         error: error.message,

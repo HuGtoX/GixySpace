@@ -19,7 +19,7 @@ function SectionCard({
 }: SectionCardProps) {
   const _className = plain
     ? ""
-    : "rounded-xl p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md shadow-lg border border-white/20 dark:border-gray-700/30";
+    : "rounded-xl p-4 glass-bg dark:bg-gray-800/70 backdrop-blur-md shadow-lg border border-white/20 dark:border-gray-700/30";
 
   const renderTitle = () => {
     if (typeof title === "string") {

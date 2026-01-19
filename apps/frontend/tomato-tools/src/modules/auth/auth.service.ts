@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/clients/supabase/server";
 import { UserService } from "../user/user.service";
 import { AnonymousService } from "./anonymous.service";
 import { createModuleLogger } from "@/lib/logger";

@@ -3,12 +3,12 @@
  * 用于记录和统计AI API的使用情况
  */
 
-import { db } from "@/lib/drizzle/client";
+import { db } from "@/lib/database/drizzle/client";
 import {
   aiUsageLogs,
   aiUsageStatistics,
   type NewAiUsageLog,
-} from "@/lib/drizzle/schema/aiUsage";
+} from "@/lib/database/drizzle/schema/aiUsage";
 import { eq, and, desc, sql } from "drizzle-orm";
 
 /**

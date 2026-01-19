@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { message, Spin, Button, Divider } from "antd";
 import { FaPlus, FaHistory } from "react-icons/fa";
 import SectionCard from "@/components/ui/SectionCard";
-import { Todo } from "@/lib/drizzle/schema/todo";
+import { Todo } from "@/lib/database/drizzle/schema/todo";
 import type { PaginationResponse } from "@/types";
 import TodoModal from "./EditModal";
 import ScrollContainer from "@/components/ui/ScrollContainer";
 import HistoryTodoModal from "./HistoryModal";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 import TodoItem from "./TodoItem";
 
 // 优先级排序权重

@@ -1,10 +1,10 @@
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 import type { ChatSession, ChatMessage } from "@/types/ai-chat";
 import type { ApiResponse } from "@/types";
 import {
   type AiChatSession,
   type AiChatMessage,
-} from "@/lib/drizzle/schema/schema";
+} from "@/lib/database/drizzle/schema/schema";
 
 // 生成会话标题
 export function generateSessionTitle(messages: ChatMessage[]): string {

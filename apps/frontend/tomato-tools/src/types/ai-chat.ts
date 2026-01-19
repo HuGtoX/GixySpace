@@ -11,7 +11,7 @@ export type {
   NewAiChatMessage as NewDbChatMessage,
   AiChatSessionWithMessages as DbChatSessionWithMessages,
   AiChatSessionWithUser as DbChatSessionWithUser,
-} from "@/lib/drizzle/schema/aiChat";
+} from "@/lib/database/drizzle/schema/aiChat";
 
 // 支持的AI模型类型
 export type SupportedModels =

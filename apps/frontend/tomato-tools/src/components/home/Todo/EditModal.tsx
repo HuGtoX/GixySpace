@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Select, Form, DatePicker, message } from "antd";
-import { Todo, AddTodo } from "@/lib/drizzle/schema/todo";
+import { Todo, AddTodo } from "@/lib/database/drizzle/schema/todo";
 import GModal from "@/components/ui/Modal";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 import dayjs from "dayjs";
 
 interface TodoModalProps {

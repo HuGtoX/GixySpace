@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Spin, message } from "antd";
 import { FaMapMarkerAlt, FaTrash, FaTint } from "react-icons/fa";
 import type { CityData } from "./CitySearch";
-import type { WeatherNowResponse } from "@/app/api/types";
+import type { WeatherNowResponse } from "@/lib/api/types";
 import "qweather-icons/font/qweather-icons.css";
 
 interface HistoryCityListProps {

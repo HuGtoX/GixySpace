@@ -2,7 +2,7 @@
 
 import { ImageViewer } from "@/components/ImageViewer";
 import { Container } from "@/components/toolsLayout/ToolsLayout";
-import { convertImageToSVG, saveImage } from "@/lib/imageProcessing";
+import { convertImageToSVG, saveImage } from "@/lib/processing/image";
 import { Col, Empty, message, Modal, Row } from "antd";
 import { useCallback, useState } from "react";
 import BatchActions from "../transform/components/BatchActions";

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/clients/supabase/server";
 import { UserService } from "../user/user.service";
 import { createModuleLogger } from "@/lib/logger";
 import type { User as SupabaseUser } from "@supabase/supabase-js";

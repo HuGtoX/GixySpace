@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createDbClient } from "@/lib/drizzle/client";
+import { createDbClient } from "@/lib/database/drizzle/client";
 import { AuthService } from "@/modules/auth/auth.service";
-import { authorization } from "../authorization";
+import { authorization } from "@/lib/api/authorization";
 import {
   todo,
   todoStatusEnum,
   todoPriorityEnum,
-} from "@/lib/drizzle/schema/todo";
+} from "@/lib/database/drizzle/schema/todo";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";

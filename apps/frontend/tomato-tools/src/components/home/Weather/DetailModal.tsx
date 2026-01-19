@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import type { WeatherDailyInfoResponse } from "@/app/api/types";
+import type { WeatherDailyInfoResponse } from "@/lib/api/types";
 import GModal from "@/components/ui/Modal";
 import type { CityData } from "./CitySearch";
 import WeatherChart from "./WeatherChart";

@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createModuleLogger } from "@/lib/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/clients/supabase/server";
 
 const log = createModuleLogger("api-auth-verify-code");
 
 // 验证码验证请求schema
 const verifyCodeSchema = z.object({
   email: z.string().email("无效的邮箱地址"),
-  code: z.string().min(6, "验证码至少需要6位"),
+  code: z.string().min(6, "验证码至少需�?�?),
 });
 
 /**
  * POST /api/auth/verify-code
- * 验证邮箱验证码
+ * 验证邮箱验证�?
  */
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "验证码错误或已过期",
+          error: "验证码错误或已过�?,
           details: error.message,
         },
         { status: 400 },
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "验证码验证成功",
+      message: "验证码验证成�?,
     });
   } catch (error) {
     log.error("Failed to verify code", { error });

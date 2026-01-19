@@ -6,7 +6,7 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
 } from "@ant-design/icons";
-import { formatFileSize } from "@/lib/imageProcessing";
+import { formatFileSize } from "@/lib/processing/image";
 
 const { Text } = Typography;
 

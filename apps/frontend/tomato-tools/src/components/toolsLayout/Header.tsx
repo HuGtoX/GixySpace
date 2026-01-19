@@ -72,7 +72,7 @@ const Header = () => {
 
   return (
     <Affix>
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 shadow-sm backdrop-blur-md dark:border-gray-700 dark:bg-gray-800/80">
+      <header className="sticky top-0 z-50 border-b bg-white/20 shadow-sm backdrop-blur-md dark:border-gray-700 dark:bg-gray-800/80">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center space-x-4">
             <div
@@ -92,10 +92,6 @@ const Header = () => {
                 番茄工具
               </div>
             </div>
-
-            {/* <div className="mx-8 hidden max-w-xl flex-1 items-center md:flex">
-              <Search className="w-full" placeholder="搜索工具或资讯..." />
-            </div> */}
           </div>
           <div className="flex items-center space-x-6">
             <Button

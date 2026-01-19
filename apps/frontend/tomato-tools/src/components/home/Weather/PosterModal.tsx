@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Modal, Button, Spin, message } from "antd";
 import Image from "next/image";
 import GModal from "@/components/ui/Modal";
-import type { WeatherPosterData } from "@/app/api/types";
-import axios from "@/lib/axios";
+import type { WeatherPosterData } from "@/lib/api/types";
+import axios from "@/lib/clients/http";
 
 interface PosterModalProps {
   visible: boolean;

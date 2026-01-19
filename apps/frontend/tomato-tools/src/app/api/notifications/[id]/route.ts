@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/lib/services/notification";
 import { createModuleLogger } from "@/lib/logger";
-import { requireAdmin } from "@/app/api/authorization";
+import { requireAdmin } from "@/lib/api/authorization";
 import { z } from "zod";
 const log = createModuleLogger("notification-detail-api");
 

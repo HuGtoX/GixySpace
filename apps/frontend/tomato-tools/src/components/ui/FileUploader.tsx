@@ -7,7 +7,7 @@ import {
   checkFileSizeLimit,
   createPreviewUrl,
   detectImageFormat,
-} from "@/lib/imageProcessing";
+} from "@/lib/processing/image";
 
 const { Dragger } = Upload;
 const { Text } = Typography;

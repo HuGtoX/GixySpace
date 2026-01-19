@@ -5,7 +5,7 @@ import { Form, Input, Button, Alert, Card } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 interface RegisterFormData {
   email: string;
@@ -56,7 +56,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       if (onSuccess) {
         onSuccess();
       } else {
-        // 延迟跳转到登录页面
+        // 延迟跳转到登录页�?
         setTimeout(() => {
           router.push("/auth/login");
         }, 2000);
@@ -91,7 +91,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       }
 
       setCodeSent(true);
-      setCountdown(60); // 60秒倒计时
+      setCountdown(60); // 60秒倒计�?
 
       // 倒计时逻辑
       const timer = setInterval(() => {
@@ -116,7 +116,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     return (
       <Card title="注册成功" className="mx-auto w-full max-w-md">
         <Alert
-          message="注册成功！"
+          message="注册成功�?
           description="您的账户已创建成功。正在跳转到登录页面..."
           type="success"
           showIcon
@@ -145,10 +145,10 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         layout="vertical"
         size="large"
       >
-        <Form.Item name="fullName" label="用户名">
+        <Form.Item name="fullName" label="用户�?>
           <Input
             prefix={<UserOutlined />}
-            placeholder="请输入昵称"
+            placeholder="请输入昵�?
             autoComplete="name"
           />
         </Form.Item>
@@ -157,13 +157,13 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="email"
           label="邮箱"
           rules={[
-            { required: true, message: "请输入邮箱" },
+            { required: true, message: "请输入邮�? },
             { type: "email", message: "请输入有效的邮箱地址" },
           ]}
         >
           <Input
             prefix={<MailOutlined />}
-            placeholder="请输入邮箱"
+            placeholder="请输入邮�?
             autoComplete="email"
             disabled={codeSent}
           />
@@ -171,10 +171,10 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
 
         <Form.Item
           name="code"
-          label="验证码"
+          label="验证�?
           rules={[
             { required: true, message: "请输入验证码" },
-            { min: 6, message: "验证码至少需要6位" },
+            { min: 6, message: "验证码至少需�?�? },
           ]}
         >
           <div className="flex gap-2">
@@ -193,7 +193,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
               {countdown > 0
                 ? `${countdown}s`
                 : codeSent
-                  ? "重新发送"
+                  ? "重新发�?
                   : "发送验证码"}
             </Button>
           </div>
@@ -203,8 +203,8 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           name="password"
           label="密码"
           rules={[
-            { required: true, message: "请输入密码" },
-            { min: 6, message: "密码至少需要6个字符" },
+            { required: true, message: "请输入密�? },
+            { min: 6, message: "密码至少需�?个字�? },
           ]}
         >
           <Input.Password
@@ -219,20 +219,20 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           label="确认密码"
           dependencies={["password"]}
           rules={[
-            { required: true, message: "请确认密码" },
+            { required: true, message: "请确认密�? },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue("password") === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error("两次输入的密码不一致"));
+                return Promise.reject(new Error("两次输入的密码不一�?));
               },
             }),
           ]}
         >
           <Input.Password
             prefix={<LockOutlined />}
-            placeholder="请再次输入密码"
+            placeholder="请再次输入密�?
             autoComplete="new-password"
           />
         </Form.Item>

@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { AuthService } from "@/modules/auth/auth.service";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";
-import { db } from "@/lib/drizzle/client";
-import { weatherPoster } from "@/lib/drizzle/schema/weatherPoster";
+import { db } from "@/lib/database/drizzle/client";
+import { weatherPoster } from "@/lib/database/drizzle/schema/weatherPoster";
 import { eq, and, sql } from "drizzle-orm";
 import type {
   ApiResponse,
   WeatherPosterData,
   WeatherPosterGenerateRequest,
   WeatherPosterGenerateResponse,
-} from "@/app/api/types";
+} from "@/lib/api/types";
 
 // 请求数据验证schema
 const posterRequestSchema = z.object({

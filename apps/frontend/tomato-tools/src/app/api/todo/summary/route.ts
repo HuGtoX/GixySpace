@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTodoSummaryPrompt } from "@/lib/prompts/todoSummary";
 import type { TodoSummaryRequest } from "@/types";
-import { authorization } from "../../authorization";
-import { todo } from "@/lib/drizzle/schema/todo";
-import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
-import { requestAIWithDefaultKey } from "@/lib/aiClient";
+import { authorization } from "@/lib/api/authorization";
+import { todo } from "@/lib/database/drizzle/schema/todo";
+import { aiSummary } from "@/lib/database/drizzle/schema/aiSummary";
+import { requestAIWithDefaultKey } from "@/lib/clients/ai";
 import { z } from "zod";
-import { createDbClient } from "@/lib/drizzle/client";
+import { createDbClient } from "@/lib/database/drizzle/client";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 // 扩展dayjs功能以支持周数格式化
 dayjs.extend(weekOfYear);
 
-// 生成总结标题的辅助函数
+// 生成总结标题的辅助函�?
 const generateSummaryTitle = (
   period: string,
   dateRange?: { start: string; end: string },
@@ -21,14 +21,14 @@ const generateSummaryTitle = (
   const now = dayjs();
   switch (period) {
     case "day":
-      return `${now.format("YYYY年MM月DD日")}工作总结`;
+      return `${now.format("YYYY年MM月DD�?)}工作总结`;
     case "week":
       // 获取本月的第几周
       const monthStart = now.startOf("month");
       const currentWeek = Math.ceil((now.date() + monthStart.day()) / 7);
       return `${now.format(`YYYY年MM月第${currentWeek}周`)}工作总结`;
     case "month":
-      return `${now.format("YYYY年MM月")}工作总结`;
+      return `${now.format("YYYY年MM�?)}工作总结`;
     case "all":
       return "全部任务工作总结";
     default:
@@ -36,7 +36,7 @@ const generateSummaryTitle = (
   }
 };
 
-// 生成时间周期标识的辅助函数
+// 生成时间周期标识的辅助函�?
 const generatePeriodIdentifier = (
   period: string,
   dateRange?: { start: string; end: string },
@@ -120,13 +120,13 @@ export async function POST(request: NextRequest) {
       .where(and(...conditions))
       .orderBy(todo.updatedAt);
 
-    console.log(`查询到 ${completedTodos.length} 个已完成的任务 (${period})`);
+    console.log(`查询�?${completedTodos.length} 个已完成的任�?(${period})`);
 
-    // 生成总结标题和周期标识
+    // 生成总结标题和周期标�?
     const title = generateSummaryTitle(period, dateRange);
     const periodIdentifier = generatePeriodIdentifier(period, dateRange);
 
-    // 创建新记录
+    // 创建新记�?
     const summaryRecord = await dbClient.db
       .insert(aiSummary)
       .values({
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 生成AI提示词
+    // 生成AI提示�?
     const prompt = getTodoSummaryPrompt(period as any, {
       userName: user.user_metadata.name || "用户",
       todos: JSON.stringify(
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     const summaryContent = aiResult.content!;
 
-    // 更新总结记录为完成状态
+    // 更新总结记录为完成状�?
     await dbClient.db
       .update(aiSummary)
       .set({
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("AI总结生成失败:", error);
 
-    // 如果有summaryId，更新错误状态
+    // 如果有summaryId，更新错误状�?
     if (summaryId) {
       try {
         const dbClient = createDbClient();
@@ -220,11 +220,11 @@ export async function POST(request: NextRequest) {
           })
           .where(eq(aiSummary.id, summaryId));
       } catch (updateError) {
-        console.error("更新总结错误状态失败:", updateError);
+        console.error("更新总结错误状态失�?", updateError);
       }
     }
 
-    // 返回友好的错误信息
+    // 返回友好的错误信�?
     if (error.response?.status === 401) {
       return NextResponse.json(
         { error: "AI服务认证失败，请检查API密钥配置" },
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "生成AI总结时发生错误", details: error.message },
+      { error: "生成AI总结时发生错�?, details: error.message },
       { status: 500 },
     );
   }
@@ -307,7 +307,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("获取总结列表失败:", error);
     return NextResponse.json(
-      { error: "获取总结列表时发生错误", details: error.message },
+      { error: "获取总结列表时发生错�?, details: error.message },
       { status: 500 },
     );
   }

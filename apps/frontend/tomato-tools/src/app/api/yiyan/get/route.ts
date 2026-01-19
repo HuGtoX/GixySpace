@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq, sql } from "drizzle-orm";
-import { createDbClient } from "@/lib/drizzle/client";
-import { dailySentences } from "@/lib/drizzle/schema/schema";
+import { createDbClient } from "@/lib/database/drizzle/client";
+import { dailySentences } from "@/lib/database/drizzle/schema/schema";
 import { createModuleLogger } from "@/lib/logger";
 import { DailySentence } from "@gixy/types";
 

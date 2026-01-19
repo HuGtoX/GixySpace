@@ -1,0 +1,58 @@
+import { fetchNewsWithCache } from "@/lib/cache/redis";
+import {
+  handleApiError,
+  createSuccessResponse,
+  InternalServerError,
+} from "@/lib/errors/handler";
+
+interface Res {
+  data: {
+    word_list: {
+      sentence_id: string;
+      word: string;
+      event_time: string;
+      hot_value: string;
+    }[];
+  };
+}
+
+export async function GET() {
+  try {
+    const data = await fetchNewsWithCache("douyin", async () => {
+      const url =
+        "https://www.douyin.com/aweme/v1/web/hot/search/list/?device_platform=webapp&aid=6383&channel=channel_pc_web&detail_list=1";
+
+      // 获取cookie
+      const cookieResponse = await fetch(
+        "https://www.douyin.com/passport/general/login_guiding_strategy/?aid=6383",
+      );
+      const cookie = cookieResponse.headers.getSetCookie();
+
+      // 请求热点数据
+      const response = await fetch(url, {
+        headers: {
+          cookie: cookie?.join("; ") || "",
+        },
+      });
+
+      if (!response.ok) {
+        throw new InternalServerError("Failed to fetch Douyin hot topics");
+      }
+
+      const res: Res = await response.json();
+
+      // 格式化结果
+      return res.data.word_list.map((item) => ({
+        id: item.sentence_id,
+        title: item.word,
+        url: `https://www.douyin.com/hot/${item.sentence_id}`,
+        hotValue: item.hot_value,
+        eventTime: item.event_time,
+      }));
+    });
+
+    return createSuccessResponse(data);
+  } catch (error) {
+    return handleApiError(error, undefined, "/api/news?source=douyin");
+  }
+}

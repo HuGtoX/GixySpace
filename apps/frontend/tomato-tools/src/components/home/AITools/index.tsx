@@ -40,7 +40,7 @@ const AIToolItem = ({
   onClick,
 }: AIToolItemProps) => {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-white p-2 shadow-sm dark:bg-gray-800">
+    <div className="flex items-center justify-between p-2">
       <div className="flex items-center space-x-3">
         <div
           className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${bgColor}`}

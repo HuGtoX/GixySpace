@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createModuleLogger } from "@/lib/logger";
-import { authorization } from "@/app/api/authorization";
+import { authorization } from "@/lib/api/authorization";
 import { AnonymousService } from "@/modules/auth/anonymous.service";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/clients/supabase/server";
 
 const log = createModuleLogger("api-auth-bind-email");
 
 // 绑定邮箱验证schema
 const bindEmailSchema = z.object({
   email: z.string().email("无效的邮箱地址"),
-  code: z.string().length(6, "验证码必须是6位数字"),
+  code: z.string().length(6, "验证码必须是6位数"),
   password: z.string().min(6, "密码至少需要6个字符"),
   fullName: z.string().optional(),
 });
@@ -19,7 +19,7 @@ const bindEmailSchema = z.object({
  * POST /api/auth/bind-email
  * 绑定邮箱升级匿名用户
  *
- * 流程：
+ * 流程
  * 1. 验证当前用户是否为匿名用户
  * 2. 使用 Supabase 验证 Email OTP
  * 3. 将匿名用户转换为正式用户（绑定邮箱和密码）
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
       token: code.toString(),
-      type: "email_change",
+      type: "email",
     });
 
     if (verifyError) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 转换为正式用户（绑定邮箱）
+    // 转换为正式用户（绑定邮箱�?
     const anonymousService = new AnonymousService();
     const result = await anonymousService.convertToRegularUser(
       currentUser.id,

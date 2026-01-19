@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Line } from "react-chartjs-2";
-import type { WeatherForecastResponse } from "@/app/api/types";
+import type { WeatherForecastResponse } from "@/lib/api/types";
 
 // 注册 Chart.js 组件
 ChartJS.register(

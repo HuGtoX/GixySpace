@@ -10,7 +10,7 @@ import {
 import SystemAvatarGrid, { SYSTEM_AVATARS } from "./SystemAvatarGrid";
 import ImageCropper from "./ImageCropper";
 import FileUploader, { AcceptMap } from "@/components/ui/FileUploader";
-import { uploadBase64ToStorage } from "@/lib/uploadUtils";
+import { uploadBase64ToStorage } from "@/lib/utils/upload";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface AvatarUploadModalProps {

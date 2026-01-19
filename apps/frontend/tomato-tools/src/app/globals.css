@@ -49,6 +49,41 @@ html,
 body {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* body背景图及蒙版效果 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/bg1.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -2;
+}
+
+/* 颜色蒙版层 */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(229, 241, 253, 0.2);
+  /* backdrop-filter: blur(1px); */
+  z-index: -1;
+}
+
+/* 暗黑模式蒙版 */
+.dark body::after {
+  background-color: rgba(17, 24, 39, 0.9); /* 深色模式蒙版 */
 }
 
 html::-webkit-scrollbar,
@@ -403,7 +438,7 @@ body::-webkit-scrollbar-thumb:hover {
 .glass-bg {
   border-radius: 0.75rem; /* rounded-xl */
   padding: 1rem; /* p-4 */
-  background-color: rgba(255, 255, 255, 0.7); /* bg-white/70 */
+  background-color: rgba(255, 255, 255, 0.8); /* bg-white/90 */
   backdrop-filter: blur(12px); /* backdrop-blur-md */
   -webkit-backdrop-filter: blur(12px); /* 兼容Safari */
   border: 1px solid rgba(255, 255, 255, 0.2); /* border border-white/20 */

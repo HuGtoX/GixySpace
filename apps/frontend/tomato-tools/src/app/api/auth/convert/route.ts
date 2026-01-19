@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AnonymousService } from "@/modules/auth/anonymous.service";
-import { authorization } from "@/app/api/authorization";
+import { authorization } from "@/lib/api/authorization";
 import { createModuleLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";
 

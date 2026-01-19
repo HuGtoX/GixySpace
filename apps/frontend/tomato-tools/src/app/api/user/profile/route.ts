@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authorization } from "@/app/api/authorization";
+import { authorization } from "@/lib/api/authorization";
 import { UserService } from "@/modules/user/user.service";
 import { createRequestLogger, generateCorrelationId } from "@/lib/logger";
 import { z } from "zod";

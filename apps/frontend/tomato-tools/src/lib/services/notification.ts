@@ -1,5 +1,5 @@
 import { eq, desc, and, count, sql, or, isNull } from "drizzle-orm";
-import { db } from "@/lib/drizzle/client";
+import { db } from "@/lib/database/drizzle/client";
 import {
   notification,
   userNotification,
@@ -9,7 +9,7 @@ import {
   type NewNotification,
   type NotificationWithStats,
   type UserNotificationWithDetails,
-} from "@/lib/drizzle/schema/schema";
+} from "@/lib/database/drizzle/schema/schema";
 import { createModuleLogger } from "@/lib/logger";
 import { EmailService } from "@/lib/services/email";
 

@@ -9,9 +9,7 @@ interface ContainerProps {
 
 const Container = ({ children, className = "" }: ContainerProps) => {
   return (
-    <div
-      className={`min-h-screen bg-gray-50 transition-colors dark:bg-gray-900 ${className}`}
-    >
+    <div className={`min-h-screen transition-colors ${className}`}>
       {children}
     </div>
   );

@@ -6,8 +6,8 @@ import { Skeleton } from "antd";
 import Image from "next/image";
 import ActionButton from "@/components/ui/ActionButton";
 import ScrollContainer from "@/components/ui/ScrollContainer";
-import axios from "@/lib/axios";
-import CacheStorage from "@/lib/storage";
+import axios from "@/lib/clients/http";
+import CacheStorage from "@/lib/utils/storage";
 import SectionCard from "@/components/ui/SectionCard";
 import { useRequest } from "ahooks";
 import { SixtySecondsData } from "@gixy/types";
@@ -40,7 +40,7 @@ const HotNewsCard = ({ title, icon, bg, type, color }: HotNewsCardProps) => {
     { manual: true },
   );
 
-  // 初始加载和刷新功能
+  // 初始加载和刷新功�?
   const loadData = useCallback(
     (refresh?: boolean) => {
       fetchNews(refresh)

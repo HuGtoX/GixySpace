@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Wallpaper } from "@gixy/types";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 export async function GET() {
   const res = await axios.get<Wallpaper>("https://60s.viki.moe/v2/bing");

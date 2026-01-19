@@ -2,7 +2,7 @@ import { useState, useMemo, useRef } from "react";
 import { Select, Spin } from "antd";
 import { debounce } from "@gixy/utils";
 import { ApiResponse } from "@/types";
-import axios from "@/lib/axios";
+import axios from "@/lib/clients/http";
 
 // 城市数据接口
 export interface CityData {

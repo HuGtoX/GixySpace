@@ -31,10 +31,10 @@ import {
   imageFilesToFrames,
   mergeGifFiles,
   suggestBaseName,
-} from "@/lib/gifProcessing";
+} from "@/lib/processing/gif";
 import { saveAs } from "file-saver";
 import { gifConvertInstructions } from "./instructions";
-import { formatFileSize } from "@/lib/imageProcessing";
+import { formatFileSize } from "@/lib/processing/image";
 
 const { Text } = Typography;
 

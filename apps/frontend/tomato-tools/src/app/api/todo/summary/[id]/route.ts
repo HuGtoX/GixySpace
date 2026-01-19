@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authorization } from "../../../authorization";
-import { createDbClient } from "@/lib/drizzle/client";
-import { aiSummary } from "@/lib/drizzle/schema/aiSummary";
+import { authorization } from "@/lib/api/authorization";
+import { createDbClient } from "@/lib/database/drizzle/client";
+import { aiSummary } from "@/lib/database/drizzle/schema/aiSummary";
 import { eq, and } from "drizzle-orm";
 
 export async function GET(
