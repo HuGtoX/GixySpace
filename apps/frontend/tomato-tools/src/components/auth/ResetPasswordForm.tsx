@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Form, Input, Button, Alert, Card } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState } from "react";
+import { Form, Input, Button, Alert, Card } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface ResetPasswordFormData {
   email: string;
@@ -24,10 +24,11 @@ export default function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const [form] = Form.useForm();
 
-  // 检查是否有重置令牌（更新密码模式）
+  // 检查是否处于更新密码模式（通过检查URL路径或特定参数）
   React.useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
+    // 如果URL包含特定参数表示是从邮件链接跳转过来的
+    const type = searchParams.get("type");
+    if (type === "recovery") {
       setIsUpdateMode(true);
     }
   }, [searchParams]);
@@ -37,23 +38,25 @@ export default function ResetPasswordForm() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, redirectUrl: location.origin }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send reset email');
+        throw new Error(data.error || "Failed to send reset email");
       }
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset email');
+      setError(
+        err instanceof Error ? err.message : "Failed to send reset email",
+      );
     } finally {
       setLoading(false);
     }
@@ -64,35 +67,31 @@ export default function ResetPasswordForm() {
     setError(null);
 
     try {
-      const token = searchParams.get('token');
-      if (!token) {
-        throw new Error('Invalid reset token');
-      }
-
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'PUT',
+      // 直接使用已建立的session更新密码，不需要传递token
+      const response = await fetch("/api/auth/reset-password", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          token,
           newPassword: values.newPassword,
         }),
       });
-
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update password');
+        throw new Error(data.error || "Failed to update password");
       }
 
       setSuccess(true);
       // 延迟跳转到登录页面
       setTimeout(() => {
-        router.push('/auth/login');
+        router.push("/auth/login");
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update password');
+      setError(
+        err instanceof Error ? err.message : "Failed to update password",
+      );
     } finally {
       setLoading(false);
     }
@@ -100,11 +99,14 @@ export default function ResetPasswordForm() {
 
   if (success) {
     return (
-      <Card title={isUpdateMode ? "密码更新成功" : "重置邮件已发送"} className="w-full max-w-md mx-auto">
+      <Card
+        title={isUpdateMode ? "密码更新成功" : "重置邮件已发送"}
+        className="mx-auto w-full max-w-md"
+      >
         <Alert
           message={isUpdateMode ? "密码更新成功！" : "重置邮件已发送！"}
           description={
-            isUpdateMode 
+            isUpdateMode
               ? "您的密码已成功更新。正在跳转到登录页面..."
               : "请检查您的邮箱并点击重置链接来更新密码。"
           }
@@ -112,8 +114,11 @@ export default function ResetPasswordForm() {
           showIcon
         />
         {!isUpdateMode && (
-          <div className="text-center mt-4">
-            <Link href="/auth/login" className="text-blue-600 hover:text-blue-800">
+          <div className="mt-4 text-center">
+            <Link
+              href="/auth/login"
+              className="text-blue-600 hover:text-blue-800"
+            >
               返回登录
             </Link>
           </div>
@@ -124,7 +129,7 @@ export default function ResetPasswordForm() {
 
   if (isUpdateMode) {
     return (
-      <Card title="设置新密码" className="w-full max-w-md mx-auto">
+      <Card title="设置新密码" className="mx-auto w-full max-w-md">
         {error && (
           <Alert
             message={error}
@@ -135,7 +140,7 @@ export default function ResetPasswordForm() {
             className="mb-4"
           />
         )}
-        
+
         <Form
           form={form}
           name="updatePassword"
@@ -147,8 +152,8 @@ export default function ResetPasswordForm() {
             name="newPassword"
             label="新密码"
             rules={[
-              { required: true, message: '请输入新密码' },
-              { min: 6, message: '密码至少需要6个字符' },
+              { required: true, message: "请输入新密码" },
+              { min: 6, message: "密码至少需要6个字符" },
             ]}
           >
             <Input.Password
@@ -161,15 +166,15 @@ export default function ResetPasswordForm() {
           <Form.Item
             name="confirmPassword"
             label="确认新密码"
-            dependencies={['newPassword']}
+            dependencies={["newPassword"]}
             rules={[
-              { required: true, message: '请确认新密码' },
+              { required: true, message: "请确认新密码" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('newPassword') === value) {
+                  if (!value || getFieldValue("newPassword") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('两次输入的密码不一致'));
+                  return Promise.reject(new Error("两次输入的密码不一致"));
                 },
               }),
             ]}
@@ -197,7 +202,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <Card title="重置密码" className="w-full max-w-md mx-auto">
+    <Card title="重置密码" className="mx-auto w-full max-w-md">
       {error && (
         <Alert
           message={error}
@@ -208,7 +213,7 @@ export default function ResetPasswordForm() {
           className="mb-4"
         />
       )}
-      
+
       <Form
         form={form}
         name="resetPassword"
@@ -220,8 +225,8 @@ export default function ResetPasswordForm() {
           name="email"
           label="邮箱"
           rules={[
-            { required: true, message: '请输入邮箱' },
-            { type: 'email', message: '请输入有效的邮箱地址' },
+            { required: true, message: "请输入邮箱" },
+            { type: "email", message: "请输入有效的邮箱地址" },
           ]}
         >
           <Input
@@ -242,15 +247,21 @@ export default function ResetPasswordForm() {
           </Button>
         </Form.Item>
 
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <div>
-            <Link href="/auth/login" className="text-blue-600 hover:text-blue-800">
+            <Link
+              href="/auth/login"
+              className="text-blue-600 hover:text-blue-800"
+            >
               返回登录
             </Link>
           </div>
           <div>
-            还没有账号？{' '}
-            <Link href="/auth/register" className="text-blue-600 hover:text-blue-800">
+            还没有账号？{" "}
+            <Link
+              href="/auth/register"
+              className="text-blue-600 hover:text-blue-800"
+            >
               立即注册
             </Link>
           </div>
