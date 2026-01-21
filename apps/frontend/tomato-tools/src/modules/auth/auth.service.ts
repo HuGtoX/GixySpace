@@ -25,6 +25,7 @@ export interface LoginData {
 }
 
 export interface ResetPasswordData {
+  redirectUrl: string;
   email: string;
 }
 
@@ -358,7 +359,7 @@ export class AuthService {
       const { error: authError } = await supabase.auth.resetPasswordForEmail(
         data.email,
         {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
+          redirectTo: `${data.redirectUrl}/auth/callback?next=/auth/reset-password`,
         },
       );
 
@@ -395,6 +396,50 @@ export class AuthService {
         "Password reset email error",
       );
       return { error: "Failed to send password reset email" };
+    }
+  }
+
+  // 更新密码（使用当前session）
+  async updatePasswordWithSession(data: {
+    newPassword: string;
+  }): Promise<{ error: string | null }> {
+    this.logger.info("Password update attempt with session");
+
+    try {
+      const supabase = await createClient();
+
+      // 验证当前用户是否已登录
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        this.logger.error(
+          { error: userError?.message },
+          "No authenticated user found for password update",
+        );
+        return { error: "未找到已认证的用户，请重新点击邮件中的重置链接" };
+      }
+
+      // 使用当前session更新密码
+      const { error: authError } = await supabase.auth.updateUser({
+        password: data.newPassword,
+      });
+
+      if (authError) {
+        this.logger.error(
+          { error: authError.message, userId: user.id },
+          "Password update failed",
+        );
+        return { error: authError.message };
+      }
+
+      this.logger.info({ userId: user.id }, "Password updated successfully");
+      return { error: null };
+    } catch (error) {
+      this.logger.error({ error }, "Password update error");
+      return { error: "Failed to update password" };
     }
   }
 

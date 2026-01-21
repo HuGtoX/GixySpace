@@ -5,12 +5,12 @@ import { z } from "zod";
 
 // 密码重置请求验证schema
 const resetPasswordSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  redirectUrl: z.string("Invalid redirect URL"),
+  email: z.string("Invalid email format"),
 });
 
 // 更新密码请求验证schema
 const updatePasswordSchema = z.object({
-  token: z.string().min(1, "Token is required"),
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -42,13 +42,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = validationResult.data;
+    const { email, redirectUrl } = validationResult.data;
 
     // 创建认证服务实例
     const authService = new AuthService(correlationId);
 
     // 发送密码重置邮件
-    const result = await authService.sendPasswordResetEmail({ email });
+    const result = await authService.sendPasswordResetEmail({
+      email,
+      redirectUrl,
+    });
 
     if (result.error) {
       logger.error(
@@ -111,13 +114,13 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { token, newPassword } = validationResult.data;
+    const { newPassword } = validationResult.data;
 
     // 创建认证服务实例
     const authService = new AuthService(correlationId);
 
-    // 更新密码
-    const result = await authService.updatePassword({ token, newPassword });
+    // 更新密码（使用当前session）
+    const result = await authService.updatePasswordWithSession({ newPassword });
 
     if (result.error) {
       logger.error({ error: result.error }, "Password update failed");
